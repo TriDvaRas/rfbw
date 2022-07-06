@@ -1,0 +1,203 @@
+:root {
+  --wheel-font: 'Lato', 'Quicksand', sans-serif;
+  --wheel-size: 800px;
+  --wheel-slice-spacing: 15px;
+  --wheel-border-size: 5px;
+  --wheel-color: #2b2744;
+  --neutral-color: white;
+  --border-color: white;
+  --dot-color: white;
+  --pointer-color: white;
+  --PI: 3.14159265358979;
+  --nb-item: 1;
+  --item-nb: 0;
+  --spinning-duration: 8s;
+  --reset-duration: 0.5s;
+  --item-bg-height: 50%;
+  --rotate-for: 360deg;
+  --scale-factor: 1;
+  --container-height: var(--item-bg-height);
+  --wheel-radius: calc(var(--wheel-size)/2);
+}
+
+/* .wheel-card, .wheel-container, .wheel-container *{
+  transform: scale(var(--scale-factor));
+} */
+
+.wheel-container {
+  display: block;
+  position: relative;
+  box-sizing: content-box;
+  width: calc(var(--wheel-size)* var(--scale-factor) + 2 * var(--wheel-border-size));
+  height: calc(var(--wheel-size)* var(--scale-factor) + 2 * var(--wheel-border-size));
+  padding: 3px;
+  margin: auto;
+  background-color: var(--border-color);
+  border: solid var(--wheel-color) 3px;
+  border-radius: 50%;
+  user-select: none;
+}
+
+.wheel-container::before, .wheel-container::after {
+  content: '';
+  display: block;
+  position: absolute;
+  height: 0;
+  width: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  border: solid transparent 20px;
+  border-left-width: 0;
+}
+
+.wheel-container::before {
+  right: 0px;
+  border-right-color: var(--wheel-color);
+}
+
+.wheel-container::after {
+  right: -5px;
+  border-right-color: var(--pointer-color);
+}
+
+.wheel {
+  display: block;
+  position: relative;
+  box-sizing: content-box;
+  margin: auto;
+  width: calc(var(--wheel-size) * var(--scale-factor));
+  height: calc(var(--wheel-size) * var(--scale-factor));
+  overflow: hidden;
+  border-radius: 50%;
+  border: solid var(--wheel-color) var(--wheel-border-size);
+  background-color: var(--wheel-color);
+  transition: transform var(--reset-duration);
+  transform: rotate(0deg);
+}
+
+.wheel.spinning {
+  transition: transform var(--spinning-duration);
+  transform: rotate(var(--rotate-for));
+  transition-timing-function: cubic-bezier(0.070, 0.995, 0.000, 1.000);
+}
+
+.wheel.prespinning {
+  transition: transform 30s;
+  transform: rotate(-660deg);
+  transition-timing-function: ease;
+}
+
+.wheel::after {
+  display: block;
+  position: absolute;
+  content: '';
+  background-color: var(--dot-color);
+  width: 25px;
+  height: 25px;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.wheel-item {
+  display: block;
+  position: absolute;
+  box-sizing: border-box;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  transform-origin: center left;
+  transform: translateY(-50%) rotate(calc(var(--item-nb) * (360deg / var(--nb-item, 1))));
+  color: var(--neutral-color);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 25px 0 50px;
+  font-family: var(--wheel-font);
+  font-size: calc(2em * var(--scale-factor));
+  color: aliceblue;
+  height: calc(var(--item-bg-height) * var(--scale-factor));
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+  border: solid var(--border-color) calc(var(--slice-width) / 2);
+}
+
+.wheel-preview {
+  display: block;
+  position: relative;
+  box-sizing: content-box;
+  height: calc(var(--item-bg-height) * var(--scale-factor));
+  overflow: hidden;
+  clip-path: circle(var(--wheel-radius) at 0 50%);
+  background-color: #0000;
+  transition: transform var(--reset-duration);
+  transform: rotate(0deg);
+}
+
+.wheel-item-preview {
+  display: block;
+  position: absolute;
+  box-sizing: border-box;
+  top: 0%;
+  left: 0%;
+  width: 100%;
+  transform-origin: center left;
+  color: var(--neutral-color);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 25px 0 50px;
+  font-family: var(--wheel-font);
+  font-size: calc(2em * var(--scale-factor));
+  color: aliceblue;
+  height: calc(var(--item-bg-height) * var(--scale-factor));
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+  border: solid var(--border-color) calc(var(--slice-width) / 2);
+}
+
+.wheel-effects {
+  background-color: #FF1493;
+  border: solid #FF1493 var(--wheel-border-size);
+  animation:  bgColor 10s infinite linear;
+}
+
+@keyframes bgColor {
+  0% {
+    background-color: #FF1493;
+    border-color: #FF1493;
+  }
+  12.5% {
+    background-color: #FF0000;
+    border-color: #FF0000;
+  }
+  25% {
+    background-color: #FFA500;
+    border-color: #FFA500;
+  }
+  37.5% {
+    background-color: #FFFF00;
+    border-color: #FFFF00;
+  }
+  50% {
+    background-color: #7FFF00;
+    border-color: #7FFF00;
+  }
+  62.5% {
+    background-color: #00FFFF;
+    border-color: #00FFFF;
+  }
+  75% {
+    background-color: #0000FF;
+    border-color: #0000FF;
+  }
+  87.5% {
+    background-color: #9932CC;
+    border-color: #9932CC;
+  }
+  100% {
+    background-color: #FF1493;
+    border-color: #FF1493;
+  }
+}
