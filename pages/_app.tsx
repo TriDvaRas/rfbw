@@ -1,8 +1,31 @@
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
+import { ReactElement, ReactNode, useEffect } from 'react'
+import { NextPage } from 'next'
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+import useSWR from "swr";
+import { SessionProvider } from "next-auth/react"
+import '../styles/custom.sass'
+import '../styles/scrollbars.sass'
+import '../styles/rect-img.sass';
+import '../styles/image-upload.sass';
+import 'simplebar/dist/simplebar.min.css';
+
+export type NextPageWithLayout = NextPage & {
+  getLayout?: (page: ReactElement) => ReactNode
+}
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout
+}
+
+function MyApp({ Component, pageProps: { session, ...pageProps } }: AppPropsWithLayout) {
+  const getLayout = Component.getLayout ?? ((page) => page)
+  const egg = { enabled: false } //TODO
+  return <SessionProvider session={session}>
+    <div id="app" className={`mh-100 bg-dark-900 ${egg.enabled ? `body-egg` : ``}`}>
+      {getLayout(<Component {...pageProps} />)}
+    </div>
+  </SessionProvider>
 }
 
 export default MyApp

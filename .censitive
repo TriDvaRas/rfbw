@@ -1,0 +1,2 @@
+.env:.*_KEY,.*_TOKEN,.*_PASSWORD,*_SECRET
+.env.local:.*_KEY,.*_TOKEN,.*_PASSWORD,*_SECRET
