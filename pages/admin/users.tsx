@@ -1,4 +1,6 @@
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { Row, Col } from 'react-bootstrap';
 import { useWindowSize } from 'usehooks-ts';
 import AdminNavCard from '../../components/admin/AdminNavCard';
@@ -10,11 +12,16 @@ import { NextPageWithLayout } from '../_app';
 const Home: NextPageWithLayout = () => {
   const { height, width } = useWindowSize()
   const maxCardHeight = height - 56 - 32
+  const session = useSession()
+  const router = useRouter()
+  if (session.status == 'unauthenticated' || (session.status == 'authenticated' && !session.data.user.isAdmin))
+    router.replace(`/404`)
+
   return <Row className=" pr-3">
-    <Col xs={2} className="h-100 " style={{ height: maxCardHeight }}>
+    <Col xs={12} lg={2} className="h-100 " style={width < 768 ? {} : { height: maxCardHeight }}>
       <AdminNavCard cardHeight={maxCardHeight} />
     </Col>
-    <Col xs={10} className="h-100 pe-4" style={{ height: maxCardHeight }}>
+    <Col xs={12} lg={10} className="h-100 pe-4" style={width < 768 ? {} : { height: maxCardHeight }}>
       <AdminUsers cardHeight={maxCardHeight} />
     </Col>
   </Row >

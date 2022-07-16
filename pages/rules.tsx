@@ -1,15 +1,12 @@
 import { Card } from 'react-bootstrap';
-import CustomScroll from 'react-custom-scroll';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
-import { useWindowSize, useElementSize } from 'usehooks-ts';
 import LoadingDots from '../components/LoadingDots';
 import useRules from '../data/useRules';
-import getThinLayout from '../layouts/thin';
+import GetThinLayout from '../layouts/thin';
 import { bgColors, fgColors } from '../util/highlightColors';
 import { highlightMdAll } from '../util/lines';
 import { NextPageWithLayout } from './_app';
-import GetThinScrollableLayout from '../layouts/thinScrollable';
 
 const Rules: NextPageWithLayout = () => {
   const rules = useRules()
@@ -32,6 +29,6 @@ const Rules: NextPageWithLayout = () => {
     </Card>
   )
 }
-Rules.getLayout = GetThinScrollableLayout
+Rules.getLayout = GetThinLayout
 export default Rules
 

@@ -11,7 +11,7 @@ import PlayerAboutCard from '../../components/player/PlayerAboutCard';
 import PlayerAboutCardEdit from '../../components/player/PlayerAboutCardEdit';
 import { useState, useEffect } from 'react';
 import MeNavCard from '../../components/me/MeNavCard';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 
 const Home: NextPageWithLayout = () => {
   const { height, width } = useWindowSize()
@@ -21,7 +21,8 @@ const Home: NextPageWithLayout = () => {
   const [displayName, setDisplayName] = useState<string | undefined>()
   const [about, setAbout] = useState<string | undefined>()
   const [imageId, setImageId] = useState<string | undefined>()
-
+  if (session.status == 'unauthenticated')
+    signIn()
 
   return <Container fluid>
     {

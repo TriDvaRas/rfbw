@@ -13,6 +13,7 @@ import axios, { AxiosError } from 'axios';
 import { ApiError } from '../../types/common-api';
 import ImageUpload from '../ImageUpload';
 import { useSession } from 'next-auth/react';
+import { parseApiError } from '../../util/error';
 
 interface Props {
     player: Player
@@ -50,7 +51,7 @@ export default function PlayerAboutCardEdit(props: Props) {
             props.onSaved(data.data)
         }).catch((err: AxiosError<ApiError>) => {
             setIsSaving(false)
-            setError(typeof err.response?.data == 'object' ? err.response.data : { error: err.message || 'Unknown Error', status: +(err.status || 500) })
+            setError(parseApiError(err))
         })
     }
     useEffect(() => {

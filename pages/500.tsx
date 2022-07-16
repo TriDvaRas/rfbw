@@ -6,9 +6,9 @@ import Error from 'next/error';
 
 const Error500: NextPageWithLayout = ({ errorCode }: any) => {
   return (
-    <>
+    <div className='error-container'>
       <Error statusCode={errorCode} title='Ты все сломал. Молодец' />
-    </>
+    </div>
   )
 }
 Error500.getLayout = getDefaultLayout

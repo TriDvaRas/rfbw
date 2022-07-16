@@ -4,8 +4,8 @@ import {
 } from 'react-bootstrap';
 
 import { Player } from '../../database/db';
-import TheImage from '../TheImage';
-import TheImagePlaceholder from '../TheImagePlaceholder';
+import TheImage from '../image/TheImage';
+import TheImagePlaceholder from '../image/TheImagePlaceholder';
 import SingleStat from './SingleStat';
 interface Props {
     name: string
@@ -17,8 +17,6 @@ interface Props {
 }
 export default function PlayerAboutCard(props: Props) {
     const { name, about, id, points, place, imageId } = props
-    console.log(props);
-    
     return (
         <Card
             bg='dark'

@@ -9,20 +9,16 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<Rules | ApiError | null>
 ) {
-    const session = await unstable_getServerSession(req, res, authOptions)
-    if (session)
-        try {
-            const rules = await Rules.findOne({
-                order: [['timestamp', 'DESC']]
-            })
-            if (rules)
-                res.send(rules)
-            else
-                res.status(404).send({ error: 'А где', status: 404 })
-        } catch (error: any) {
-            res.status(500).send({ error: error.message, status: 500 })
-        }
-    else
-        res.status(403).send({ error: 'Иди нахуй', status: 403 })
+    try {
+        const rules = await Rules.findOne({
+            order: [['timestamp', 'DESC']]
+        })
+        if (rules)
+            res.send(rules)
+        else
+            res.status(404).send({ error: 'А где', status: 404 })
+    } catch (error: any) {
+        res.status(500).send({ error: error.message, status: 500 })
+    }
 
 }

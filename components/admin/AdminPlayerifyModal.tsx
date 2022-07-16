@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
 import { ApiError } from '../../types/common-api';
 import ImageUpload from '../ImageUpload';
+import { parseApiError } from '../../util/error';
 
 interface Props {
     sourceUser?: User;
@@ -25,9 +26,7 @@ export default function AdminPlayerifyModal(props: Props) {
     const { sourceUser } = props
     const [displayName, setDisplayName] = useState(sourceUser?.name || '')
     const [about, setAbout] = useState('')
-    const [picFile, setPicFile] = useState<File | null>()
     const [image, setImage] = useState<Image | undefined>()
-    const [isDraging, setIsDraging] = useState(false)
     const [error, setError] = useState<ApiError | undefined>()
     const [isImageUploading, setIsImageUploading] = useState(false)
 
@@ -54,7 +53,7 @@ export default function AdminPlayerifyModal(props: Props) {
             props.onSaved(data.data)
         }).catch((err: AxiosError<ApiError>) => {
             props.setIsSaving(false)
-            setError(typeof err.response?.data == 'object' ? err.response.data : { error: err.message || 'Unknown Error', status: +(err.status || 500) })
+            setError(parseApiError(err))
         })
 
     }
@@ -101,30 +100,6 @@ export default function AdminPlayerifyModal(props: Props) {
                                         }}
 
                                     />
-                                    {/* <Dropzone
-                                        onDropAccepted={handleDrop}
-                                        accept={{ 'image/png': ['.png'], 'image/jpg': ['.jpg', '.jpeg'] }}
-                                        maxFiles={1}
-                                        maxSize={2 * 5242880}
-                                        multiple={false}
-                                        onDrop={() => setIsDraging(false)}
-                                        onDragEnter={() => setIsDraging(true)}
-                                        onDragLeave={() => setIsDraging(false)}
-                                    >
-                                        {({ getRootProps, getInputProps }) =>
-                                            <Form.Group  {...getRootProps()}>
-                                                {//@ts-ignore
-                                                    <Form.Control as={'input'} {...getInputProps()} />}
-                                                <Card className={
-                                                    `bg-dark-900 
-                                            ${isDraging ? 'bg-dark-700' : ''} 
-                                            ${picFile ? 'px-2 ' : 'text-center'}`}
-                                                    style={{ cursor: 'pointer', minHeight: 38 }}>
-                                                    {picFile ? <span className='  my-auto'>{picFile.name}</span> : <i className="bi bi-upload fs-2"></i>}
-                                                </Card>
-                                            </Form.Group>
-                                        }
-                                    </Dropzone> */}
                                 </Form.Group>
                                 {
                                     error && <Form.Group className='mt-3'><Alert className='mb-0' variant={'danger'}>
@@ -138,7 +113,7 @@ export default function AdminPlayerifyModal(props: Props) {
             </Modal.Body>
             {!!sourceUser && <Modal.Footer className='bg-dark-750 text-light border-dark'>
                 <Button variant='secondary' onClick={handleCancel}>Отмена</Button>
-                <Button variant='primary' onClick={handleSubmit}>{props.isSaving ? <Spinner size='sm' animation="border" /> : 'Сохранить'}</Button>
+                <Button variant='primary' onClick={handleSubmit} disabled={isImageUploading || props.isSaving}>{props.isSaving ? <Spinner size='sm' animation="border" /> : 'Сохранить'}</Button>
             </Modal.Footer>}
         </Modal>
     )

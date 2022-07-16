@@ -1,13 +1,7 @@
-import axios, { AxiosError } from 'axios';
-import React, { useState } from 'react';
 import {
-    Card, Form, Image as ReactImage, ProgressBar,
+    Card, Image as ReactImage
 } from 'react-bootstrap';
-import Dropzone from 'react-dropzone';
-import { resolveImageFilePath } from '../util/image';
-import { ApiError } from '../types/common-api';
-import { Image } from '../database/db';
-import useImage from '../data/useImage';
+
 
 interface Props {
     container: 'card' | 'raw'

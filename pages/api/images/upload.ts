@@ -5,7 +5,7 @@ import sharp from 'sharp'
 import { Image, User } from '../../../database/db'
 import adminOnly from '../../../middleware/adminOnly'
 import commonErrorHandlers from '../../../middleware/commonErrorHandlers'
-import requireApiSession from '../../../middleware/requireApiSession copy'
+import requireApiSession from '../../../middleware/requireApiSession'
 import { ApiError } from '../../../types/common-api'
 
 export const config = {
@@ -63,3 +63,5 @@ function getBigSize(type: string) {
             return 1500
     }
 }
+
+//

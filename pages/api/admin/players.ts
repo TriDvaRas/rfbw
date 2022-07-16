@@ -6,7 +6,7 @@ import { authOptions } from "../auth/[...nextauth]"
 import nextConnect from 'next-connect';
 import { createRouter } from "next-connect";
 import adminOnly from '../../../middleware/adminOnly'
-import requireApiSession from '../../../middleware/requireApiSession copy'
+import requireApiSession from '../../../middleware/requireApiSession'
 import multer from 'multer'
 import commonErrorHandlers from '../../../middleware/commonErrorHandlers'
 

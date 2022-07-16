@@ -7,6 +7,7 @@ import Dropzone from 'react-dropzone';
 import { resolveImageFilePath } from '../util/image';
 import { ApiError } from '../types/common-api';
 import { Image } from '../database/db';
+import { parseApiError } from '../util/error';
 
 interface Props {
     onDrop?: (fileURL: string) => void;
@@ -16,9 +17,10 @@ interface Props {
     onError: (err: ApiError) => void
     allowGif?: boolean
     imageType: Image['type']
+    compact?: boolean
 }
 export default function ImageUpload(props: Props) {
-    const { onDrop, onUploaded, placeholderUrl, onError, allowGif, onUploadStarted } = props
+    const { onDrop, onUploaded, placeholderUrl, onError, allowGif, onUploadStarted, compact } = props
 
     const [imagePreview, setImagePreview] = useState<string | undefined>(placeholderUrl)
     const [isDraging, setIsDraging] = useState(false)
@@ -48,9 +50,10 @@ export default function ImageUpload(props: Props) {
             })
             .catch((err: AxiosError<ApiError>) => {
                 setIsUploading(false)
-                onError(typeof err.response?.data == 'object' ? err.response.data : { error: err.message || 'Unknown Error', status: +(err.status || 500) })
+                onError(parseApiError(err))
             })
     }
+    const height = compact ? 36 : 40
     return (
         < Dropzone
             onDropAccepted={handleDrop}
@@ -70,17 +73,17 @@ export default function ImageUpload(props: Props) {
                     }
                     <Card
                         className={`bg-dark-900 image-upload-container ${isDraging ? 'bg-dark-700' : ''}`}
-                        style={{ cursor: 'pointer', minHeight: 42, maxHeight: 42 }}
+                        style={{ cursor: 'pointer', minHeight: height + 2, maxHeight: height + 2, borderColor: '#332b3f' }}
                     >
                         {imagePreview ? [
                             <ReactImage key={1} alt={'img'} src={resolveImageFilePath(imagePreview, 'comp')} className='image-upload-image' />,
                             isUploading ? <div key={3} className='image-upload-overlay-loading  '>
-                                <ProgressBar now={100 * uploadProgress} style={{ height: 40 }} />
+                                <ProgressBar now={100 * uploadProgress} style={{ height: height }} />
                             </div> :
-                                <div key={2} className='image-upload-overlay'><i className="bi bi-upload fs-3"></i></div>
+                                <div key={2} className='image-upload-overlay'><i className="bi bi-upload" style={{ fontSize: compact ? '1.50rem' : '1.75rem' }}></i></div>
                         ] : [
                             <div key={1} className='image-upload-overlay'></div>,
-                            <i key={2} className="bi bi-upload fs-3"></i>
+                            <i key={2} className="bi bi-upload" style={{ fontSize: compact ? '1.50rem' : '1.75rem' }}></i>
                         ]}
                     </Card>
                 </Form.Group>

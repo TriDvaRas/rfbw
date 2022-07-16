@@ -67,6 +67,8 @@ export const authOptions: NextAuthOptions = {
             return params.session
         },
     },
-
+    pages: {
+        signIn: `/auth/signin`,
+    },
 }
 export default NextAuth(authOptions)

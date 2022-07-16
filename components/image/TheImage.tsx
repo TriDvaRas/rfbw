@@ -4,11 +4,11 @@ import {
     Card, Form, Image as ReactImage, ProgressBar,
 } from 'react-bootstrap';
 import Dropzone from 'react-dropzone';
-import { resolveImageFilePath } from '../util/image';
-import { ApiError } from '../types/common-api';
-import { Image } from '../database/db';
-import useImage from '../data/useImage';
-import LoadingDots from './LoadingDots';
+import { resolveImageFilePath } from '../../util/image';
+import { ApiError } from '../../types/common-api';
+import { Image } from '../../database/db';
+import useImage from '../../data/useImage';
+import LoadingDots from '../LoadingDots';
 
 interface Props {
     container: 'card' | 'raw'

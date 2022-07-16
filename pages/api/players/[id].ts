@@ -3,7 +3,7 @@ import { unstable_getServerSession } from 'next-auth/next'
 import { createRouter } from 'next-connect'
 import { Player } from '../../../database/db'
 import commonErrorHandlers from '../../../middleware/commonErrorHandlers'
-import requireApiSession from '../../../middleware/requireApiSession copy'
+import requireApiSession from '../../../middleware/requireApiSession'
 import { ApiError } from '../../../types/common-api'
 import { authOptions } from "../auth/[...nextauth]"
 

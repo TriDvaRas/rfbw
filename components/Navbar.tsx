@@ -7,6 +7,7 @@ import LoadingDots from './LoadingDots';
 import Link from 'next/link'
 import { useRouter } from 'next/router';
 import { useSession, signIn, signOut } from "next-auth/react"
+import { Button } from 'react-bootstrap';
 interface Props {
 }
 const Bar = ({ }: Props) => {
@@ -62,10 +63,15 @@ const Bar = ({ }: Props) => {
                                     </Row> :
                                     <Nav.Link
                                         // href="/auth" 
-                                        onClick={() => signIn()}
-                                        className=""
+                                        onClick={() => signIn('discord', { redirect: false })}
+                                        className="mx-3"
+                                        as={Button}
+                                        variant='outline-info'
+                                        style={{ padding: 7 }}
                                     >
-                                        <h5 className='mb-0'>Login <i className="bi bi-discord"></i></h5>
+                                        <h5 className='mb-0 mx-1'>
+                                            Sign In <i className="bi bi-discord"></i>
+                                        </h5>
                                     </Nav.Link>
                         }
                     </Nav>

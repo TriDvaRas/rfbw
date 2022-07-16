@@ -100,6 +100,7 @@ export class Player extends Model {
     declare ended: number
     declare dropped: number
     declare rerolled: number
+    declare maxWheels: number
 }
 Player.init({
     id: {
@@ -129,20 +130,186 @@ Player.init({
     ended: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
     dropped: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
     rerolled: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    maxWheels: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
 }, {
     sequelize,
     modelName: 'players',
 })
 
 
+export class Audio extends Model {
+    declare id: string
+    declare addedById: string
+    declare type: 'wheel' | 'other'
+    declare filePath: string
+    declare mime: string
+}
+Audio.init({
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    addedById: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: User,
+            key: 'id'
+        }
+    },
+    type: { type: DataTypes.STRING(64), allowNull: false },
+    mime: { type: DataTypes.STRING(64), allowNull: false },
+    filePath: { type: DataTypes.TEXT, allowNull: false },
+}, {
+    sequelize,
+    modelName: 'audios',
+})
+
+export class Wheel extends Model {
+    declare id: string
+    declare ownedById: string
+    declare addedById: string
+    declare title: string
+    declare borderColor: string
+    declare pointerColor: string
+    declare backgroundColor: string
+    declare dotColor: string
+    declare minimalSpin: number
+    declare audioId?: string
+    declare minSize: number
+    declare maxSize: number
+    declare size: number
+    declare approved: boolean
+    declare locked: boolean
+}
+Wheel.init({
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    addedById: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Player,
+            key: 'id'
+        }
+    },
+    ownedById: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Player,
+            key: 'id'
+        }
+    },
+    title: { type: DataTypes.STRING(64), allowNull: false, defaultValue: 'Колесо' },
+    borderColor: { type: DataTypes.STRING(10), allowNull: false, defaultValue: '#ffffff' },
+    pointerColor: { type: DataTypes.STRING(10), allowNull: false, defaultValue: '#ffffff' },
+    backgroundColor: { type: DataTypes.STRING(10), allowNull: false, defaultValue: '#2b2744' },
+    dotColor: { type: DataTypes.STRING(10), allowNull: false, defaultValue: '#ffffff' },
+    minimalSpin: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 20 },
+    audioId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    },
+    minSize: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 5 },
+    maxSize: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 20 },
+    size: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 5 },
+    locked: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    approved: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+}, {
+    sequelize,
+    modelName: 'wheels',
+})
+
+
+export type WheelItemType = 'game' | 'movie' | 'anime' | 'series';
+
+export type WheelItemImageMode = 'height' | 'width';
+
+export class WheelItem extends Model {
+    declare id: string
+    declare wheelId: string
+    declare addedById: string
+    declare ownedById: string
+    declare position: number
+    declare label: string
+    declare title: string
+    declare altColor: string
+    declare fontColor: string
+    declare hours: number
+    declare showText: boolean
+    declare deleted: boolean
+    declare imageId?: string
+    declare imageMode: WheelItemImageMode
+    declare type: WheelItemType
+    declare comments: string
+    declare hasCoop: boolean
+    declare maxCoopPlayers: number
+    declare hasDifficulty: boolean
+    declare audioId?: string
+}
+
+
+WheelItem.init({
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    wheelId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Wheel,
+            key: 'id'
+        }
+    },
+    addedById: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Player,
+            key: 'id'
+        }
+    },
+    ownedById: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Player,
+            key: 'id'
+        }
+    },
+    position: { type: DataTypes.INTEGER, allowNull: false },
+    label: { type: DataTypes.STRING(16), allowNull: false, defaultValue: 'Название' },
+    title: { type: DataTypes.STRING(192), allowNull: false, defaultValue: 'Длинное название' },
+    altColor: { type: DataTypes.STRING(10), allowNull: false, defaultValue: '#2b2744' },
+    fontColor: { type: DataTypes.STRING(10), allowNull: false, defaultValue: '#ffffff' },
+    hours: { type: DataTypes.DECIMAL(3, 1), allowNull: false, defaultValue: 0.0 },
+    showText: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+    deleted: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    imageId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    },
+    imageMode: { type: DataTypes.STRING(10), allowNull: false, defaultValue: 'width' },
+    type: { type: DataTypes.STRING(10), allowNull: false, defaultValue: 'game' },
+    comments: { type: DataTypes.TEXT, allowNull: false, defaultValue: '' },
+    hasCoop: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    maxCoopPlayers: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
+    hasDifficulty: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    audioId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    },
+}, {
+    sequelize,
+    modelName: 'wheelitems',
+})
 
 
 //TODO remove
 export function syncTables() {
-    return Promise.all([
-        // User.sync({ alter: true }),
-        // Rules.sync({ alter: true }),
-        Image.sync({ force: true }),
-        // Player.sync({ force: true }),
-    ])
+    if (process.env.DEV_DEV)
+        return Promise.all([
+            // User.sync({ force: true }),
+            // Rules.sync({ force: true }),
+            // Image.sync({ force: true }),
+            // Player.sync({ force: true }),
+            // Audio.sync({ force: true }),
+            Wheel.sync({ force: true }),
+            WheelItem.sync({ force: true }),
+        ])
 }

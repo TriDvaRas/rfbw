@@ -7,6 +7,7 @@ import ImageWithPreview from '../../components/ImageWithPreview';
 import useAllUsers from '../../data/useAllUsers';
 import { User } from '../../database/db';
 import AdminPlayerifyModal from './AdminPlayerifyModal';
+import LoadingDots from '../LoadingDots';
 
 interface Props {
     cardHeight: number;
@@ -24,7 +25,7 @@ export default function AdminUsers(props: Props) {
         >
             <Card.Header><h3>Пользователи</h3></Card.Header>
             <div style={{ height: props.cardHeight - 68 }}>
-                <Table variant="dark" className='mb-0 '>
+                {!users.users ? <LoadingDots /> : <Table variant="dark" className='mb-0 '>
                     <thead className='bg-dark-700'>
                         <tr>
                             {/* <th>id</th> */}
@@ -37,7 +38,7 @@ export default function AdminUsers(props: Props) {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.users?.map(user =>
+                        {users.users.map(user =>
                             <tr key={user.id}>
                                 {/* <td className='td-min-width'>{user.id}</td> */}
                                 <td className='py-0 td-min-width'>
@@ -59,13 +60,22 @@ export default function AdminUsers(props: Props) {
                             </tr>
                         )}
                     </tbody>
-                </Table>
+                </Table>}
                 <AdminPlayerifyModal
                     show={!!playerifyUser}
                     isSaving={isSaving}
                     setIsSaving={setIsSaving}
                     sourceUser={playerifyUser}
-                    onSaved={() => setPlayerifyUser(undefined)}
+                    onCancel={() => {
+                        setPlayerifyUser(undefined)
+                    }}
+                    onSaved={(player) => {
+                        if (users.users) {
+                            (users.users.find(x => x.id == player.id) as User).isPlayer = true
+                            users.mutate(users.users)
+                        }
+                        setPlayerifyUser(undefined)
+                    }}
                 />
             </div>
         </Card>

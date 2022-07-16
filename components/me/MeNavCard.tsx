@@ -19,9 +19,8 @@ export default function MeNavCard(props: Props) {
             <Card.Header><h3>Кнопачки всякие</h3></Card.Header>
             <div style={{ height: props.cardHeight - 68 }}>
                 <div className='p-3'>
-
-                    <Button variant='secondary' className={`shadow w-100 mb-3`} onClick={() => router.replace(`/me/wheel`)}>
-                        {'Мое колесо'}
+                    <Button variant='secondary' className={`shadow w-100 mb-3`} onClick={() => router.replace(`/wheeleditor`)}>
+                        {'Редактор колес'}
                     </Button>
                     <Button variant='secondary' className={`shadow w-100 mb-3`} onClick={() => signOut()} >
                         {'Выйти(из аккаунта)'}
