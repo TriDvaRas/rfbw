@@ -56,9 +56,9 @@ export default router
 function getBigSize(type: string) {
     switch (type) {
         case 'player':
-            return 800
+            return 1000
         case 'wheelitem':
-            return 1200
+            return 1400
         default:
             return 1500
     }
