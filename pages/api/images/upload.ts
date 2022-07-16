@@ -22,9 +22,13 @@ export default router
     .use(upload.single('image') as any)
     .post(async (req, res: NextApiResponse<Image | ApiError>) => {
         if (req.file) {//TODO file resize
-            const rawImage = await sharp(req.file.buffer)
+            const rawImage =  sharp(req.file.buffer)
             const meta = await rawImage.metadata()
+
             const bigSize = getBigSize(req.body.type)
+            if ((meta.height && meta.height < bigSize) || (meta.width && meta.width < bigSize)) 
+                return res.status(400).json({ error: 'Найди нормальное качество картинки уебище...', status: 400 })
+            
             const bigBuffer = await ((bigSize < (meta.height || 10000) && bigSize < (meta.width || 10000) ?
                 rawImage.resize(bigSize, bigSize, { fit: 'outside' }) : rawImage)
                 .toBuffer())
