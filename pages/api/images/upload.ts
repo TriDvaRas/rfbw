@@ -14,7 +14,7 @@ export const config = {
         externalResolver: true,
     }
 }
-const upload = multer({ storage: multer.memoryStorage() })
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } })
 const router = createRouter<NextApiRequest, NextApiResponse>();
 
 export default router
