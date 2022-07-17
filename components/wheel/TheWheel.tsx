@@ -19,8 +19,7 @@ interface Props {
 
     //! spin
     selectItemIndex?: number;
-    spinDuration?: number;
-    fullSpins?: number;
+    spinDuration?: number
     spin?: boolean;
     prespin?: boolean;
     extraSpin?: number;
@@ -31,15 +30,18 @@ interface Props {
 export default function TheWheel(props: Props) {
     const {
         wheel, items, idleSpin, height, onItemClick, withTitle, disabledItemIds, noCard, highlightItemId, onlyPreviewImages, noArrow,
-        selectItemIndex, spinDuration, fullSpins, spin, prespin, extraSpin, autoSpinAfter
+        selectItemIndex, spinDuration, spin, prespin, extraSpin, autoSpinAfter
     } = props
+
     const { width } = useWindowSize()
     // const egg = useSelector(selectEggState) //TODO
-
     const [autoSpin, setAutoSpin] = useState(false)
     useTimeout(() => {
         setAutoSpin(true)
     }, autoSpinAfter || null)
+    const isSpinning = autoSpin || spin ? 'spinning' : prespin ? 'prespinning' : '';
+    const fullSpins = wheel.minimalSpin;
+
     const wheelSize = 800
     const itemDegr = 360 / props.items.length
     const r = wheelSize / 2
@@ -62,12 +64,12 @@ export default function TheWheel(props: Props) {
         '--pointer-color': wheel.pointerColor,
         // 'opacity': 0.6,
     };
-    const isSpinning = autoSpin || spin ? 'spinning' : prespin ? 'prespinning' : '';
+
 
     const wheelDiv = <div>
         {withTitle && wheel.title && <h2 className='text-center mb-3'>{wheel.title}</h2>}
         <div className={`wheel-container ${noArrow ? '' : 'wheel-container-with-arrow'}`} style={wheelVars}>
-            <div className={`${idleSpin && `inf-rotate`} ${isSpinning} wheel`} style={wheelVars}>
+            <div className={`${idleSpin ? `inf-rotate` : ''} ${isSpinning} wheel`} style={wheelVars}>
                 {items.map((item, index) => <TheWheelSlice
                     onlyPreviewImage={onlyPreviewImages}
                     key={item.id}

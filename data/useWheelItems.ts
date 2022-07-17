@@ -7,7 +7,7 @@ import fetcher from '../util/fetcher';
 
 
 export default function useWheelItems(wheelId: string) {
-  const { data, mutate, error: _error } = useSWR<WheelItem[], AxiosError<ApiError>>(`/api/wheels/${wheelId}/items`, fetcher);
+  const { data, mutate, error: _error } = useSWR<WheelItem[], AxiosError<ApiError>>(wheelId ? `/api/wheels/${wheelId}/items` : null, fetcher);
   const error = _error && (typeof _error.response?.data == 'object' ? _error.response.data : { error: _error.message || 'Unknown Error', status: +(_error.status || 500) })
 
   const loading = !data && !error;

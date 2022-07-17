@@ -7,9 +7,9 @@ import fetcher from '../util/fetcher';
 
 
 export default function useImage(imageId: string, preview?: boolean) {
-  const { data, mutate, error: _error } = useSWR<Image, AxiosError<ApiError>>(`/api/images/${imageId || 'me'}${preview ? '' : '/full'}`, fetcher);
+  const { data, mutate, error: _error } = useSWR<Image, AxiosError<ApiError>>(imageId ? `/api/images/${imageId || 'me'}${preview ? '' : '/full'}` : null, fetcher);
   const error = _error && (typeof _error.response?.data == 'object' ? _error.response.data : { error: _error.message || 'Unknown Error', status: +(_error.status || 500) })
-  
+
   const loading = !data && !error;
   const loggedOut = error && error.status === 403;
 

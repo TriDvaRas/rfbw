@@ -16,6 +16,8 @@ import { Wheel, WheelItem } from '../../database/db';
 import GetThinLayout from '../../layouts/thin';
 import { ApiError } from "../../types/common-api";
 import { NextPageWithLayout } from "../_app";
+import useDelayedState from 'use-delayed-state'
+import { randomInt } from '../../util/random';
 
 interface Props {
 
@@ -34,6 +36,14 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
     const maxCardWidth = width - 56 - 32
 
     const [newItemLoading, setNewItemLoading] = useState(false)
+
+    const [isIdleSpinning, setIsIdleSpinning, cancelSetIsIdleSpinning] = useDelayedState(true)
+    const [isSpinning, setIsSpinning, cancelSetIsSpinning] = useDelayedState(false)
+    const [isPrespinning, setIsPrespinning, cancelSetIsPrespinning] = useDelayedState(false)
+    const [spinDuration, setSpinDuration] = useState(60)
+
+    const [spinSelectIndex, setSpinSelectIndex, cancelSetSpinSelectIndex] = useDelayedState(0)
+    const [spinExtraSpin, setSpinExtraSpin, cancelSetSpinExtraSpin] = useDelayedState(0)
 
     const [localWheel, setLocalWheel] = useState<Wheel | undefined>()
     const [localWheelItems, setLocalWheelItems] = useState<WheelItem[] | undefined>()
@@ -92,10 +102,15 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
                 <TheWheel
                     withTitle
                     items={wheelItems.wheelItems}
-                    idleSpin
+                    idleSpin={isIdleSpinning}
                     height={Math.min(maxCardHeight * 4 / 5, maxCardWidth) - 56}
                     wheel={localWheel}
                     onItemClick={onItemClick}
+                    spin={isSpinning}
+                    prespin={isPrespinning}
+                    spinDuration={spinDuration}
+                    selectItemIndex={spinSelectIndex}
+                    extraSpin={spinExtraSpin}
                 />
             </Col>
             <Col xl={4} lg={12} className='mh-100 mb-3 pb-3 p-0'>
@@ -103,6 +118,24 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
                     wheel={localWheel}
                     onUpdate={(upd) => setLocalWheel({ ...localWheel, ...upd } as Wheel)}
                     maxHeight={Math.min(maxCardHeight * 4 / 5, maxCardWidth) + 2}
+                    doTestSpin={(duration) => {
+                        if (duration && duration > 0) {
+                            setSpinDuration(duration)
+                            setIsIdleSpinning(false)
+                            setIsPrespinning(true, 10)
+                            setIsSpinning(true, 15500)
+                            setSpinSelectIndex(randomInt(0, localWheelItems?.length || 5), 15500)
+                            setSpinExtraSpin(Math.random() * .995 - .5, 15500)
+                        }
+                        else {
+                            setIsPrespinning(false)
+                            setIsIdleSpinning(true)
+                            cancelSetIsSpinning()
+                            cancelSetSpinSelectIndex()
+                            cancelSetSpinExtraSpin()
+                            setIsSpinning(false)
+                        }
+                    }}
                     onReset={() => {
                         setLocalWheel(wheel.wheel)
                     }}
@@ -123,7 +156,6 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
                         onSelectEdit={setSelectedItem}
                         onAddNew={onItemAdd}
                         newLoading={newItemLoading}
-
                     />
                 }
             </Col>

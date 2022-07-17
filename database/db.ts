@@ -148,6 +148,7 @@ export class Audio extends Model {
     declare addedById: string
     declare type: 'wheel' | 'other'
     declare filePath: string
+    declare originalName: string
     declare mime: string
     declare createdAt: string
     declare updatedAt: string
@@ -165,6 +166,7 @@ Audio.init({
     type: { type: DataTypes.STRING(64), allowNull: false },
     mime: { type: DataTypes.STRING(64), allowNull: false },
     filePath: { type: DataTypes.TEXT, allowNull: false },
+    originalName: { type: DataTypes.TEXT, allowNull: false },
 }, {
     sequelize,
     modelName: 'audios',
@@ -320,8 +322,8 @@ export function syncTables() {
             // Rules.sync({ force: true }),
             // Image.sync({ force: true }),
             // Player.sync({ force: true }),
-            // Audio.sync({ force: true }),
-            Wheel.sync({ force: true }),
-            WheelItem.sync({ force: true }),
+            // Audio.sync({ alter: true }),
+            // Wheel.sync({ force: true }),
+            // WheelItem.sync({ force: true }),
         ])
 }

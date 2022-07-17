@@ -1,6 +1,6 @@
 import { Card, Alert, Row, Col, Form, Button, Badge, Spinner } from 'react-bootstrap';
 import { useWindowSize } from 'usehooks-ts';
-import { Wheel, WheelItem } from '../../database/db';
+import { Audio, Wheel, WheelItem } from '../../database/db';
 import TheWheelSlice from './TheWheelSlice';
 import useWheel from '../../data/useWheel';
 import LoadingDots from '../LoadingDots';
@@ -11,6 +11,8 @@ import { useState } from 'react';
 import { ApiError } from '../../types/common-api';
 import { parseApiError } from '../../util/error';
 import { useRef } from 'react';
+import AudioUpload from '../AudioUpload';
+import ReactAudioPlayer from 'react-audio-player';
 
 interface Props {
     wheel: Wheel
@@ -18,10 +20,11 @@ interface Props {
     onUpdate?: (upd: Partial<Wheel>) => void
     onReset?: () => void
     onSave?: () => Promise<any>
+    doTestSpin?: (duration?: number) => void
 }
 
 export default function TheWheelSettings(props: Props) {
-    const { wheel, onUpdate, maxHeight, onReset, onSave } = props
+    const { wheel, onUpdate, maxHeight, onReset, onSave, doTestSpin } = props
     const border = hexRgb(wheel.borderColor || `#fff`)
     const bg = hexRgb(wheel.backgroundColor || `#fff`)
     const dot = hexRgb(wheel.dotColor || `#fff`)
@@ -31,6 +34,8 @@ export default function TheWheelSettings(props: Props) {
 
     const formRef = useRef<HTMLFormElement>()
     const [validated, setValidated] = useState(false)
+
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     function handleColorUpdate(field: 'dotColor' | 'backgroundColor' | 'borderColor' | 'pointerColor', color: IColor) {
         const upd: Partial<Wheel> = {}
@@ -63,7 +68,8 @@ export default function TheWheelSettings(props: Props) {
         }
     };
 
-    const maxSpin = 98
+    const minSpin = 69
+    const maxSpin = 420
     return (
         <Card
             bg='dark'
@@ -123,9 +129,9 @@ export default function TheWheelSettings(props: Props) {
                                 <h4>Минимум оборотов</h4>
                                 <Badge className='ms-1 m-auto'>New</Badge>
                             </div>
-                            <Form.Control required type={'number'} step={1} min={5} max={maxSpin} defaultValue={wheel.minimalSpin} isValid={validated ? !!wheel.minimalSpin && wheel.minimalSpin >= 5 && wheel.minimalSpin <= maxSpin : undefined} onChange={(e) => handleChange({ minimalSpin: +e.target.value })} />
+                            <Form.Control required type={'number'} step={1} min={minSpin} max={maxSpin} defaultValue={wheel.minimalSpin} isValid={validated ? !!wheel.minimalSpin && wheel.minimalSpin >= minSpin && wheel.minimalSpin <= maxSpin : undefined} onChange={(e) => handleChange({ minimalSpin: +e.target.value })} />
                             <Form.Control.Feedback type="invalid">
-                                {!wheel.minimalSpin || wheel.minimalSpin < 5 ? 'Слабенько. Давай побольше' : 'Ну это ты загнул. Успокойся '}
+                                {!wheel.minimalSpin || wheel.minimalSpin < minSpin ? 'Слабенько. Давай побольше' : 'Ну это ты загнул. Успокойся '}
                             </Form.Control.Feedback>
                             <Form.Text className="text-dark-200">
                                 Длительность всегда 40 секунд (но это не точно)
@@ -136,6 +142,27 @@ export default function TheWheelSettings(props: Props) {
                                 <h4>Звук прокрутки</h4>
                                 <Badge className='ms-1 m-auto'>Soon™</Badge>
                             </div>
+                            <AudioUpload
+                                type='wheel'
+                                audioId={wheel.audioId}
+                                onUploaded={(audio) => {
+                                    handleChange({ audioId: audio.id })
+                                }} onError={(err) => {
+                                    setError(err)
+                                }} />
+                            {
+                                wheel.audioId && <ReactAudioPlayer
+                                    ref={audioRef as any}
+                                    src={`/api/audios/${wheel.audioId}`}
+                                    volume={0.05}
+                                    // controls
+                                    preload='auto'
+                                    onEnded={() => {
+                                        if (doTestSpin)
+                                            doTestSpin(0)
+                                    }}
+                                />
+                            }
                         </Col>
                         {error ?
                             <Col>
@@ -149,6 +176,20 @@ export default function TheWheelSettings(props: Props) {
             </Card.Body>
             {/* <Card.Footer> */}
             <div className='d-flex justify-content-end m-3'>
+                <Button variant='warning' onClick={() => {
+                    const ae = (audioRef.current as any)?.audioEl.current as HTMLAudioElement
+                    if (ae.paused) {
+                        ae.play()
+                        if (doTestSpin)
+                            doTestSpin(153-15.5)
+                    }
+                    else {
+                        ae.pause()
+                        ae.currentTime = 0
+                        if (doTestSpin)
+                            doTestSpin(0)
+                    }
+                }}>{(audioRef.current as any)?.audioEl.current.paused ? 'Тест' : 'Стоп'}</Button>
                 <div className="flex-grow-1 me-auto"></div>
                 <Button className='ms-3' variant='secondary' disabled={isSaving} onClick={onReset}>Сброс</Button>
                 <Button className='ms-3' variant='primary' disabled={isSaving}

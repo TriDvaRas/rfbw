@@ -22,6 +22,7 @@ const WheelEditorList: NextPageWithLayout = () => {
     const player = usePlayer()
     const [showNewWheelModal, setShowNewWheelModal] = useState(false)
     const [isNewWheelSaving, setIsNewWheelSaving] = useState(false)
+
     if (wheels.error) {
         return wheels.error.status == 433 ? <NotAPlayerCard /> :
             <Alert className='mb-0' variant={'danger'}>

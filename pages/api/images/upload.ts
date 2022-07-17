@@ -6,6 +6,7 @@ import { Image, User } from '../../../database/db'
 import adminOnly from '../../../middleware/adminOnly'
 import commonErrorHandlers from '../../../middleware/commonErrorHandlers'
 import requireApiSession from '../../../middleware/requireApiSession'
+import requirePlayer from '../../../middleware/requirePlayer'
 import { ApiError } from '../../../types/common-api'
 
 export const config = {
@@ -19,9 +20,10 @@ const router = createRouter<NextApiRequest, NextApiResponse>();
 
 export default router
     .use(requireApiSession)
+    .use(requirePlayer)
     .use(upload.single('image') as any)
     .post(async (req, res: NextApiResponse<Image | ApiError>) => {
-        if (req.file) {//TODO file resize
+        if (req.file) {
             const rawImage = sharp(req.file.buffer)
             const meta = await rawImage.metadata()
 

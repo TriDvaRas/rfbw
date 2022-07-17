@@ -80,12 +80,12 @@
 .wheel.spinning {
   transition: transform var(--spinning-duration);
   transform: rotate(var(--rotate-for));
-  transition-timing-function: cubic-bezier(0.070, 0.995, 0.000, 1.000);
+  transition-timing-function: cubic-bezier(0.000, 1.000, 0.000, 1.000);
 }
 
 .wheel.prespinning {
-  transition: transform 30s;
-  transform: rotate(-660deg);
+  transition: transform 75s;
+  transform: rotate(-3660deg);
   transition-timing-function: ease;
 }
 
