@@ -133,14 +133,14 @@ export default function TheWheelSettings(props: Props) {
                             <Form.Control.Feedback type="invalid">
                                 {!wheel.minimalSpin || wheel.minimalSpin < minSpin ? 'Слабенько. Давай побольше' : 'Ну это ты загнул. Успокойся '}
                             </Form.Control.Feedback>
-                            <Form.Text className="text-dark-200">
+                            {/* <Form.Text className="text-dark-200">
                                 Длительность всегда 40 секунд (но это не точно)
-                            </Form.Text>
+                            </Form.Text> */}
                         </Col>
                         <Col xl={12} lg={12} sm={12} xs={12} className='mb-4'>
                             <div className='d-inline-flex'>
                                 <h4>Звук прокрутки</h4>
-                                <Badge className='ms-1 m-auto'>Soon™</Badge>
+                                <Badge className='ms-1 m-auto'>New</Badge>
                             </div>
                             <AudioUpload
                                 type='wheel'
