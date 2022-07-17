@@ -80,9 +80,19 @@ export default function WheelItemEditModal(props: Props) {
                         <Form>
                             <Row>
                                 <Form.Group as={Col} className='mb-3' >
-                                    <Form.Label>Ярлык</Form.Label>
+                                    <Form.Label>Название</Form.Label>
                                     <Form.Control as={'input'} maxLength={16} disabled={isImageUploading || isSaving} defaultValue={selectedItem.label} onChange={e => handleChange({ label: e.target.value })} />
                                     <Form.Check className='ms-1 mt-1' type={'switch'} label={<div >Скрыть <Badge className='ms-1'>New</Badge></div>} disabled={isImageUploading || isSaving} defaultChecked={!selectedItem.showText} onChange={e => handleChange({ showText: !e.target.checked })} />
+                                </Form.Group>
+                                <Form.Group as={Col} className='mb-3'>
+                                    <Form.Label>Тип</Form.Label>
+                                    <Form.Control as="select" disabled={isImageUploading || isSaving} defaultValue={selectedItem.type || null} onChange={e => handleChange({ type: e.target.value as WheelItemType })}>
+                                        <option value="game" >Игра</option>
+                                        <option value="anime" >Аниме</option>
+                                        <option value="movie" >Фильм</option>
+                                        <option value="series" >Сериал</option>
+                                        <option value="null" hidden >Блять</option>
+                                    </Form.Control>
                                 </Form.Group>
                                 <Form.Group as={Col} className='mb-3'>
                                     <Form.Label>Длительность</Form.Label>
@@ -98,16 +108,7 @@ export default function WheelItemEditModal(props: Props) {
                                         defColor={{ rgb: { r: fontColor.red, g: fontColor.green, b: fontColor.blue }, hex: selectedItem.fontColor || '#fff' }}
                                     />
                                 </Form.Group>
-                                <Form.Group as={Col} className='mb-3'>
-                                    <Form.Label>Тип</Form.Label>
-                                    <Form.Control as="select" disabled={isImageUploading || isSaving} defaultValue={selectedItem.type || null} onChange={e => handleChange({ type: e.target.value as WheelItemType })}>
-                                        <option value="game" >Игра</option>
-                                        <option value="anime" >Аниме</option>
-                                        <option value="movie" >Фильм</option>
-                                        <option value="series" >Сериал</option>
-                                        <option value="null" hidden >Блять</option>
-                                    </Form.Control>
-                                </Form.Group>
+
                             </Row>
                             <Form.Group className='mb-3'>
                                 <Form.Label>Полное название</Form.Label>
