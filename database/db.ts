@@ -130,7 +130,7 @@ Player.init({
     ended: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
     dropped: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
     rerolled: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-    maxWheels: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
+    maxWheels: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 2 },
 }, {
     sequelize,
     modelName: 'players',
