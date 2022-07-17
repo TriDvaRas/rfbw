@@ -1,7 +1,7 @@
 import React, { Ref } from 'react';
 import {
     Col,
-    Image, Nav, Navbar, Row
+    Image, Nav, Navbar, NavDropdown, Row
 } from 'react-bootstrap';
 import LoadingDots from './LoadingDots';
 import Link from 'next/link'
@@ -16,23 +16,31 @@ const Bar = ({ }: Props) => {
 
     return (
         <div id='navbar'>
-            <Navbar bg="dark-700" variant="dark" >
+            <Navbar expand='md'  bg="dark-700" variant="dark" >
                 <div onClick={() => router.replace(`/`)}>
                     <h3 className='mb-0 mx-3'>RFBW<span className='egg-text'></span></h3>
                 </div>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav
-                        className="fix-font-weight"
+                        style={{fontSize:'1.25rem'}}
+                        className=""
                         activeKey={router.asPath}
                         onSelect={(selectedKey) => router.replace(selectedKey as string)}
                     >
-                        <Nav.Link eventKey='/rules'><h5 className='mb-0'>Правила</h5></Nav.Link>
-                        <Nav.Link eventKey='/players'><h5 className='mb-0'>Участники</h5></Nav.Link>
-                        <Nav.Link eventKey='/wheels'><h5 className='mb-0'>Колеса</h5></Nav.Link>
-                        <Nav.Link eventKey='/effects'><h5 className='mb-0'>События</h5></Nav.Link>
-                        <Nav.Link eventKey='/game/play'><h5 className='mb-0'>Игра</h5></Nav.Link>
-                        {!session?.user.isAdmin || <Nav.Link eventKey='/admin'><h5 className='mb-0'>Админ(очка)</h5></Nav.Link>}
+                        <Nav.Link eventKey='/rules'>Правила</Nav.Link>
+                        {/* <Nav.Link eventKey='/players'>Участники</Nav.Link> */}
+                        <NavDropdown title={'Колеса'} menuVariant='dark'>
+                            <NavDropdown.Item className='active-bg-override' eventKey='/wheels'>
+                                Галерея
+                            </NavDropdown.Item>
+                            <NavDropdown.Item className='active-bg-override' eventKey='/wheeleditor'>
+                                Редактор
+                            </NavDropdown.Item>
+                        </NavDropdown>
+                        {/* <Nav.Link eventKey='/effects'>События</Nav.Link> */}
+                        {/* <Nav.Link eventKey='/game/play'>Игра</Nav.Link> */}
+                        {!session?.user.isAdmin || <Nav.Link eventKey='/admin'>Админ(очка)</Nav.Link>}
                     </Nav>
                 </Navbar.Collapse>
                 <Navbar.Collapse className="justify-content-end">

@@ -12,15 +12,19 @@ import PlayerAboutCardEdit from '../../components/player/PlayerAboutCardEdit';
 import { useState, useEffect } from 'react';
 import MeNavCard from '../../components/me/MeNavCard';
 import { signIn, useSession } from 'next-auth/react';
+import { Player } from '../../database/db';
 
 const Home: NextPageWithLayout = () => {
   const { height, width } = useWindowSize()
   const player = usePlayer()
-  const [isSaving, setIsSaving] = useState(false)
   const session = useSession()
-  const [displayName, setDisplayName] = useState<string | undefined>()
-  const [about, setAbout] = useState<string | undefined>()
-  const [imageId, setImageId] = useState<string | undefined>()
+
+  const [localPlayer, setLocalPlayer] = useState<Player | undefined>()
+  useEffect(() => {
+    if (player.player && !localPlayer)
+      setLocalPlayer(player.player)
+  }, [localPlayer, player.player])
+
   if (session.status == 'unauthenticated')
     signIn()
 
@@ -30,20 +34,21 @@ const Home: NextPageWithLayout = () => {
         session.data.user.isPlayer ? <Row className="">
           <Col md={3} xs={12} className=" " >
             {
-              player.player ?
-                <PlayerAboutCard name={displayName || player.player.name} about={about || player.player.about} imageId={imageId || player.player.imageId} /> :
+              localPlayer ?
+                <PlayerAboutCard name={localPlayer.name} about={localPlayer.about} imageId={localPlayer.imageId} /> :
                 <LoadingDots />
             }
           </Col>
           <Col md={6} xs={12} className='px-0'>
             {
-              player.player ?
-                <PlayerAboutCardEdit onChange={(about, displayName, imageId) => {
-                  setDisplayName(displayName)
-                  setAbout(about)
-                  setImageId(imageId)
+              localPlayer ?
+                <PlayerAboutCardEdit onChange={(upd) => {
+                  setLocalPlayer({ ...localPlayer, ...upd } as Player)
                 }}
-                  player={player.player}
+                  onCancel={() => {
+                    setLocalPlayer(player.player)
+                  }}
+                  player={localPlayer}
                   onSaved={() => { }}
                 /> :
                 <LoadingDots />
@@ -60,7 +65,7 @@ const Home: NextPageWithLayout = () => {
             </Card.Body>
           </Card>
         </Container>
-        : <LoadingDots  variant='primary' />
+        : <LoadingDots variant='primary' />
     }
   </Container>
 }

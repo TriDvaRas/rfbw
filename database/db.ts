@@ -43,6 +43,8 @@ export class Rules extends Model {
     declare savedById: string;
     declare savedBy: string;
     declare savedByAvatar?: string;
+    declare createdAt: string
+    declare updatedAt: string
 }
 Rules.init({
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
@@ -68,6 +70,8 @@ export class Image extends Model {
     declare imageData: string
     declare preview: boolean
     declare mime: string
+    declare createdAt: string
+    declare updatedAt: string
 }
 Image.init({
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -101,6 +105,8 @@ export class Player extends Model {
     declare dropped: number
     declare rerolled: number
     declare maxWheels: number
+    declare createdAt: string
+    declare updatedAt: string
 }
 Player.init({
     id: {
@@ -143,6 +149,8 @@ export class Audio extends Model {
     declare type: 'wheel' | 'other'
     declare filePath: string
     declare mime: string
+    declare createdAt: string
+    declare updatedAt: string
 }
 Audio.init({
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -178,6 +186,8 @@ export class Wheel extends Model {
     declare size: number
     declare approved: boolean
     declare locked: boolean
+    declare createdAt: string
+    declare updatedAt: string
 }
 Wheel.init({
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -243,6 +253,8 @@ export class WheelItem extends Model {
     declare maxCoopPlayers: number
     declare hasDifficulty: boolean
     declare audioId?: string
+    declare createdAt: string
+    declare updatedAt: string
 }
 
 
@@ -274,7 +286,7 @@ WheelItem.init({
     },
     position: { type: DataTypes.INTEGER, allowNull: false },
     label: { type: DataTypes.STRING(16), allowNull: false, defaultValue: 'Название' },
-    title: { type: DataTypes.STRING(192), allowNull: false, defaultValue: 'Длинное название' },
+    title: { type: DataTypes.STRING(128), allowNull: false, defaultValue: 'Длинное название' },
     altColor: { type: DataTypes.STRING(10), allowNull: false, defaultValue: '#2b2744' },
     fontColor: { type: DataTypes.STRING(10), allowNull: false, defaultValue: '#ffffff' },
     hours: { type: DataTypes.DECIMAL(3, 1), allowNull: false, defaultValue: 0.0 },

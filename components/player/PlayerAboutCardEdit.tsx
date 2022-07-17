@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
     Alert,
     Button, Card, Col, Collapse, Form, Row, Spinner
@@ -19,52 +19,50 @@ interface Props {
     player: Player
     onSaved: (player: Player) => void
     onCancel?: () => void
-    onChange?: (name: string, about: string, imageId?: string) => void
+    onChange?: (upd: Partial<Player>) => void
 }
 export default function PlayerAboutCardEdit(props: Props) {
-    const { player } = props
-    const [displayName, setDisplayName] = useState(player?.name || '')
-    const [about, setAbout] = useState(player?.about || '')
-    const [imageId, setImageId] = useState<string | undefined>()
+    const { player, onChange } = props
     const [error, setError] = useState<ApiError | undefined>()
     const [isImageUploading, setIsImageUploading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
 
+    const [validated, setValidated] = useState(false)
+    const formRef = useRef<HTMLFormElement>()
     function handleCancel() {
         if (props.onCancel)
             props.onCancel()
     }
-    function handleSubmit() {
+    function handleSave() {
         if (!player)
             return
-        setError(undefined)
-        setIsSaving(true)
-        const form = new FormData()
-        form.append("name", displayName)
-        form.append("about", about)
-        axios.patch<Player>(`/api/players/me`, {
-            name: displayName,
-            about,
-            imageId
-        }).then((data) => {
-            setIsSaving(false)
-            props.onSaved(data.data)
-        }).catch((err: AxiosError<ApiError>) => {
-            setIsSaving(false)
-            setError(parseApiError(err))
-        })
-    }
-    useEffect(() => {
-        if (player) {
-            setDisplayName(player.name)
-            setAbout(player.about)
-            setImageId(player.imageId)
+        const form = formRef.current as any
+        console.log(form);
+        if (form.checkValidity() === false) {
+            setValidated(true);
         }
-    }, [player])
-    useEffect(() => {
-        if (props.onChange)
-            props.onChange(about, displayName, imageId)
-    }, [about, displayName, imageId, props])
+        else {
+            setError(undefined)
+            setIsSaving(true)
+            axios.patch<Player>(`/api/players/me`, player).then((data) => {
+                setIsSaving(false)
+                props.onSaved(data.data)
+            }).catch((err: AxiosError<ApiError>) => {
+                setIsSaving(false)
+                setError(parseApiError(err))
+            })
+        }
+    }
+    function handleUpdate(upd: Partial<Player>) {
+        if (onChange)
+            onChange(upd)
+    }
+    function handleSubmit(event: any) {
+        event.preventDefault();
+        event.stopPropagation();
+    };
+
+
     return (
         <Card
             bg='dark'
@@ -72,23 +70,26 @@ export default function PlayerAboutCardEdit(props: Props) {
             className="my-3 "
         >
             <Card.Header >
-                <h3>Пан5елька Об игроке</h3>
+                <h3>Кто Я?</h3>
             </Card.Header>
             <Card.Body >
                 {player ?
                     <Row>
                         <Col>
-                            <Form>
-                                <Form.Group  >
-                                    <Form.Label>Display Name</Form.Label>
-                                    <Form.Control as={'input'} value={displayName || ''} onChange={(e) => setDisplayName(e.target.value)} />
+                            <Form onSubmit={handleSubmit} ref={formRef as any} validated={validated}>
+                                <Form.Group className='mb-3'>
+                                    <Form.Label>Моё имя</Form.Label>
+                                    <Form.Control required as={'input'} defaultValue={player.name} onChange={(e) => handleUpdate({ name: e.target.value })} />
+                                    <Form.Control.Feedback type="invalid">
+                                        Ага блять, нет. Имя пиши
+                                    </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group >
-                                    <Form.Label>Description</Form.Label>
-                                    <Form.Control as={'input'} value={about || ''} onChange={(e) => setAbout(e.target.value)} />
+                                <Form.Group className='mb-3'>
+                                    <Form.Label>Обо мне</Form.Label>
+                                    <Form.Control as={'input'} value={player.about} onChange={(e) => handleUpdate({ about: e.target.value })} />
                                 </Form.Group>
-                                <Form.Group >
-                                    <Form.Label>Картинка</Form.Label>
+                                <Form.Group className='mb-3'>
+                                    <Form.Label>Моя фотокарточка</Form.Label>
                                     <ImageUpload
                                         imageType='player'
                                         onUploadStarted={() => setIsImageUploading(true)}
@@ -98,25 +99,27 @@ export default function PlayerAboutCardEdit(props: Props) {
                                         }}
                                         onUploaded={(image) => {
                                             setIsImageUploading(false)
-                                            setImageId(image.id)
+                                            handleUpdate({ imageId: image.id })
                                         }}
 
                                     />
                                 </Form.Group>
                                 {
-                                    error && <Form.Group className='mt-3'><Alert className='mb-0' variant={'danger'}>
+                                    error && <Form.Group className='mb-3'><Alert className='mb-0' variant={'danger'}>
                                         {error.error}
                                     </Alert></Form.Group>
                                 }
+
+                                <Form.Group className='d-flex flex-row-reverse'>
+                                    <Button variant='primary' onClick={handleSave} disabled={isImageUploading || isSaving}>{isSaving ? <Spinner size='sm' animation="border" /> : 'Сохранить'}</Button>
+                                    <Button className='me-3' variant='secondary' onClick={handleCancel}>Отмена</Button>
+                                </Form.Group>
                             </Form>
                         </Col>
                     </Row>
                     : <LoadingDots />}
             </Card.Body>
-            {!!player && <Card.Footer className='d-flex flex-row-reverse'>
-                <Button variant='secondary' onClick={handleCancel}>Отмена</Button>
-                <Button className='me-3' variant='primary' onClick={handleSubmit} disabled={isImageUploading || isSaving}>{isSaving ? <Spinner size='sm' animation="border" /> : 'Сохранить'}</Button>
-            </Card.Footer>}
+
         </Card>
     )
 }

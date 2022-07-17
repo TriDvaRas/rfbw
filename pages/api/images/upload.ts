@@ -22,13 +22,14 @@ export default router
     .use(upload.single('image') as any)
     .post(async (req, res: NextApiResponse<Image | ApiError>) => {
         if (req.file) {//TODO file resize
-            const rawImage =  sharp(req.file.buffer)
+            const rawImage = sharp(req.file.buffer)
             const meta = await rawImage.metadata()
 
-            const bigSize = getBigSize(req.body.type)
-            if ((meta.height && meta.height < bigSize) || (meta.width && meta.width < bigSize)) 
+            const minSize = getMinSizes(req.body.type)
+            if ((meta.width && meta.width < minSize[0]) || (meta.height && meta.height < minSize[1]))
                 return res.status(400).json({ error: 'Найди нормальное качество картинки уебище...', status: 400 })
-            
+            const bigSize = getBigSize(req.body.type)
+
             const bigBuffer = await ((bigSize < (meta.height || 10000) && bigSize < (meta.width || 10000) ?
                 rawImage.resize(bigSize, bigSize, { fit: 'outside' }) : rawImage)
                 .toBuffer())
@@ -65,6 +66,16 @@ function getBigSize(type: string) {
             return 1400
         default:
             return 1500
+    }
+}
+function getMinSizes(type: string) {
+    switch (type) {
+        case 'player':
+            return [600, 600]
+        case 'wheelitem':
+            return [500, 300]
+        default:
+            return [500, 500]
     }
 }
 

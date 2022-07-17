@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { BuiltInProviderType } from "next-auth/providers";
 import { ClientSafeProvider, LiteralUnion, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -13,10 +14,8 @@ import usePlayer from '../../data/usePlayer';
 import GetThinLayout from "../../layouts/thin";
 import { NextPageWithLayout } from "../_app";
 
-interface Props {
-    providers: Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider>
-}
-const WheelEditorList: NextPageWithLayout = ({ providers }: Props) => {
+
+const WheelEditorList: NextPageWithLayout = () => {
     const session = useSession()
     const router = useRouter()
     const wheels = useEditableWheels()
@@ -37,10 +36,11 @@ const WheelEditorList: NextPageWithLayout = ({ providers }: Props) => {
     return (session.status == 'loading' || wheels.loading || player.loading ?
         <LoadingDots /> :
         <Row xs={1} md={1} lg={1} xl={1} className='mx-3 py-2'>
-            {wheels.wheels?.map(wheel =>
+            {wheels.wheels && _.sortBy(wheels.wheels, [(w) => w.ownedById !== player.player?.id,(w) => w.updatedAt, ]).map(wheel =>
                 <Col key={wheel.id} className='mh-100 my-1 d-flex justify-content-center align-items-center'>
                     <WheelPreview
                         admin={wheel.ownedById !== player.player?.id}
+                        withAuthor={wheel.ownedById !== player.player?.id}
                         wheel={wheel}
                         onClick={() => router.replace(`/wheeleditor/${wheel.id}`)} />
                 </Col>

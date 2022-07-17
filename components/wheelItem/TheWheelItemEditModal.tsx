@@ -1,5 +1,5 @@
 import hexRgb from 'hex-rgb';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     Alert,
     Badge,
@@ -37,17 +37,40 @@ export default function WheelItemEditModal(props: Props) {
     const [image, setImage] = useState<Image | undefined>()
     const [error, setError] = useState<ApiError | undefined>()
     const [isImageUploading, setIsImageUploading] = useState(false)
-
+    const [validated, setValidated] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
 
     const altColor = hexRgb(selectedItem.altColor || `#fff`)
     const fontColor = hexRgb(selectedItem.fontColor || `#fff`)
+    const formRef = useRef<HTMLFormElement>()
 
     function handleChange(upd: Partial<WheelItem>) {
         if (onUpdate)
             onUpdate(upd)
     }
-
+    function handleSave(event: any) {
+        const form = formRef.current as any
+        console.log(form);
+        if (form.checkValidity() === false) {
+            setValidated(true);
+        }
+        else {
+            setIsSaving(true)
+            onSave && onSave().then(() => {
+                setIsSaving(false)
+                setShow(false)
+                setValidated(false);
+            }).catch((error) => {
+                setError(parseApiError(error))
+                setIsSaving(false)
+                setValidated(false);
+            })
+        }
+    };
+    function handleSubmit(event: any) {
+        event.preventDefault();
+        event.stopPropagation();
+    };
     return (
         <Modal
             {...{ show }}
@@ -77,16 +100,19 @@ export default function WheelItemEditModal(props: Props) {
                         />
                     </Col>
                     <Col>
-                        <Form>
+                        <Form onSubmit={handleSubmit} ref={formRef as any} validated={validated}>
                             <Row>
                                 <Form.Group as={Col} className='mb-3' >
                                     <Form.Label>Название</Form.Label>
-                                    <Form.Control as={'input'} maxLength={16} disabled={isImageUploading || isSaving} defaultValue={selectedItem.label} onChange={e => handleChange({ label: e.target.value })} />
+                                    <Form.Control required as={'input'} maxLength={16} disabled={isImageUploading || isSaving} defaultValue={selectedItem.label} onChange={e => handleChange({ label: e.target.value })} />
+                                    <Form.Control.Feedback type="invalid">
+                                        Где название блять?
+                                    </Form.Control.Feedback>
                                     <Form.Check className='ms-1 mt-1' type={'switch'} label={<div >Скрыть <Badge className='ms-1'>New</Badge></div>} disabled={isImageUploading || isSaving} defaultChecked={!selectedItem.showText} onChange={e => handleChange({ showText: !e.target.checked })} />
                                 </Form.Group>
                                 <Form.Group as={Col} className='mb-3'>
                                     <Form.Label>Тип</Form.Label>
-                                    <Form.Control as="select" disabled={isImageUploading || isSaving} defaultValue={selectedItem.type || null} onChange={e => handleChange({ type: e.target.value as WheelItemType })}>
+                                    <Form.Control required as="select" disabled={isImageUploading || isSaving} defaultValue={selectedItem.type || null} onChange={e => handleChange({ type: e.target.value as WheelItemType })}>
                                         <option value="game" >Игра</option>
                                         <option value="anime" >Аниме</option>
                                         <option value="movie" >Фильм</option>
@@ -95,10 +121,13 @@ export default function WheelItemEditModal(props: Props) {
                                     </Form.Control>
                                 </Form.Group>
                                 <Form.Group as={Col} className='mb-3'>
-                                    <Form.Label>Длительность</Form.Label>
-                                    <Form.Control type={'number'} disabled={isImageUploading || isSaving} defaultValue={selectedItem.hours}
+                                    <Form.Label >Длительность</Form.Label>
+                                    <Form.Control isValid={validated ? selectedItem.hours > 0 : undefined} type={'number'} disabled={isImageUploading || isSaving} defaultValue={selectedItem.hours}
                                         min={0.1} step={0.1} max={selectedItem.type === 'game' ? 30 : selectedItem.type === 'movie' ? 3.5 : 15}
                                         onChange={e => handleChange({ hours: +e.target.value })} />
+                                    <Form.Control.Feedback type="invalid">
+                                        А не сильно много?
+                                    </Form.Control.Feedback>
                                 </Form.Group>
                                 <Form.Group as={Col} className='mb-3'>
                                     <Form.Label>Цвет Ярлыка</Form.Label>
@@ -112,7 +141,10 @@ export default function WheelItemEditModal(props: Props) {
                             </Row>
                             <Form.Group className='mb-3'>
                                 <Form.Label>Полное название</Form.Label>
-                                <Form.Control as={'input'} maxLength={192} disabled={isImageUploading || isSaving} defaultValue={selectedItem.title} onChange={e => handleChange({ title: e.target.value })} />
+                                <Form.Control required as={'input'} maxLength={128} disabled={isImageUploading || isSaving} defaultValue={selectedItem.title} onChange={e => handleChange({ title: e.target.value })} />
+                                <Form.Control.Feedback type="invalid">
+                                    Заполните твари
+                                </Form.Control.Feedback>
                             </Form.Group>
                             <Collapse
                                 appear
@@ -142,13 +174,17 @@ export default function WheelItemEditModal(props: Props) {
                                     <ImageUpload
                                         compact
                                         imageType='wheelitem'
-                                        onUploadStarted={() => setIsImageUploading(true)}
+                                        onUploadStarted={() => {
+                                            setError(undefined)
+                                            setIsImageUploading(true)
+                                        }}
                                         onError={(err) => {
                                             setIsImageUploading(false)
                                             setError(err)
                                         }}
                                         onUploaded={(image) => {
                                             setIsImageUploading(false)
+                                            setError(undefined)
                                             setImage(image)
                                             handleChange({ imageId: image.id })
                                         }}
@@ -200,17 +236,7 @@ export default function WheelItemEditModal(props: Props) {
                                             onCancel()
                                     }}>Отмена</Button>
                                     <Button className='ms-3' variant='primary' disabled={isImageUploading || isSaving}
-                                        onClick={() => {
-                                            setIsSaving(true)
-                                            onSave && onSave().then(() => {
-                                                setIsSaving(false)
-                                                setShow(false)
-                                            }).catch((error) => {
-                                                setError(parseApiError(error))
-                                                setIsSaving(false)
-
-                                            })
-                                        }}>{isSaving ? <Spinner animation={'border'} size='sm' /> : 'Сохранить'}</Button>
+                                        onClick={handleSave}>{isSaving ? <Spinner animation={'border'} size='sm' /> : 'Сохранить'}</Button>
                                 </div>
                             </Form.Group>
 

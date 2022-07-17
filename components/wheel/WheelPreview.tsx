@@ -22,15 +22,17 @@ interface Props {
     fullImages?: boolean
     onClick?: () => void
     admin?: boolean
+    withAuthor?: boolean
+    height?: number
 }
 export default function WheelPreview(props: Props) {
-    const { wheel, fullImages, admin, onClick } = props
-
+    const { wheel, fullImages, admin, onClick, withAuthor, height } = props
+    const author = usePlayer(wheel.ownedById)
     const hoverRef = useRef(null)
     const isHover = useHover(hoverRef)
 
     const wheelItems = useWheelItems(wheel.id)
-    const fullHeight = 272
+    const fullHeight = height || 272
     return <div className='p-3 d-flex align-items-center justify-content-center '
         onClick={onClick}
         ref={hoverRef}
@@ -50,6 +52,7 @@ export default function WheelPreview(props: Props) {
             }}>
             <Card.Body>
                 <h3 className='my-0 pe-4'>{wheel.title}</h3>
+                {withAuthor && author.player && <h5 className='my-0 ms-1 pe-4'>by {author.player.name}</h5>}
             </Card.Body>
         </Card>
         <div
