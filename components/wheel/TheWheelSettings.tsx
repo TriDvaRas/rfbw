@@ -192,6 +192,8 @@ export default function TheWheelSettings(props: Props) {
                                         setIsTestSpinning(false)
                                         if (doTestSpin)
                                             doTestSpin(true)
+                                        if (cancelAudioStop)
+                                            cancelAudioStop()
                                     }}
                                 />
                             }
