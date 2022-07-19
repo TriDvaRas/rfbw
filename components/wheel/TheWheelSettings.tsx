@@ -33,7 +33,7 @@ export default function TheWheelSettings(props: Props) {
     const [isSaving, setIsSaving] = useState(false)
     const [isAudioUploading, setIsAudioUploading] = useState(false)
     const [error, setError] = useState<ApiError | undefined>()
-    const [cancelAudioStop, setCancelAudioStop] = useState<() => void>(() => { })
+    const [audioStopTimeoutId, setAudioStopTimeoutId] = useState<any>()
 
     const [isTestSpinning, setIsTestSpinning] = useState(false)
     const [allowTestSpin, setAllowTestSpin, cancelSetAllowTestSpin] = useDelayedState(true)
@@ -192,8 +192,8 @@ export default function TheWheelSettings(props: Props) {
                                         setIsTestSpinning(false)
                                         if (doTestSpin)
                                             doTestSpin(true)
-                                        if (cancelAudioStop)
-                                            cancelAudioStop()
+                                        if (audioStopTimeoutId)
+                                            audioStopTimeoutId()
                                     }}
                                 />
                             }
@@ -215,21 +215,21 @@ export default function TheWheelSettings(props: Props) {
                 <Button disabled={!allowTestSpin || isAudioUploading || isSaving} variant='warning' onClick={() => {
                     const ae = (audioRef.current as any)?.audioEl.current as HTMLAudioElement
                     if (!isTestSpinning) {
-                        if (cancelAudioStop)
-                            cancelAudioStop()
+                        if (audioStopTimeoutId)
+                            clearTimeout(audioStopTimeoutId)
 
                         ae.play()
                         setIsTestSpinning(true)
                         if (doTestSpin)
                             doTestSpin()
-                        setCancelAudioStop(setTimeout(() => {
+                        setAudioStopTimeoutId(setTimeout(() => {
                             ae.pause()
                             ae.currentTime = 0
                         }, (wheel.spinDuration + wheel.prespinDuration) * 1000 + 30) as any)
                     }
                     else {
-                        if (cancelAudioStop)
-                            cancelAudioStop()
+                        if (audioStopTimeoutId)
+                            clearTimeout(audioStopTimeoutId)
                         ae.pause()
                         ae.currentTime = 0
                         setIsTestSpinning(false)
