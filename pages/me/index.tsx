@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import MeNavCard from '../../components/me/MeNavCard';
 import { signIn, useSession } from 'next-auth/react';
 import { Player } from '../../database/db';
+import Head from 'next/head';
 
 const Home: NextPageWithLayout = () => {
   const { height, width } = useWindowSize()
@@ -29,6 +30,9 @@ const Home: NextPageWithLayout = () => {
     signIn()
 
   return <Container fluid>
+    <Head>
+      <title>Literally Me</title>
+    </Head>
     {
       session.data ?
         session.data.user.isPlayer ? <Row className="">

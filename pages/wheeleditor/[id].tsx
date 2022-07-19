@@ -19,6 +19,7 @@ import { NextPageWithLayout } from "../_app";
 import useDelayedState from 'use-delayed-state'
 import { randomInt } from '../../util/random';
 import ReactAudioPlayer from "react-audio-player";
+import Head from "next/head";
 
 interface Props {
 
@@ -112,113 +113,120 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
     }
     //#endregion
 
-    return (wheelItems.wheelItems && localWheel) ?
-        <Row className="mh-100 p-0">
-            <Col xl={8} ref={wheelContainerRef} lg={12} className="mh-100 p-0" >
-                <TheWheel
-                    withTitle
-                    items={wheelItems.wheelItems}
-                    idleSpin={isIdleSpinning}
-                    height={Math.min(maxCardHeight * 4 / 5, maxCardWidth) - 56}
-                    wheel={localWheel}
-                    onItemClick={onItemClick}
-                    spin={isSpinning}
-                    prespin={isPrespinning}
-                    spinDuration={spinDuration}
-                    selectItemIndex={spinSelectIndex}
-                    extraSpin={spinExtraSpin}
-                />
-            </Col>
-            <Col xl={4} lg={12} className='mh-100 mb-3 pb-3 p-0'>
-                <TheWheelSettings
-                    wheel={localWheel}
-                    onUpdate={(upd) => setLocalWheel({ ...localWheel, ...upd } as Wheel)}
-                    maxHeight={Math.min(maxCardHeight * 4 / 5, maxCardWidth)}
-                    doTestSpin={(stop) => {
-                        if (!stop) {
-                            setSpinDuration(localWheel.spinDuration)
-                            cancelSetIsIdleSpinning()
-                            setIsIdleSpinning(false)
+    return <>
+        <Head>
+            <title>Редактор</title>
+        </Head>
+        {
+            (wheelItems.wheelItems && localWheel) ?
+                <Row className="mh-100 p-0">
+                    <Col xl={8} ref={wheelContainerRef} lg={12} className="mh-100 p-0" >
+                        <TheWheel
+                            withTitle
+                            items={wheelItems.wheelItems}
+                            idleSpin={isIdleSpinning}
+                            height={Math.min(maxCardHeight * 4 / 5, maxCardWidth) - 56}
+                            wheel={localWheel}
+                            onItemClick={onItemClick}
+                            spin={isSpinning}
+                            prespin={isPrespinning}
+                            spinDuration={spinDuration}
+                            selectItemIndex={spinSelectIndex}
+                            extraSpin={spinExtraSpin}
+                        />
+                    </Col>
+                    <Col xl={4} lg={12} className='mh-100 mb-3 pb-3 p-0'>
+                        <TheWheelSettings
+                            wheel={localWheel}
+                            onUpdate={(upd) => setLocalWheel({ ...localWheel, ...upd } as Wheel)}
+                            maxHeight={Math.min(maxCardHeight * 4 / 5, maxCardWidth)}
+                            doTestSpin={(stop) => {
+                                if (!stop) {
+                                    setSpinDuration(localWheel.spinDuration)
+                                    cancelSetIsIdleSpinning()
+                                    setIsIdleSpinning(false)
 
-                            setIsPrespinning(true, 10)
+                                    setIsPrespinning(true, 10)
 
-                            setIsSpinning(true, localWheel.prespinDuration * 1000 + 20)
-                            setSpinSelectIndex(randomInt(0, localWheelItems?.length || 5), localWheel.prespinDuration * 1000 + 20)
-                            // setSpinSelectIndex(1)
-                            setSpinExtraSpin(Math.random() * .995 - .5, localWheel.prespinDuration * 1000 + 20)
+                                    setIsSpinning(true, localWheel.prespinDuration * 1000 + 20)
+                                    setSpinSelectIndex(randomInt(0, localWheelItems?.length || 5), localWheel.prespinDuration * 1000 + 20)
+                                    // setSpinSelectIndex(1)
+                                    setSpinExtraSpin(Math.random() * .995 - .5, localWheel.prespinDuration * 1000 + 20)
 
-                            setIsAudioPlaying(true, (localWheel.spinDuration + localWheel.prespinDuration) * 1000)
+                                    setIsAudioPlaying(true, (localWheel.spinDuration + localWheel.prespinDuration) * 1000)
+                                }
+                                else {
+                                    cancelSetIsSpinning()
+                                    cancelSetIsAudioPlaying()
+                                    cancelSetSpinSelectIndex()
+                                    cancelSetIsPrespinning()
+                                    cancelSetSpinExtraSpin()
+                                    setIsPrespinning(false, 10)
+                                    setIsSpinning(false, 20)
+                                    setIsIdleSpinning(true, 800)
+                                    setIsAudioPlaying(false)
+                                }
+                            }}
+                            onReset={() => {
+                                setLocalWheel(wheel.wheel)
+                            }}
+                            onSave={() => {
+                                return axios.patch(`/api/wheels/${localWheel.id}`, localWheel)
+                                    .then(x => x.data)
+                                    .then((_wheel: Wheel) => {
+                                        wheel.mutate(_wheel)
+                                    })
+                            }}
+                        />
+                        {
+                            spinSelectIndex && localWheelItems && localWheelItems[spinSelectIndex] && localWheelItems[spinSelectIndex].audioId && <ReactAudioPlayer
+                                ref={audioRef as any}
+                                src={`/api/audios/${localWheelItems[spinSelectIndex].audioId}`}
+                                volume={0.06}
+                                // controls
+                                preload='auto'
+                                onEnded={() => {
+
+                                }}
+                            />
                         }
-                        else {
-                            cancelSetIsSpinning()
-                            cancelSetIsAudioPlaying()
-                            cancelSetSpinSelectIndex()
-                            cancelSetIsPrespinning()
-                            cancelSetSpinExtraSpin()
-                            setIsPrespinning(false, 10)
-                            setIsSpinning(false, 20)
-                            setIsIdleSpinning(true, 800)
-                            setIsAudioPlaying(false)
+                    </Col>
+                    <Col xl={12} xs={12} className='my-3 p-0'>
+                        {wheelItems.loading ? <LoadingDots /> :
+                            wheelItems.wheelItems && localWheelItems && <WheelItems
+                                wheel={localWheel}
+                                items={localWheelItems}
+                                onSelectEdit={setSelectedItem}
+                                onAddNew={onItemAdd}
+                                newLoading={newItemLoading}
+                            />
                         }
-                    }}
-                    onReset={() => {
-                        setLocalWheel(wheel.wheel)
-                    }}
-                    onSave={() => {
-                        return axios.patch(`/api/wheels/${localWheel.id}`, localWheel)
-                            .then(x => x.data)
-                            .then((_wheel: Wheel) => {
-                                wheel.mutate(_wheel)
-                            })
-                    }}
-                />
-                {
-                    spinSelectIndex && localWheelItems && localWheelItems[spinSelectIndex] && localWheelItems[spinSelectIndex].audioId && <ReactAudioPlayer
-                        ref={audioRef as any}
-                        src={`/api/audios/${localWheelItems[spinSelectIndex].audioId}`}
-                        volume={0.06}
-                        // controls
-                        preload='auto'
-                        onEnded={() => {
-
-                        }}
-                    />
-                }
-            </Col>
-            <Col xl={12} xs={12} className='my-3 p-0'>
-                {wheelItems.loading ? <LoadingDots /> :
-                    wheelItems.wheelItems && localWheelItems && <WheelItems
-                        wheel={localWheel}
-                        items={localWheelItems}
-                        onSelectEdit={setSelectedItem}
-                        onAddNew={onItemAdd}
-                        newLoading={newItemLoading}
-                    />
-                }
-            </Col>
-            {selectedItem && localWheelItems &&
-                <WheelItemEditModal
-                    show={!!selectedItem}
-                    wheel={localWheel}
-                    wheelItems={localWheelItems}
-                    selectedItem={selectedItem}
-                    onCancel={() => {
-                        setSelectedItem(undefined);
-                        setLocalWheelItems(wheelItems.wheelItems)
-                    }}
-                    onSave={async () => {
-                        const x = await axios.patch(`/api/wheels/${localWheel.id}/items/${selectedItem.id}`, selectedItem);
-                        const item = x.data;
-                        wheelItems.mutate(localWheelItems.map(x_1 => x_1.id === item.id ? item : x_1));
-                        setSelectedItem(undefined)
-                    }}
-                    onUpdate={(upd) => {
-                        let item = { ...selectedItem, ...upd } as WheelItem
-                        setSelectedItem(item)
-                        setLocalWheelItems(localWheelItems.map(x => x.id === item.id ? item : x))
-                    }} />}
-        </Row>
-        : <LoadingDots />
+                    </Col>
+                    {selectedItem && localWheelItems &&
+                        <WheelItemEditModal
+                            show={!!selectedItem}
+                            wheel={localWheel}
+                            wheelItems={localWheelItems}
+                            selectedItem={selectedItem}
+                            onCancel={() => {
+                                setSelectedItem(undefined);
+                                setLocalWheelItems(wheelItems.wheelItems)
+                            }}
+                            onSave={async () => {
+                                const x = await axios.patch(`/api/wheels/${localWheel.id}/items/${selectedItem.id}`, selectedItem);
+                                const item = x.data;
+                                wheelItems.mutate(localWheelItems.map(x_1 => x_1.id === item.id ? item : x_1));
+                                setSelectedItem(undefined)
+                            }}
+                            onUpdate={(upd) => {
+                                let item = { ...selectedItem, ...upd } as WheelItem
+                                setSelectedItem(item)
+                                setLocalWheelItems(localWheelItems.map(x => x.id === item.id ? item : x))
+                            }} />}
+                </Row>
+                : <LoadingDots />
+        }
+    </>
 }
 WheelEditor.getLayout = GetThinLayout
 export default WheelEditor

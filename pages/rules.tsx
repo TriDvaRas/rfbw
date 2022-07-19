@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { Card } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
@@ -13,6 +14,9 @@ const Rules: NextPageWithLayout = () => {
 
   return (
     <Card bg='dark' text='light' className='m-3'>
+      <Head>
+        <title>Правила</title>
+      </Head>
       <Card.Body>
         {
           rules.loading ? <LoadingDots /> :

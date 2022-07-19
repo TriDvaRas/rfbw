@@ -14,6 +14,7 @@ import '../styles/wheel.css';
 import '../styles/rotate.sass';
 import '../styles/image.sass';
 import 'simplebar/dist/simplebar.min.css';
+import Head from 'next/head'
 
 export type NextPageWithLayout = NextPage<any> & {
   getLayout?: (page: ReactElement) => ReactNode

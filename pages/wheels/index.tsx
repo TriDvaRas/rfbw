@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { BuiltInProviderType } from "next-auth/providers";
 import { ClientSafeProvider, LiteralUnion, useSession } from 'next-auth/react';
+import Head from "next/head";
 import { useRouter } from 'next/router';
 import { useState } from "react";
 import { Alert, Card, Col, Row } from 'react-bootstrap';
@@ -26,21 +27,26 @@ const WheelEditorList: NextPageWithLayout = () => {
             </Alert>
     }
 
-    return (session.status == 'loading' || wheels.loading ?
-        <LoadingDots /> :
-        <Row xs={1} md={1} lg={1} xl={1} className='mx-3 py-2'>
-            {wheels.wheels && _.sortBy(wheels.wheels, [(w) => w.createdAt]).map(wheel =>
-                <Col key={wheel.id} className='mh-100 my-1 d-flex justify-content-center align-items-center'>
-                    <WheelPreview
-                        withAuthor={true}
-                        wheel={wheel}
-                        height={Math.min(width - 192, height) - 192}
-                    />
-                </Col>
-            )}
-        </Row>
-
-    )
+    return <>
+        <Head>
+            <title>Колеса</title>
+        </Head>
+        {
+            session.status == 'loading' || wheels.loading ?
+                <LoadingDots /> :
+                <Row xs={1} md={1} lg={1} xl={1} className='mx-3 py-2'>
+                    {wheels.wheels && _.sortBy(wheels.wheels, [(w) => w.createdAt]).map(wheel =>
+                        <Col key={wheel.id} className='mh-100 my-1 d-flex justify-content-center align-items-center'>
+                            <WheelPreview
+                                withAuthor={true}
+                                wheel={wheel}
+                                height={Math.min(width - 192, height) - 192}
+                            />
+                        </Col>
+                    )}
+                </Row>
+        }
+    </>
 }
 WheelEditorList.getLayout = GetThinLayout
 export default WheelEditorList
