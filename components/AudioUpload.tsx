@@ -58,7 +58,7 @@ export default function AudioUpload(props: Props) {
     const height = compact ? 36 : 40
     return (
         < Dropzone
-            disabled={disabled}
+            disabled={disabled || isUploading}
             onDropAccepted={handleDrop}
             accept={{
                 'audio/*': [
@@ -83,10 +83,12 @@ export default function AudioUpload(props: Props) {
                     >
                         {
                             [
-                                audio.audio && <div key={1} className='p-2' style={{
+                                audio.audio && <div key={1} className={`${compact ? '' : 'py-2'} px-3`} style={{
                                     textOverflow: 'ellipsis',
                                     overflow: 'hidden',
                                     whiteSpace: 'nowrap',
+                                    paddingTop: compact ? '0.375rem' : undefined,
+                                    paddingBottom: compact ? '0.375rem' : undefined,
                                 }}>
                                     {audio.audio.originalName}
                                 </div>,

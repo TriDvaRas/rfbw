@@ -10,9 +10,11 @@ import TextareaAutosize from 'react-textarea-autosize';
 import { Image, Wheel, WheelItem, WheelItemImageMode, WheelItemType } from '../../database/db';
 import { ApiError } from '../../types/common-api';
 import { parseApiError } from '../../util/error';
+import AudioUpload from '../AudioUpload';
 import ColorPicker, { IColor } from '../ColorPicker';
 import ImageUpload from '../ImageUpload';
 import TheWheel from '../wheel/TheWheel';
+import useBreakpoint from '../../util/useBreakpoint';
 
 
 interface Props {
@@ -39,6 +41,8 @@ export default function WheelItemEditModal(props: Props) {
     const [isImageUploading, setIsImageUploading] = useState(false)
     const [validated, setValidated] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
+    const breakpoint = useBreakpoint()
+    const [isAudioUploading, setIsAudioUploading] = useState(false)
 
     const altColor = hexRgb(selectedItem.altColor || `#fff`)
     const fontColor = hexRgb(selectedItem.fontColor || `#fff`)
@@ -86,11 +90,13 @@ export default function WheelItemEditModal(props: Props) {
             </Modal.Header>
             <Modal.Body className='bg-dark-750 text-light'>
                 <Row style={{ overflow: 'hidden' }}>
-                    <Col style={{ marginLeft: '-300px' }}>
+                    <Col style={{
+                        marginLeft: ['xs', 'sm', 'md'].includes(breakpoint) ? undefined : '-300px'
+                    }} >
                         <TheWheel
                             noCard
                             items={wheelItems}
-                            height={600}
+                            height={['sm', 'md'].includes(breakpoint) ? 450 : 600}
                             wheel={wheel}
                             selectItemIndex={selectedItem.position}
                             autoSpinAfter={10}
@@ -99,10 +105,11 @@ export default function WheelItemEditModal(props: Props) {
                             highlightItemId={selectedItem.id}
                         />
                     </Col>
-                    <Col>
-                        <Form onSubmit={handleSubmit} ref={formRef as any} validated={validated}>
+                    <Col >
+                        <Form className='' onSubmit={handleSubmit} ref={formRef as any} validated={validated}>
                             <Row>
-                                <Form.Group as={Col} className='mb-3' >
+
+                                <Form.Group as={Col} xl={3} lg={6} sm={12} xs={12} className='mb-3' >
                                     <Form.Label>Название</Form.Label>
                                     <Form.Control required as={'input'} maxLength={16} disabled={isImageUploading || isSaving} defaultValue={selectedItem.label} onChange={e => handleChange({ label: e.target.value })} />
                                     <Form.Control.Feedback type="invalid">
@@ -110,7 +117,7 @@ export default function WheelItemEditModal(props: Props) {
                                     </Form.Control.Feedback>
                                     <Form.Check className='ms-1 mt-1' type={'switch'} label={<div >Скрыть <Badge className='ms-1'>New</Badge></div>} disabled={isImageUploading || isSaving} defaultChecked={!selectedItem.showText} onChange={e => handleChange({ showText: !e.target.checked })} />
                                 </Form.Group>
-                                <Form.Group as={Col} className='mb-3'>
+                                <Form.Group as={Col} xl={3} lg={6} sm={12} xs={12} className='mb-3'>
                                     <Form.Label>Тип</Form.Label>
                                     <Form.Control required as="select" disabled={isImageUploading || isSaving} defaultValue={selectedItem.type || null} onChange={e => handleChange({ type: e.target.value as WheelItemType })}>
                                         <option value="game" >Игра</option>
@@ -120,7 +127,7 @@ export default function WheelItemEditModal(props: Props) {
                                         <option value="null" hidden >Блять</option>
                                     </Form.Control>
                                 </Form.Group>
-                                <Form.Group as={Col} className='mb-3'>
+                                <Form.Group as={Col} xl={3} lg={6} sm={12} xs={12} className='mb-3'>
                                     <Form.Label >Длительность</Form.Label>
                                     <Form.Control isValid={validated ? selectedItem.hours > 0 : undefined} type={'number'} disabled={isImageUploading || isSaving} defaultValue={selectedItem.hours}
                                         min={0.1} step={0.1} max={selectedItem.type === 'game' ? 30 : selectedItem.type === 'movie' ? 3.5 : 15}
@@ -129,7 +136,7 @@ export default function WheelItemEditModal(props: Props) {
                                         А не сильно много?
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group as={Col} className='mb-3'>
+                                <Form.Group as={Col} xl={3} lg={6} sm={12} xs={12} className='mb-3'>
                                     <Form.Label>Цвет Ярлыка</Form.Label>
                                     <ColorPicker
                                         placement='bottom'
@@ -137,9 +144,9 @@ export default function WheelItemEditModal(props: Props) {
                                         defColor={{ rgb: { r: fontColor.red, g: fontColor.green, b: fontColor.blue }, hex: selectedItem.fontColor || '#fff' }}
                                     />
                                 </Form.Group>
-
                             </Row>
-                            <Form.Group className='mb-3'>
+
+                            <Form.Group as={Col} xl={12} lg={12} sm={12} xs={12} className='mb-3'>
                                 <Form.Label>Полное название</Form.Label>
                                 <Form.Control required as={'input'} maxLength={128} disabled={isImageUploading || isSaving} defaultValue={selectedItem.title} onChange={e => handleChange({ title: e.target.value })} />
                                 <Form.Control.Feedback type="invalid">
@@ -149,20 +156,19 @@ export default function WheelItemEditModal(props: Props) {
                             <Collapse
                                 appear
                                 in={selectedItem.type === 'game'}
-
                             >
                                 <Row>
-                                    <Form.Group as={Col} className='mb-3'>
+                                    <Form.Group as={Col} xl={6} lg={6} sm={6} xs={6} className='mb-3'>
                                         <Form.Label>Макс игроков</Form.Label>
                                         <Form.Control type={'number'} disabled={isImageUploading || isSaving} defaultValue={selectedItem.maxCoopPlayers} min={1} step={1}
                                             onChange={e => handleChange({ hasCoop: +e.target.value !== 1, maxCoopPlayers: +e.target.value })}
                                         />
                                     </Form.Group>
-                                    <Form.Group as={Col} className='mb-3'>
+                                    <Form.Group as={Col} xl={6} lg={6} sm={6} xs={6} className='mb-3'>
                                         <Form.Label>С выбором сложности</Form.Label>
                                         <Form.Control as="select" disabled={isImageUploading || isSaving} defaultValue={`${selectedItem.hasDifficulty}`} onChange={e => handleChange({ hasDifficulty: !!e.target.value })}>
                                             <option value="true">Да</option>
-                                            <option value="false" >Нет</option>
+                                            <option value="false">Нет</option>
                                             <option value="null" hidden >Блять</option>
                                         </Form.Control>
                                     </Form.Group>
@@ -172,6 +178,7 @@ export default function WheelItemEditModal(props: Props) {
                                 <Col xs={8} className='mb-3'>
                                     <Form.Label>Картинка</Form.Label>
                                     <ImageUpload
+                                        disabled={isImageUploading || isSaving}
                                         compact
                                         imageType='wheelitem'
                                         onUploadStarted={() => {
@@ -219,7 +226,20 @@ export default function WheelItemEditModal(props: Props) {
                                 <Form.Control as={TextareaAutosize} style={{ resize: 'none' }} disabled={isImageUploading || isSaving} defaultValue={selectedItem.comments} onChange={e => handleChange({ comments: e.target.value })} />
                             </Form.Group>
                             <Form.Group className='mb-3'>
-                                <Form.Label>Звук выпадения<Badge className='ms-1'>Soon™</Badge></Form.Label>
+                                <Form.Label>Звук выпадения<Badge className='ms-1'>New</Badge></Form.Label>
+                                <AudioUpload
+                                    onUploadStarted={() => setIsAudioUploading(true)}
+                                    compact
+                                    disabled={isSaving || isImageUploading}
+                                    type='wheelitem'
+                                    audioId={selectedItem.audioId}
+                                    onUploaded={(audio) => {
+                                        handleChange({ audioId: audio.id })
+                                        setIsAudioUploading(false)
+                                    }} onError={(err) => {
+                                        setError(err)
+                                        setIsAudioUploading(false)
+                                    }} />
                             </Form.Group>
                             {error ?
                                 <Form.Group className='mb-3'>
@@ -227,7 +247,7 @@ export default function WheelItemEditModal(props: Props) {
                                         {error.error}
                                     </Alert>
                                 </Form.Group> : null}
-                            <Form.Group className='mb-3'>
+                            <Form.Group className='mb-3 mt-auto'>
                                 <div className='d-flex justify-content-end m-3 '>
                                     <div className="flex-grow-1 me-auto"></div>
                                     <Button className='ms-3' variant='secondary' disabled={isImageUploading || isSaving} onClick={() => {

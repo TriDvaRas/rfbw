@@ -31,6 +31,7 @@ export default function TheWheelSettings(props: Props) {
     const dot = hexRgb(wheel.dotColor || `#fff`)
     const pointer = hexRgb(wheel.pointerColor || `#fff`)
     const [isSaving, setIsSaving] = useState(false)
+    const [isAudioUploading, setIsAudioUploading] = useState(false)
     const [error, setError] = useState<ApiError | undefined>()
 
     const [isTestSpinning, setIsTestSpinning] = useState(false)
@@ -93,9 +94,9 @@ export default function TheWheelSettings(props: Props) {
                                 <h4>Название колеса</h4>
                                 <Badge className='ms-1 m-auto'>New</Badge>
                             </div>
-                            <Form.Control required placeholder="Всмысле пустое?)" maxLength={64} defaultValue={wheel.title} onChange={(e) => handleChange({ title: e.target.value })} />
+                            <Form.Control disabled={isAudioUploading || isSaving} required placeholder="Всмысле пустое?)" maxLength={64} defaultValue={wheel.title} onChange={(e) => handleChange({ title: e.target.value })} />
                         </Col>
-                        <Col xl={6} lg={6} sm={6} xs={12} className='mb-3'>
+                        <Col xl={6} lg={3} sm={6} xs={12} className='mb-3'>
                             <h4>Обводка</h4>
                             <ColorPicker
                                 placement='right'
@@ -104,7 +105,7 @@ export default function TheWheelSettings(props: Props) {
                                 defColor={{ rgb: { r: border.red, g: border.green, b: border.blue }, hex: wheel.borderColor || '#fff' }}
                             />
                         </Col>
-                        <Col xl={6} lg={6} sm={6} xs={12} className='mb-3'>
+                        <Col xl={6} lg={3} sm={6} xs={12} className='mb-3'>
                             <h4>Фон</h4>
                             <ColorPicker
                                 placement='right'
@@ -113,7 +114,7 @@ export default function TheWheelSettings(props: Props) {
                                 defColor={{ rgb: { r: bg.red, g: bg.green, b: bg.blue }, hex: wheel.backgroundColor || '#fff' }}
                             />
                         </Col>
-                        <Col xl={6} lg={6} sm={6} xs={12} className='mb-3'>
+                        <Col xl={6} lg={3} sm={6} xs={12} className='mb-3'>
                             <h4>Точка</h4>
                             <ColorPicker
                                 placement='right'
@@ -122,7 +123,7 @@ export default function TheWheelSettings(props: Props) {
                                 defColor={{ rgb: { r: dot.red, g: dot.green, b: dot.blue }, hex: wheel.dotColor || '#fff' }}
                             />
                         </Col>
-                        <Col xl={6} lg={6} sm={6} xs={12} className='mb-3'>
+                        <Col xl={6} lg={3} sm={6} xs={12} className='mb-3'>
                             <h4>Стрелка</h4>
                             <ColorPicker
                                 placement='right'
@@ -136,7 +137,7 @@ export default function TheWheelSettings(props: Props) {
                                 <h4>Задержка прокрутки</h4>
                                 <Badge className='ms-1 m-auto'>New</Badge>
                             </div>
-                            <Form.Control disabled={isSaving || isTestSpinning} required type={'number'} step={.1} min={minSpinDelay} max={maxSpinDelay} defaultValue={wheel.prespinDuration} isValid={validated ? !!wheel.prespinDuration && wheel.prespinDuration >= minSpinDelay && wheel.prespinDuration <= maxSpinDelay : undefined} onChange={(e) => handleChange({ prespinDuration: +e.target.value })} />
+                            <Form.Control disabled={isAudioUploading || isSaving || isTestSpinning} required type={'number'} step={.1} min={minSpinDelay} max={maxSpinDelay} defaultValue={wheel.prespinDuration} isValid={validated ? !!wheel.prespinDuration && wheel.prespinDuration >= minSpinDelay && wheel.prespinDuration <= maxSpinDelay : undefined} onChange={(e) => handleChange({ prespinDuration: +e.target.value })} />
                             <Form.Control.Feedback type="invalid">
                                 {!wheel.prespinDuration || wheel.prespinDuration < minSpinCount ? 'Ну ты придумал...' : 'Постирония это хорошо, но давай поменьше'}
                             </Form.Control.Feedback>
@@ -146,7 +147,7 @@ export default function TheWheelSettings(props: Props) {
                                 <h4>Длительность прокрутки</h4>
                                 <Badge className='ms-1 m-auto'>New</Badge>
                             </div>
-                            <Form.Control disabled={isSaving || isTestSpinning} required type={'number'} step={.1} min={minSpinDuration} max={maxSpinDuration} defaultValue={wheel.spinDuration} isValid={validated ? !!wheel.spinDuration && wheel.spinDuration >= minSpinDuration && wheel.spinDuration <= maxSpinDuration : undefined} onChange={(e) => handleChange({ spinDuration: +e.target.value })} />
+                            <Form.Control disabled={isAudioUploading || isSaving || isTestSpinning} required type={'number'} step={.1} min={minSpinDuration} max={maxSpinDuration} defaultValue={wheel.spinDuration} isValid={validated ? !!wheel.spinDuration && wheel.spinDuration >= minSpinDuration && wheel.spinDuration <= maxSpinDuration : undefined} onChange={(e) => handleChange({ spinDuration: +e.target.value })} />
                             <Form.Control.Feedback type="invalid">
                                 {!wheel.spinDuration || wheel.spinDuration < minSpinDuration ? 'Скучновато получается, попробуй побольше' : 'Никто не будет три года на это смотреть'}
                             </Form.Control.Feedback>
@@ -156,24 +157,28 @@ export default function TheWheelSettings(props: Props) {
                                 <h4>Полных оборотов</h4>
                                 <Badge className='ms-1 m-auto'>New</Badge>
                             </div>
-                            <Form.Control disabled={isSaving || isTestSpinning} required type={'number'} step={1} min={minSpinCount} max={maxSpinCount} defaultValue={wheel.minimalSpin} isValid={validated ? !!wheel.minimalSpin && wheel.minimalSpin >= minSpinCount && wheel.minimalSpin <= maxSpinCount : undefined} onChange={(e) => handleChange({ minimalSpin: +e.target.value })} />
+                            <Form.Control disabled={isAudioUploading || isSaving || isTestSpinning} required type={'number'} step={1} min={minSpinCount} max={maxSpinCount} defaultValue={wheel.minimalSpin} isValid={validated ? !!wheel.minimalSpin && wheel.minimalSpin >= minSpinCount && wheel.minimalSpin <= maxSpinCount : undefined} onChange={(e) => handleChange({ minimalSpin: +e.target.value })} />
                             <Form.Control.Feedback type="invalid">
                                 {!wheel.minimalSpin || wheel.minimalSpin < minSpinCount ? 'Слабенько. Давай побольше' : 'Ну это ты загнул. Успокойся '}
                             </Form.Control.Feedback>
                         </Col>
-                        <Col xl={12} lg={12} sm={12} xs={12} className=''>
+                        <Col xl={12} lg={6} sm={12} xs={12} className=''>
                             <div className='d-inline-flex'>
                                 <h4>Звук прокрутки</h4>
                                 <Badge className='ms-1 m-auto'>New</Badge>
                             </div>
                             <AudioUpload
+                                onUploadStarted={() => setIsAudioUploading(true)}
+                                compact
                                 disabled={isSaving || isTestSpinning}
                                 type='wheel'
                                 audioId={wheel.audioId}
                                 onUploaded={(audio) => {
                                     handleChange({ audioId: audio.id })
+                                    setIsAudioUploading(false)
                                 }} onError={(err) => {
                                     setError(err)
+                                    setIsAudioUploading(false)
                                 }} />
                             {
                                 wheel.audioId && <ReactAudioPlayer
@@ -203,7 +208,7 @@ export default function TheWheelSettings(props: Props) {
             </Card.Body>
             {/* <Card.Footer> */}
             <div className='d-flex justify-content-end m-3'>
-                <Button disabled={!allowTestSpin} variant='warning' onClick={() => {
+                <Button disabled={!allowTestSpin || isAudioUploading || isSaving} variant='warning' onClick={() => {
                     const ae = (audioRef.current as any)?.audioEl.current as HTMLAudioElement
                     if (!isTestSpinning) {
                         ae.play()
@@ -222,8 +227,8 @@ export default function TheWheelSettings(props: Props) {
                     }
                 }}>{(audioRef.current as any)?.audioEl.current.paused ? 'Тест' : 'Стоп'}</Button>
                 <div className="flex-grow-1 me-auto"></div>
-                <Button className='ms-3' variant='secondary' disabled={isSaving} onClick={onReset}>Сброс</Button>
-                <Button className='ms-3' variant='primary' disabled={isSaving}
+                <Button className='ms-3' variant='secondary' disabled={isAudioUploading || isSaving || isTestSpinning} onClick={onReset}>Сброс</Button>
+                <Button className='ms-3' variant='primary' disabled={isAudioUploading || isSaving}
                     onClick={handleSave}>{isSaving ? <Spinner animation={'border'} size='sm' /> : 'Сохранить'}</Button>
             </div>
             {/* </Card.Footer> */}

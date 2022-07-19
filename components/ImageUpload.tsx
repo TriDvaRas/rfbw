@@ -18,9 +18,10 @@ interface Props {
     allowGif?: boolean
     imageType: Image['type']
     compact?: boolean
+    disabled?: boolean
 }
 export default function ImageUpload(props: Props) {
-    const { onDrop, onUploaded, placeholderUrl, onError, allowGif, onUploadStarted, compact, imageType } = props
+    const { onDrop, onUploaded, placeholderUrl, onError, allowGif, onUploadStarted, compact, imageType, disabled } = props
 
     const [imagePreview, setImagePreview] = useState<string | undefined>(placeholderUrl)
     const [isDraging, setIsDraging] = useState(false)
@@ -56,6 +57,7 @@ export default function ImageUpload(props: Props) {
     const height = compact ? 36 : 40
     return (
         < Dropzone
+            disabled={disabled || isUploading}
             onDropAccepted={handleDrop}
             accept={{
                 'image/*': [
@@ -65,8 +67,7 @@ export default function ImageUpload(props: Props) {
             maxFiles={1}
             maxSize={10 * 1024 * 1024}
             multiple={false}
-            onDrop={() => setIsDraging(false)
-            }
+            onDrop={() => setIsDraging(false)}
             onDragEnter={() => setIsDraging(true)}
             onDragLeave={() => setIsDraging(false)}
         >
@@ -76,19 +77,20 @@ export default function ImageUpload(props: Props) {
                         <Form.Control id={`file-input`} as={'input'} {...getInputProps()} />
                     }
                     <Card
-                        className={`bg-dark-900 image-upload-container ${isDraging ? 'bg-dark-700' : ''}`}
-                        style={{ cursor: 'pointer', minHeight: height + 2, maxHeight: height + 2, borderColor: '#332b3f' }}
+                        className={`bg-dark-${disabled ? '200' : '900'} image-upload-container ${isDraging ? 'bg-dark-700' : ''}`}
+                        style={{ cursor: disabled ? 'default' : 'pointer', minHeight: height + 2, maxHeight: height + 2, borderColor: '#332b3f' }}
                     >
-                        {imagePreview ? [
-                            <ReactImage key={1} alt={'img'} src={resolveImageFilePath(imagePreview, 'comp')} className='image-upload-image' />,
-                            isUploading ? <div key={3} className='image-upload-overlay-loading  '>
-                                <ProgressBar now={100 * uploadProgress} style={{ height: height }} />
-                            </div> :
-                                <div key={2} className='image-upload-overlay'><i className="bi bi-upload" style={{ fontSize: compact ? '1.50rem' : '1.75rem' }}></i></div>
-                        ] : [
-                            <div key={1} className='image-upload-overlay'></div>,
-                            <i key={2} className="bi bi-upload" style={{ fontSize: compact ? '1.50rem' : '1.75rem' }}></i>
-                        ]}
+                        {disabled ? null
+                            : imagePreview ? [
+                                <ReactImage key={1} alt={'img'} src={resolveImageFilePath(imagePreview, 'comp')} className='image-upload-image' />,
+                                isUploading ? <div key={3} className='image-upload-overlay-loading  '>
+                                    <ProgressBar now={100 * uploadProgress} style={{ height: height }} />
+                                </div> :
+                                    <div key={2} className='image-upload-overlay'><i className="bi bi-upload" style={{ fontSize: compact ? '1.50rem' : '1.75rem' }}></i></div>
+                            ] : [
+                                <div key={1} className='image-upload-overlay'></div>,
+                                <i key={2} className="bi bi-upload" style={{ fontSize: compact ? '1.50rem' : '1.75rem' }}></i>
+                            ]}
                     </Card>
                 </Form.Group>
             }

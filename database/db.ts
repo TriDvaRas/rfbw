@@ -143,10 +143,12 @@ Player.init({
 })
 
 
+type WheelItemAudioType = 'wheel' | 'wheelitem' | 'other';
+
 export class Audio extends Model {
     declare id: string
     declare addedById: string
-    declare type: 'wheel' | 'other'
+    declare type: WheelItemAudioType
     declare filePath: string
     declare originalName: string
     declare mime: string
