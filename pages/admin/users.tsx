@@ -15,7 +15,7 @@ const Home: NextPageWithLayout = () => {
   const session = useSession()
   const router = useRouter()
   if (session.status == 'unauthenticated' || (session.status == 'authenticated' && !session.data.user.isAdmin))
-    router.replace(`/404`)
+    router.push(`/404`)
 
   return <Row className=" pr-3">
     <Col xs={12} lg={2} className="h-100 " style={width < 768 ? {} : { height: maxCardHeight }}>

@@ -90,11 +90,11 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
     }
     //#region 40x
     if (wheel.error?.status == 404 || wheelItems.error?.status == 404) {
-        router.replace(`/404`)
+        router.push(`/404`)
         return <></>
     }
     if (wheel.error?.status == 403 || wheelItems.error?.status == 403) {
-        router.replace(`/403`)
+        router.push(`/403`)
         return <></>
     }
     if (session.data && !session.data.user.isPlayer)

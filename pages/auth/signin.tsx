@@ -14,7 +14,7 @@ const SignIn: NextPageWithLayout = ({ providers }: Props) => {
     const router = useRouter()
     const callbackUrl = router.query.callbackUrl
     if (session.status == 'authenticated')
-        router.replace((callbackUrl as string) || '/')
+        router.push((callbackUrl as string) || '/')
 
     return (session.status == 'loading' ?
         <LoadingDots /> :

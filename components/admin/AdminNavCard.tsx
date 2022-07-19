@@ -58,7 +58,7 @@ export default function AdminNavCard(props: Props) {
             <div style={{ height: props.cardHeight - 68 }}>
                 <div className='p-3'>
                     {items.map(item =>
-                        <Button variant='secondary' className={`shadow w-100 mb-3 ${router.pathname === item.to ? `bg-secondary-active border-dark` : ``}`} key={item.to} onClick={() => router.replace(`/admin/${item.to}`)}>
+                        <Button variant='secondary' className={`shadow w-100 mb-3 ${router.pathname === item.to ? `bg-secondary-active border-dark` : ``}`} key={item.to} onClick={() => router.push(`/admin/${item.to}`)}>
                             {item.title}
                         </Button>
                     )}

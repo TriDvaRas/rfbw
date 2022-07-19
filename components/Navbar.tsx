@@ -17,7 +17,7 @@ const Bar = ({ }: Props) => {
     return (
         <div id='navbar'>
             <Navbar expand='md'  bg="dark-700" variant="dark" >
-                <div onClick={() => router.replace(`/`)}>
+                <div onClick={() => router.push(`/`)}>
                     <h3 className='mb-0 mx-3'>RFBW<span className='egg-text'></span></h3>
                 </div>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -26,7 +26,7 @@ const Bar = ({ }: Props) => {
                         style={{fontSize:'1.25rem'}}
                         className=""
                         activeKey={router.asPath}
-                        onSelect={(selectedKey) => router.replace(selectedKey as string)}
+                        onSelect={(selectedKey) => router.push(selectedKey as string)}
                     >
                         <Nav.Link eventKey='/rules'>Правила</Nav.Link>
                         {/* <Nav.Link eventKey='/players'>Участники</Nav.Link> */}
@@ -46,7 +46,7 @@ const Bar = ({ }: Props) => {
                 <Navbar.Collapse className="justify-content-end">
                     <Nav
                         activeKey={router.asPath}
-                        onSelect={(selectedKey) => router.replace(selectedKey as string)}>
+                        onSelect={(selectedKey) => router.push(selectedKey as string)}>
                         {
                             sessionStatus == 'loading' ? <LoadingDots compact className='me-3' count={3} size='sm' /> :
                                 session ?

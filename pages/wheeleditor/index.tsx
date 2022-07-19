@@ -49,7 +49,7 @@ const WheelEditorList: NextPageWithLayout = () => {
                                 admin={wheel.ownedById !== player.player?.id}
                                 withAuthor={wheel.ownedById !== player.player?.id}
                                 wheel={wheel}
-                                onClick={() => router.replace(`/wheeleditor/${wheel.id}`)} />
+                                onClick={() => router.push(`/wheeleditor/${wheel.id}`)} />
                         </Col>
                     )}
                     {(player.player?.maxWheels || 0) > (wheels.wheels?.filter(x => x.ownedById === player.player?.id).length || 0) &&
