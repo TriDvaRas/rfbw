@@ -33,6 +33,7 @@ export default function TheWheelSettings(props: Props) {
     const [isSaving, setIsSaving] = useState(false)
     const [isAudioUploading, setIsAudioUploading] = useState(false)
     const [error, setError] = useState<ApiError | undefined>()
+    const [cancelAudioStop, setCancelAudioStop] = useState<() => void>(() => { })
 
     const [isTestSpinning, setIsTestSpinning] = useState(false)
     const [allowTestSpin, setAllowTestSpin, cancelSetAllowTestSpin] = useDelayedState(true)
@@ -212,16 +213,21 @@ export default function TheWheelSettings(props: Props) {
                 <Button disabled={!allowTestSpin || isAudioUploading || isSaving} variant='warning' onClick={() => {
                     const ae = (audioRef.current as any)?.audioEl.current as HTMLAudioElement
                     if (!isTestSpinning) {
+                        if (cancelAudioStop)
+                            cancelAudioStop()
+
                         ae.play()
                         setIsTestSpinning(true)
                         if (doTestSpin)
                             doTestSpin()
-                        setTimeout(() => {
+                        setCancelAudioStop(setTimeout(() => {
                             ae.pause()
                             ae.currentTime = 0
-                        }, (wheel.spinDuration + wheel.prespinDuration) * 1000 + 30)
+                        }, (wheel.spinDuration + wheel.prespinDuration) * 1000 + 30) as any)
                     }
                     else {
+                        if (cancelAudioStop)
+                            cancelAudioStop()
                         ae.pause()
                         ae.currentTime = 0
                         setIsTestSpinning(false)
