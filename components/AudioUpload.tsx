@@ -17,10 +17,11 @@ interface Props {
     onError: (err: ApiError) => void
     type: Audio['type']
     compact?: boolean
+    disabled?: boolean
     audioId?: string
 }
 export default function AudioUpload(props: Props) {
-    const { onDrop, onUploaded, onError, onUploadStarted, compact, audioId, type } = props
+    const { onDrop, onUploaded, onError, onUploadStarted, compact, audioId, type, disabled } = props
     const audio = useAudio(audioId)
 
     const [isDraging, setIsDraging] = useState(false)
@@ -57,6 +58,7 @@ export default function AudioUpload(props: Props) {
     const height = compact ? 36 : 40
     return (
         < Dropzone
+            disabled={disabled}
             onDropAccepted={handleDrop}
             accept={{
                 'audio/*': [
@@ -76,8 +78,8 @@ export default function AudioUpload(props: Props) {
                         <Form.Control id={`file-input`} as={'input'} {...getInputProps()} />
                     }
                     <Card
-                        className={`bg-dark-900 image-upload-container ${isDraging ? 'bg-dark-700' : ''}`}
-                        style={{ cursor: 'pointer', minHeight: height + 2, maxHeight: height + 2, borderColor: '#332b3f' }}
+                        className={`bg-dark-${disabled ? '200' : '900'} image-upload-container ${isDraging ? 'bg-dark-700' : ''}`}
+                        style={{ cursor: disabled ? 'default' : 'pointer', minHeight: height + 2, maxHeight: height + 2, borderColor: '#332b3f' }}
                     >
                         {
                             [
@@ -88,13 +90,14 @@ export default function AudioUpload(props: Props) {
                                 }}>
                                     {audio.audio.originalName}
                                 </div>,
-                                , isUploading ?
-                                    <div key={3} className='image-upload-overlay-loading'>
-                                        <ProgressBar now={100 * uploadProgress} style={{ height: height }} />
-                                    </div> :
-                                    <div key={2} className='image-upload-overlay'>
-                                        <i className="bi bi-upload" style={{ fontSize: compact ? '1.50rem' : '1.75rem' }}></i>
-                                    </div>
+                                , disabled ? null
+                                    : isUploading ?
+                                        <div key={3} className='image-upload-overlay-loading'>
+                                            <ProgressBar now={100 * uploadProgress} style={{ height: height }} />
+                                        </div> :
+                                        <div key={2} className='image-upload-overlay'>
+                                            <i className="bi bi-upload" style={{ fontSize: compact ? '1.50rem' : '1.75rem' }}></i>
+                                        </div>
                             ]
                         }
                     </Card>

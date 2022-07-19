@@ -32,7 +32,7 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
 
     const { height } = useWindowSize()
     const [wheelContainerRef, { width, }] = useElementSize()
-    const maxCardHeight = height - 56 - 32
+    const maxCardHeight = height - 56 - 8
     const maxCardWidth = width - 56 - 32
 
     const [newItemLoading, setNewItemLoading] = useState(false)
@@ -117,23 +117,24 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
                 <TheWheelSettings
                     wheel={localWheel}
                     onUpdate={(upd) => setLocalWheel({ ...localWheel, ...upd } as Wheel)}
-                    maxHeight={Math.min(maxCardHeight * 4 / 5, maxCardWidth) + 2}
-                    doTestSpin={(duration) => {
-                        if (duration && duration > 0) {
-                            setSpinDuration(duration)
+                    maxHeight={Math.min(maxCardHeight * 4 / 5, maxCardWidth) }
+                    doTestSpin={(stop) => {
+                        if (!stop) {
+                            setSpinDuration(localWheel.spinDuration)
+                            cancelSetIsIdleSpinning()
                             setIsIdleSpinning(false)
                             setIsPrespinning(true, 10)
-                            setIsSpinning(true, 15500)
-                            setSpinSelectIndex(randomInt(0, localWheelItems?.length || 5), 15500)
-                            setSpinExtraSpin(Math.random() * .995 - .5, 15500)
+                            setIsSpinning(true, localWheel.prespinDuration * 1000 + 20)
+                            setSpinSelectIndex(randomInt(0, localWheelItems?.length || 5), localWheel.prespinDuration * 1000 + 20)
+                            setSpinExtraSpin(Math.random() * .995 - .5, localWheel.prespinDuration * 1000 + 20)
                         }
                         else {
-                            setIsPrespinning(false)
-                            setIsIdleSpinning(true)
                             cancelSetIsSpinning()
                             cancelSetSpinSelectIndex()
                             cancelSetSpinExtraSpin()
-                            setIsSpinning(false)
+                            setIsPrespinning(false, 10)
+                            setIsSpinning(false, 20)
+                            setIsIdleSpinning(true, 800)
                         }
                     }}
                     onReset={() => {

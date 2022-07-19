@@ -49,6 +49,8 @@ export default router
             wheel.dotColor = req.body.dotColor === undefined ? wheel.dotColor : req.body.dotColor
             wheel.minimalSpin = req.body.minimalSpin === undefined ? wheel.minimalSpin : req.body.minimalSpin
             wheel.audioId = req.body.audioId === undefined ? wheel.audioId : req.body.audioId
+            wheel.spinDuration = req.body.spinDuration === undefined ? wheel.spinDuration : req.body.spinDuration
+            wheel.prespinDuration = req.body.prespinDuration === undefined ? wheel.prespinDuration : req.body.prespinDuration
             if (req.session.user.isAdmin) {
                 wheel.minSize = req.body.minSize === undefined ? wheel.minSize : req.body.minSize
                 wheel.maxSize = req.body.maxSize === undefined ? wheel.maxSize : req.body.maxSize

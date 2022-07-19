@@ -182,6 +182,9 @@ export class Wheel extends Model {
     declare backgroundColor: string
     declare dotColor: string
     declare minimalSpin: number
+    declare prespinDuration: number
+    declare spinDuration: number
+    declare audioVolume: number
     declare audioId?: string
     declare minSize: number
     declare maxSize: number
@@ -215,6 +218,9 @@ Wheel.init({
     backgroundColor: { type: DataTypes.STRING(10), allowNull: false, defaultValue: '#2b2744' },
     dotColor: { type: DataTypes.STRING(10), allowNull: false, defaultValue: '#ffffff' },
     minimalSpin: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 20 },
+    prespinDuration: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 3 },
+    spinDuration: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 60 },
+    audioVolume: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0.05 },
     audioId: {
         type: DataTypes.UUID,
         allowNull: true,
@@ -323,7 +329,7 @@ export function syncTables() {
             // Image.sync({ force: true }),
             // Player.sync({ force: true }),
             // Audio.sync({ alter: true }),
-            // Wheel.sync({ force: true }),
+            Wheel.sync({ alter: true }),
             // WheelItem.sync({ force: true }),
         ])
 }

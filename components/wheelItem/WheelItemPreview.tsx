@@ -27,7 +27,7 @@ export default function WheelItemPreview(props: Props) {
                 borderRadius: '16px',
                 overflow: 'hidden',
                 cursor: onClick ? 'pointer' : undefined,
-                textShadow:'#0008 0 0 7px'
+                textShadow: '#0008 0 0 7px'
             }}>
 
             <div className='flex-grow-1 me-1 m-3 px-2 d-flex align-items-start flex-column' style={{ zIndex: 15 }}>
@@ -38,7 +38,7 @@ export default function WheelItemPreview(props: Props) {
             </div>
             <div className=' m-3 ms-1 p-2 d-flex align-items-center flex-column justify-content-center' style={{ zIndex: 15 }}>
                 <h4 className='ms-2 mt-2'>{getTypeIcon(item.type)}</h4>
-                <h4 className='ms-2 '><i color={item.fontColor} className={`bi ${item.showText ? 'bi-square-fill' : 'bi-square'}`}></i></h4>
+                <h4 className='ms-2 '><i style={{ color: item.fontColor }} className={`bi ${item.showText ? 'bi-square-fill' : 'bi-square'}`}></i></h4>
                 <h4 className='ms-2 '><i className={`bi ${item.imageMode === 'height' ? 'bi-arrow-down-up' : 'bi-arrow-left-right'}`}></i></h4>
                 <h4 className='ms-2 '><i className={`bi ${item.hasCoop && item.maxCoopPlayers > 1 || item.type !== 'game' ? 'bi-people' : 'bi-person'}`}></i></h4>
                 <h4 className='ms-2 '><i className={`bi ${item.audioId ? 'bi-volume-down' : 'bi-volume-mute'}`}></i></h4>
