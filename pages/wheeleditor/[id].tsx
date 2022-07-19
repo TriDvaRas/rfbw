@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, Col, Row } from 'react-bootstrap';
 import { useElementSize, useWindowSize } from 'usehooks-ts';
 import LoadingDots from "../../components/LoadingDots";
@@ -18,6 +18,7 @@ import { ApiError } from "../../types/common-api";
 import { NextPageWithLayout } from "../_app";
 import useDelayedState from 'use-delayed-state'
 import { randomInt } from '../../util/random';
+import ReactAudioPlayer from "react-audio-player";
 
 interface Props {
 
@@ -34,6 +35,8 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
     const [wheelContainerRef, { width, }] = useElementSize()
     const maxCardHeight = height - 56 - 8
     const maxCardWidth = width - 56 - 32
+
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     const [newItemLoading, setNewItemLoading] = useState(false)
 
@@ -55,6 +58,19 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
         if (wheelItems.wheelItems && !localWheelItems)
             setLocalWheelItems(wheelItems.wheelItems)
     }, [localWheelItems, wheelItems.wheelItems])
+
+    const [isAudioPlaying, setIsAudioPlaying, cancelSetIsAudioPlaying] = useDelayedState(false)
+    useEffect(() => {
+        const ae = (audioRef.current as any)?.audioEl.current as HTMLAudioElement
+        if (ae)
+            if (isAudioPlaying) {
+                ae.play()
+            }
+            else {
+                ae.pause()
+                ae.currentTime = 0
+            }
+    }, [isAudioPlaying])
 
     function onItemAdd() {
         setNewItemLoading(true)
@@ -117,24 +133,32 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
                 <TheWheelSettings
                     wheel={localWheel}
                     onUpdate={(upd) => setLocalWheel({ ...localWheel, ...upd } as Wheel)}
-                    maxHeight={Math.min(maxCardHeight * 4 / 5, maxCardWidth) }
+                    maxHeight={Math.min(maxCardHeight * 4 / 5, maxCardWidth)}
                     doTestSpin={(stop) => {
                         if (!stop) {
                             setSpinDuration(localWheel.spinDuration)
                             cancelSetIsIdleSpinning()
                             setIsIdleSpinning(false)
+
                             setIsPrespinning(true, 10)
+
                             setIsSpinning(true, localWheel.prespinDuration * 1000 + 20)
                             setSpinSelectIndex(randomInt(0, localWheelItems?.length || 5), localWheel.prespinDuration * 1000 + 20)
+                            // setSpinSelectIndex(1)
                             setSpinExtraSpin(Math.random() * .995 - .5, localWheel.prespinDuration * 1000 + 20)
+
+                            setIsAudioPlaying(true, (localWheel.spinDuration + localWheel.prespinDuration) * 1000)
                         }
                         else {
                             cancelSetIsSpinning()
+                            cancelSetIsAudioPlaying()
                             cancelSetSpinSelectIndex()
+                            cancelSetIsPrespinning()
                             cancelSetSpinExtraSpin()
                             setIsPrespinning(false, 10)
                             setIsSpinning(false, 20)
                             setIsIdleSpinning(true, 800)
+                            setIsAudioPlaying(false)
                         }
                     }}
                     onReset={() => {
@@ -148,6 +172,18 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
                             })
                     }}
                 />
+                {
+                    spinSelectIndex && localWheelItems && localWheelItems[spinSelectIndex] && localWheelItems[spinSelectIndex].audioId && <ReactAudioPlayer
+                        ref={audioRef as any}
+                        src={`/api/audios/${localWheelItems[spinSelectIndex].audioId}`}
+                        volume={0.06}
+                        // controls
+                        preload='auto'
+                        onEnded={() => {
+
+                        }}
+                    />
+                }
             </Col>
             <Col xl={12} xs={12} className='my-3 p-0'>
                 {wheelItems.loading ? <LoadingDots /> :

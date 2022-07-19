@@ -184,7 +184,7 @@ export default function TheWheelSettings(props: Props) {
                                 wheel.audioId && <ReactAudioPlayer
                                     ref={audioRef as any}
                                     src={`/api/audios/${wheel.audioId}`}
-                                    volume={0.05}
+                                    volume={0.03}
                                     // controls
                                     preload='auto'
                                     onEnded={() => {
@@ -208,6 +208,7 @@ export default function TheWheelSettings(props: Props) {
             </Card.Body>
             {/* <Card.Footer> */}
             <div className='d-flex justify-content-end m-3'>
+                <div className="flex-grow-1 me-auto"></div>
                 <Button disabled={!allowTestSpin || isAudioUploading || isSaving} variant='warning' onClick={() => {
                     const ae = (audioRef.current as any)?.audioEl.current as HTMLAudioElement
                     if (!isTestSpinning) {
@@ -215,6 +216,10 @@ export default function TheWheelSettings(props: Props) {
                         setIsTestSpinning(true)
                         if (doTestSpin)
                             doTestSpin()
+                        setTimeout(() => {
+                            ae.pause()
+                            ae.currentTime = 0
+                        }, (wheel.spinDuration + wheel.prespinDuration) * 1000 + 30)
                     }
                     else {
                         ae.pause()
@@ -226,8 +231,7 @@ export default function TheWheelSettings(props: Props) {
                             doTestSpin(true)
                     }
                 }}>{(audioRef.current as any)?.audioEl.current.paused ? 'Тест' : 'Стоп'}</Button>
-                <div className="flex-grow-1 me-auto"></div>
-                <Button className='ms-3' variant='secondary' disabled={isAudioUploading || isSaving || isTestSpinning} onClick={onReset}>Сброс</Button>
+                {/* <Button className='ms-3' variant='secondary' disabled={isAudioUploading || isSaving || isTestSpinning} onClick={onReset}>Сброс</Button> */}
                 <Button className='ms-3' variant='primary' disabled={isAudioUploading || isSaving}
                     onClick={handleSave}>{isSaving ? <Spinner animation={'border'} size='sm' /> : 'Сохранить'}</Button>
             </div>
