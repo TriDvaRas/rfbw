@@ -65,6 +65,12 @@ export default function AudioUpload(props: Props) {
                     '.wav', '.mp3'
                 ]
             }}
+            onDropRejected={(e) => {
+                onError({
+                    status: 400,
+                    error: e[0].errors.map(x => x.message).join(`. `)
+                })
+            }}
             maxFiles={1}
             maxSize={30 * 1024 * 1024}
             multiple={false}

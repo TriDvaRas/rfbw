@@ -64,6 +64,12 @@ export default function ImageUpload(props: Props) {
                     '.png', '.jpg', '.jpeg', ...(allowGif ? ['.gif'] : [])
                 ]
             }}
+            onDropRejected={(e) => {
+                onError({
+                    status: 400,
+                    error: e[0].errors.map(x => x.message).join(`. `)
+                })
+            }}
             maxFiles={1}
             maxSize={10 * 1024 * 1024}
             multiple={false}

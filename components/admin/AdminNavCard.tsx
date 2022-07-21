@@ -22,20 +22,12 @@ export default function AdminNavCard(props: Props) {
                 to: 'players'
             },
             {
-                title: "Колеса(не торч)",
-                to: 'wheels'
-            },
-            {
-                title: "Бананы",
-                to: 'items'
+                title: "Игры",
+                to: 'games'
             },
             {
                 title: "Правила",
                 to: 'rules'
-            },
-            {
-                title: "Эффекст",
-                to: 'effects'
             },
         ]
     //TODO function testasButtanitas() {

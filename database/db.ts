@@ -66,7 +66,7 @@ Rules.init({
 export class Image extends Model {
     declare id: string
     declare addedById: string
-    declare type: 'player' | 'wheelitem' | 'other'
+    declare type: 'player' | 'wheelitem' | 'game' | 'other'
     declare imageData: string
     declare preview: boolean
     declare mime: string
@@ -322,6 +322,153 @@ WheelItem.init({
 })
 
 
+export class Game extends Model {
+    declare id: string
+    declare addedById: string
+    declare startsAt: string
+    declare endsAt: string
+    declare name: string
+    declare imageId: string
+    
+    declare createdAt: string
+    declare updatedAt: string
+}
+Game.init({
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    addedById: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: User,
+            key: 'id'
+        }
+    },
+    startsAt: { type: DataTypes.DATE, allowNull: false },
+    endsAt: { type: DataTypes.DATE, allowNull: false },
+    name: { type: DataTypes.STRING(64), allowNull: false, defaultValue: 'RFBW' },
+    imageId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    },
+}, {
+    sequelize,
+    modelName: 'games',
+})
+
+export class GamePlayer extends Model {
+    declare gameId: string
+    declare playerId: string
+    declare addedById: string
+
+    declare createdAt: string
+    declare updatedAt: string
+}
+GamePlayer.init({
+    gameId: {
+        primaryKey: true,
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Game,
+            key: 'id'
+        }
+    },
+    playerId: {
+        primaryKey: true,
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Player,
+            key: 'id'
+        }
+    },
+    addedById: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: User,
+            key: 'id'
+        }
+    },
+}, {
+    sequelize,
+    modelName: 'gameplayers',
+})
+
+
+export class GamePoints extends Model {
+    declare id: string
+    declare gameId: string
+    declare values: {
+        playerId: string,
+        points: number,
+    }
+    declare type: 'delta' | 'sum'
+    declare source: 'content' | 'effect' | 'admin'
+
+    declare createdAt: string
+    declare updatedAt: string
+}
+GamePoints.init({
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    gameId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Game,
+            key: 'id'
+        }
+    },
+    type: { type: DataTypes.STRING(8), allowNull: false },
+    source: { type: DataTypes.STRING(24), allowNull: false },
+}, {
+    sequelize,
+    modelName: 'gamepoints',
+})
+
+
+export class GameWheel extends Model {
+    declare gameId: string
+    declare wheelId: string
+    declare addedById: string
+
+    declare createdAt: string
+    declare updatedAt: string
+}
+GameWheel.init({
+    gameId: {
+        primaryKey: true,
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Game,
+            key: 'id'
+        }
+    },
+    wheelId: {
+        primaryKey: true,
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Wheel,
+            key: 'id'
+        }
+    },
+    addedById: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: User,
+            key: 'id'
+        }
+    },
+}, {
+    sequelize,
+    modelName: 'gamewheels',
+})
+
+
+
 //TODO remove
 export function syncTables() {
     if (process.env.DEV_DEV)
@@ -331,7 +478,12 @@ export function syncTables() {
             // Image.sync({ force: true }),
             // Player.sync({ force: true }),
             // Audio.sync({ alter: true }),
-            Wheel.sync({ alter: true }),
+            // Wheel.sync({ alter: true }),
             // WheelItem.sync({ force: true }),
+            Game.sync({ force: true }),
+            GamePlayer.sync({ force: true }),
+            GamePoints.sync({ force: true }),
+            GameWheel.sync({ force: true }),
+
         ])
 }

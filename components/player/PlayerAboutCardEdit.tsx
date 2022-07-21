@@ -44,7 +44,7 @@ export default function PlayerAboutCardEdit(props: Props) {
         else {
             setError(undefined)
             setIsSaving(true)
-            axios.patch<Player>(`/api/players/me`, player).then((data) => {
+            axios.patch<Player>(`/api/players/${player.id}`, player).then((data) => {
                 setIsSaving(false)
                 props.onSaved(data.data)
             }).catch((err: AxiosError<ApiError>) => {

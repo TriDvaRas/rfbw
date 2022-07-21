@@ -14,6 +14,9 @@ import '../styles/wheel.css';
 import '../styles/rotate.sass';
 import '../styles/image.sass';
 import 'simplebar/dist/simplebar.min.css';
+import 'react-datetime-picker/dist/DateTimePicker.css';
+import 'react-calendar/dist/Calendar.css';
+import 'react-clock/dist/Clock.css';
 import Head from 'next/head'
 
 export type NextPageWithLayout = NextPage<any> & {

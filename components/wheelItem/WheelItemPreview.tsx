@@ -14,8 +14,8 @@ interface Props {
 export default function WheelItemPreview(props: Props) {
     const { onClick, item } = props
     const [squareRef, { width, height }] = useElementSize()
-    const imagePreview = useImage(item.imageId || `58b2cad5-5ae6-47c2-8a6b-6e02aa18e874`, true)
-    const image = useImage(item.imageId || `58b2cad5-5ae6-47c2-8a6b-6e02aa18e874`)
+    const imagePreview = useImage(item.imageId, true)
+    const image = useImage(item.imageId)
     const size = 240
     return (
         <div

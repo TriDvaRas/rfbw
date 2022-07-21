@@ -90,6 +90,8 @@ function getBigSize(type: string) {
             return 1000
         case 'wheelitem':
             return 1400
+        case 'game':
+            return 1920
         default:
             return 1500
     }
@@ -100,6 +102,8 @@ function getMinSizes(type: string) {
             return [600, 600]
         case 'wheelitem':
             return [500, 300]
+        case 'game':
+            return [750, 300]
         default:
             return [500, 500]
     }

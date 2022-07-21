@@ -28,7 +28,7 @@ export default function AdminUsers(props: Props) {
                 {!users.users ? <LoadingDots /> : <Table variant="dark" className='mb-0 '>
                     <thead className='bg-dark-700'>
                         <tr>
-                            {/* <th>id</th> */}
+                            <th>id</th>
                             <th></th>
                             <th>Name</th>
                             <th>DisplayName</th>
@@ -40,7 +40,7 @@ export default function AdminUsers(props: Props) {
                     <tbody>
                         {users.users.map(user =>
                             <tr key={user.id}>
-                                {/* <td className='td-min-width'>{user.id}</td> */}
+                                <td className='td-min-width'>{user.id}</td>
                                 <td className='py-0 td-min-width'>
                                     <ImageWithPreview imageKey={user.id} size={35} src={`https://cdn.discordapp.com/avatars/${user.discordId}/${user.image}.png`} />
                                 </td>

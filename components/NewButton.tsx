@@ -4,7 +4,7 @@ interface Props {
     onClick: () => void;
     text?: string;
 }
-export default function NewWheelButton(props: Props) {
+export default function NewButton(props: Props) {
     const { onClick, text } = props
     return (
         <div className={`h-100 w-100 bg-dark-950`} onClick={onClick} style={{ cursor: 'pointer' }}>

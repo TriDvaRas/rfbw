@@ -16,7 +16,7 @@ import usePlayer from '../../data/usePlayer';
 import GetThinLayout from "../../layouts/thin";
 import { NextPageWithLayout } from "../_app";
 
-const WheelEditorList: NextPageWithLayout = () => {
+const WheelList: NextPageWithLayout = () => {
     const session = useSession()
     const wheels = useEditableWheels()
     const { width, height } = useWindowSize()
@@ -48,5 +48,5 @@ const WheelEditorList: NextPageWithLayout = () => {
         }
     </>
 }
-WheelEditorList.getLayout = GetThinLayout
-export default WheelEditorList
+WheelList.getLayout = GetThinLayout
+export default WheelList
