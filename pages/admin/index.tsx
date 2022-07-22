@@ -17,7 +17,7 @@ const Home: NextPageWithLayout = () => {
     router.push(`/404`)
 
   return <Row className=" pr-3">
-    <Col xs={2} className="h-100 " style={{ height: maxCardHeight }}>
+    <Col md={12} className="h-100 " style={{ height: maxCardHeight }}>
       <AdminNavCard cardHeight={maxCardHeight} />
     </Col>
 

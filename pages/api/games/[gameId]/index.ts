@@ -32,17 +32,19 @@ export default router
     .use(requirePlayer)
     .patch(async (req, res) => {
         try {
-            const wheel = await Game.findOne({
+            const game = await Game.findOne({
                 where: {
                     id: req.query.gameId
                 }
             })
-            if (!wheel)
+            if (!game)
                 return res.status(404).json({ error: 'А где', status: 404 })
-            wheel.name = req.body.name === undefined ? wheel.name : req.body.name
-            wheel.imageId = req.body.imageId === undefined ? wheel.imageId : req.body.imageId
-            await wheel.save()
-            res.json(wheel)
+            game.name = req.body.name === undefined ? game.name : req.body.name
+            game.imageId = req.body.imageId === undefined ? game.imageId : req.body.imageId
+            game.startsAt = req.body.startsAt === undefined ? game.startsAt : req.body.startsAt
+            game.endsAt = req.body.endsAt === undefined ? game.endsAt : req.body.endsAt
+            await game.save()
+            res.json(game)
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })
         }

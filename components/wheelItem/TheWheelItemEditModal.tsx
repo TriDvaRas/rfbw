@@ -139,6 +139,7 @@ export default function WheelItemEditModal(props: Props) {
                                 <Form.Group as={Col} xl={3} lg={6} sm={12} xs={12} className='mb-3'>
                                     <Form.Label>Цвет Ярлыка</Form.Label>
                                     <ColorPicker
+                                        disabled={isImageUploading || isSaving}
                                         placement='bottom'
                                         onChange={(color: IColor) => handleChange({ fontColor: color.hex })}
                                         defColor={{ rgb: { r: fontColor.red, g: fontColor.green, b: fontColor.blue }, hex: selectedItem.fontColor || '#fff' }}

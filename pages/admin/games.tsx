@@ -1,15 +1,11 @@
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { Row, Col } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import { useWindowSize } from 'usehooks-ts';
+import AdminGames from '../../components/admin/AdminGames';
 import AdminNavCard from '../../components/admin/AdminNavCard';
-import AdminUsers from '../../components/admin/AdminUsers';
 import GetDefaultLayout from '../../layouts/default';
-import light from '../public/light.webp';
 import { NextPageWithLayout } from '../_app';
-import AdminPlayers from '../../components/admin/AdminPlayers';
-import AdminRules from '../../components/admin/AdminRules';
 
 const Home: NextPageWithLayout = () => {
   const { height, width } = useWindowSize()
@@ -24,7 +20,7 @@ const Home: NextPageWithLayout = () => {
       <AdminNavCard cardHeight={maxCardHeight} />
     </Col>
     <Col md={12} lg={10} className="h-100 pe-4" style={width < 768 ? {} : { height: maxCardHeight }}>
-      <AdminRules cardHeight={maxCardHeight} />
+      <AdminGames cardHeight={maxCardHeight} />
     </Col>
   </Row >
 }

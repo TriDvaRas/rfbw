@@ -19,10 +19,10 @@ const Home: NextPageWithLayout = () => {
     router.push(`/404`)
 
   return <Row className=" pr-3">
-    <Col xs={12} lg={2} className="h-100 " style={width < 768 ? {} : { height: maxCardHeight }}>
+    <Col md={12} lg={2} className="h-100 " style={width < 768 ? {} : { height: maxCardHeight }}>
       <AdminNavCard cardHeight={maxCardHeight} />
     </Col>
-    <Col xs={12} lg={10} className="h-100 pe-4" style={width < 768 ? {} : { height: maxCardHeight }}>
+    <Col md={12} lg={10} className="h-100 pe-4" style={width < 768 ? {} : { height: maxCardHeight }}>
       <AdminPlayers cardHeight={maxCardHeight} />
     </Col>
   </Row >

@@ -97,13 +97,9 @@ Image.init({
 export class Player extends Model {
     declare id: string
     declare addedById: string
-    declare points: number
     declare about: string
     declare name: string
     declare imageId?: string
-    declare ended: number
-    declare dropped: number
-    declare rerolled: number
     declare maxWheels: number
     declare createdAt: string
     declare updatedAt: string
@@ -126,16 +122,12 @@ Player.init({
             key: 'id'
         }
     },
-    points: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
     about: { type: DataTypes.TEXT, allowNull: false, defaultValue: 'Я уже человек человек' },
     name: { type: DataTypes.STRING(64), allowNull: false },
     imageId: {
         type: DataTypes.UUID,
         allowNull: true,
     },
-    ended: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-    dropped: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-    rerolled: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
     maxWheels: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 2 },
 }, {
     sequelize,
@@ -329,7 +321,7 @@ export class Game extends Model {
     declare endsAt: string
     declare name: string
     declare imageId: string
-    
+
     declare createdAt: string
     declare updatedAt: string
 }
@@ -359,6 +351,11 @@ export class GamePlayer extends Model {
     declare gameId: string
     declare playerId: string
     declare addedById: string
+
+    declare points: number
+    declare ended: number
+    declare dropped: number
+    declare rerolled: number
 
     declare createdAt: string
     declare updatedAt: string
@@ -390,6 +387,10 @@ GamePlayer.init({
             key: 'id'
         }
     },
+    points: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    ended: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    dropped: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    rerolled: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
 }, {
     sequelize,
     modelName: 'gameplayers',
@@ -468,6 +469,57 @@ GameWheel.init({
 })
 
 
+export type GameTaskResult = 'drop' | 'finish' | 'skip' | 'reroll';
+
+export class GameTask extends Model {
+    declare gameId: string
+    declare wheelItemId: string
+    declare playerId: string
+
+    declare result?: GameTaskResult
+    declare points: number
+
+    declare endedAt?: string
+
+    declare createdAt: string
+    declare updatedAt: string
+}
+GameTask.init({
+    gameId: {
+        primaryKey: true,
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Game,
+            key: 'id'
+        }
+    },
+    wheelItemId: {
+        primaryKey: true,
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: WheelItem,
+            key: 'id'
+        }
+    },
+    playerId: {
+        primaryKey: true,
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Player,
+            key: 'id'
+        }
+    },
+    points: { type: DataTypes.INTEGER, allowNull: true },
+    endedAt: { type: DataTypes.DATE, allowNull: true },
+}, {
+    sequelize,
+    modelName: 'gametasks',
+})
+
+
 
 //TODO remove
 export function syncTables() {
@@ -476,14 +528,15 @@ export function syncTables() {
             // User.sync({ force: true }),
             // Rules.sync({ force: true }),
             // Image.sync({ force: true }),
-            // Player.sync({ force: true }),
+            // Player.sync({ alter: true }),
             // Audio.sync({ alter: true }),
             // Wheel.sync({ alter: true }),
             // WheelItem.sync({ force: true }),
-            Game.sync({ force: true }),
-            GamePlayer.sync({ force: true }),
-            GamePoints.sync({ force: true }),
-            GameWheel.sync({ force: true }),
+            // Game.sync({ force: true }),
+            // GamePlayer.sync({ force: true }),
+            // GamePoints.sync({ force: true }),
+            // GameWheel.sync({ force: true }),
+            // GameTask.sync({ force: true }),
 
         ])
 }

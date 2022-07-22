@@ -38,8 +38,8 @@ export default function WheelItems(props: Props) {
 
     return <div>
         <Row>
-            {items.map(x => <Col xl={6} md={6} sm={12} key={x.id}><WheelItemPreview item={x} onClick={() => handleEdit(x)} /></Col>)}
-            {items && items.length < wheel.maxSize && <Col xl={6} md={6} sm={12} key={'new'}><WheelItemNewButton loading={newLoading} onClick={() => handleAdd()} /></Col>}
+            {items.map(x => <Col xl={6} md={6} sm={12} key={x.id}><WheelItemPreview item={x} onClick={wheel.locked ? undefined : () => handleEdit(x)} /></Col>)}
+            {!wheel.locked && items && items.length < wheel.maxSize && <Col xl={6} md={6} sm={12} key={'new'}><WheelItemNewButton loading={newLoading} onClick={() => handleAdd()} /></Col>}
         </Row>
 
     </div>

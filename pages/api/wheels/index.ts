@@ -10,12 +10,20 @@ import { authOptions } from "../auth/[...nextauth]"
 
 
 
-const router = createRouter<NextApiRequest, NextApiResponse<Wheel | ApiError | null>>();
+const router = createRouter<NextApiRequest, NextApiResponse>();
 
 export default router
+    .get(async (req, res: NextApiResponse<Wheel[] | ApiError | null>) => {
+        try {
+            const wheels = await Wheel.findAll()
+            res.json(wheels)
+        } catch (error: any) {
+            res.status(500).json({ error: error.message, status: 500 })
+        }
+    })
     .use(requireApiSession)
     .use(requirePlayer)
-    .post(async (req, res) => {
+    .post(async (req, res: NextApiResponse<Wheel | ApiError | null>) => {
         try {
             const wheel = await Wheel.create({
                 addedById: req.session.user.id,

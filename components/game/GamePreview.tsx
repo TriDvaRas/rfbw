@@ -21,7 +21,7 @@ export default function GamePreview(props: Props) {
     return (
         <div
             ref={squareRef}
-            className={`m-3 d-flex text-light bg-dark ${onClick ? `darken-bg-on-hover` : ``}`}
+            className={`my-3 p-0 d-flex text-light bg-dark ${onClick ? `darken-bg-on-hover` : ``}`}
             onClick={onClick}
             style={{
                 // height: size,
@@ -59,7 +59,7 @@ export default function GamePreview(props: Props) {
 
             <div className={`flex-shrink-0`} style={{
                 zIndex: 14,
-                right: 0,
+                // right: 0,
                 backgroundPosition: 'center',
                 height: `${height}px`,
                 width: `${width}px`,

@@ -18,9 +18,10 @@ interface Props {
     onChange?: (color: IColor) => void;
     onPicked?: (color: IColor) => void;
     placement?: 'top' | 'left' | 'bottom' | 'right';
+    disabled?: boolean
 }
 export default function ColorPicker(props: Props) {
-    const { defColor, onChange, onPicked } = props
+    const { defColor, onChange, onPicked, disabled } = props
     const [color, setColor] = useState<IColor>(defColor)
     useEffect(() => {
         setColor(defColor)
@@ -42,13 +43,14 @@ export default function ColorPicker(props: Props) {
     const popover = <Popover id="color-picker" show={true}>
         <SketchPicker color={color.rgb} onChange={handleChange} />
     </Popover>
-    return (<OverlayTrigger trigger="click" onToggle={handleComplete} rootClose placement={props.placement || 'right'} overlay={popover}>
+    return (<OverlayTrigger trigger={disabled ? 'focus' : 'click'} onToggle={handleComplete} rootClose placement={props.placement || 'right'} overlay={popover}>
         <h4 className='w-100 text-center border border-dark shadow p-1'
             style={{
+                cursor: disabled ? 'default' : 'pointer',
                 fontFamily: 'Roboto Mono, monospace',
                 fontWeight: 'bold',
-                color: contrastColor({ bgColor: color.hex }),
-                backgroundColor: color.hex,
+                color: disabled ? 'var(--bs-light)' : contrastColor({ bgColor: color.hex }),
+                backgroundColor: disabled ? 'var(--bs-gray-200)' : color.hex,
                 marginTop: -3,
                 borderRadius: '11px'
             }}

@@ -179,7 +179,7 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
                             }}
                         />
                         {
-                            spinSelectIndex && localWheelItems && localWheelItems[spinSelectIndex] && localWheelItems[spinSelectIndex].audioId && <ReactAudioPlayer
+                            !!spinSelectIndex && !!localWheelItems && !!localWheelItems[spinSelectIndex] && !!localWheelItems[spinSelectIndex].audioId && <ReactAudioPlayer
                                 ref={audioRef as any}
                                 src={`/api/audios/${localWheelItems[spinSelectIndex].audioId}`}
                                 volume={0.06}

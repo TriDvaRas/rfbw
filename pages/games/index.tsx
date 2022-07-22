@@ -20,7 +20,7 @@ import NewButton from "../../components/NewButton";
 import NewGameModal from "../../components/game/NewGameModal";
 import GamePreview from "../../components/game/GamePreview";
 
-const WheelEditorList: NextPageWithLayout = () => {
+const GamesHome: NextPageWithLayout = () => {
     const session = useSession()
     const router = useRouter()
     const games = useGames()
@@ -63,5 +63,5 @@ const WheelEditorList: NextPageWithLayout = () => {
         }
     </>
 }
-WheelEditorList.getLayout = GetThinLayout
-export default WheelEditorList
+GamesHome.getLayout = GetThinLayout
+export default GamesHome
