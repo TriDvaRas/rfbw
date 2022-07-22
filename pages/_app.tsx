@@ -30,6 +30,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppPropsWith
   const getLayout = Component.getLayout ?? ((page) => page)
   const egg = { enabled: false } //TODO
   return <SessionProvider session={session}>
+    <Head>
+      <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    </Head>
     <div id="app" className={`mh-100 bg-dark-900 ${egg.enabled ? `body-egg` : ``}`}>
       {getLayout(<Component {...pageProps} />)}
     </div>
