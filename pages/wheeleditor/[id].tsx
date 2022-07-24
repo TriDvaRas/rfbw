@@ -20,6 +20,7 @@ import useDelayedState from 'use-delayed-state'
 import { randomInt } from '../../util/random';
 import ReactAudioPlayer from "react-audio-player";
 import Head from "next/head";
+import WheelPreview from '../../components/wheel/WheelPreview';
 
 interface Props {
 
@@ -120,9 +121,9 @@ const WheelEditor: NextPageWithLayout = ({ }: Props) => {
         {
             (wheelItems.wheelItems && localWheel) ?
                 <Row className="mh-100 p-0">
+                    <Col xl={12}><WheelPreview wheel={localWheel} /></Col>
                     <Col xl={8} ref={wheelContainerRef} lg={12} className="mh-100 p-0" >
                         <TheWheel
-                            withTitle
                             items={wheelItems.wheelItems}
                             idleSpin={isIdleSpinning}
                             height={Math.min(maxCardHeight * 4 / 5, maxCardWidth) - 56}

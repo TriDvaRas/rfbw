@@ -478,6 +478,7 @@ export class GameTask extends Model {
 
     declare result?: GameTaskResult
     declare points: number
+    declare fromCoop: boolean
 
     declare endedAt?: string
 
@@ -512,7 +513,9 @@ GameTask.init({
             key: 'id'
         }
     },
+    result: { type: DataTypes.STRING(16), allowNull: false },
     points: { type: DataTypes.INTEGER, allowNull: true },
+    fromCoop: { type: DataTypes.BOOLEAN, allowNull: false },
     endedAt: { type: DataTypes.DATE, allowNull: true },
 }, {
     sequelize,
@@ -536,7 +539,7 @@ export function syncTables() {
             // GamePlayer.sync({ force: true }),
             // GamePoints.sync({ force: true }),
             // GameWheel.sync({ force: true }),
-            // GameTask.sync({ force: true }),
+            GameTask.sync({ force: true }),
 
         ])
 }

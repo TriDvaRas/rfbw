@@ -21,7 +21,7 @@ import WheelPreview from './WheelPreview';
 
 interface Props {
     gameWheel: GameWheel,
-    fullImages?: boolean
+    expandable?: boolean
     onClick?: () => void
     admin?: boolean
     withAuthor?: boolean
@@ -29,5 +29,5 @@ interface Props {
 }
 export default function GameWheelPreview(props: Props) {
     const wheel = useWheel(props.gameWheel.wheelId)
-    return wheel.wheel ? <WheelPreview {...props} wheel={wheel.wheel} /> : <LoadingDots />
+    return wheel.wheel ? <WheelPreview {...props} wheel={wheel.wheel} gameId={props.gameWheel.gameId} /> : <LoadingDots />
 }

@@ -11,7 +11,7 @@ export default function GetGameLayout(page: ReactElement) {
                 <title>RFBW</title>
             </Head>
             <Navbar />
-            <Container className=" p-0 h-100 bg-dark-900">
+            <Container fluid className="p-0 h-100 bg-dark-900">
                 {page}
             </Container>
         </div>

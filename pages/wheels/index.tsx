@@ -15,10 +15,12 @@ import useEditableWheels from '../../data/useEditableWheels';
 import usePlayer from '../../data/usePlayer';
 import GetThinLayout from "../../layouts/thin";
 import { NextPageWithLayout } from "../_app";
+import useAllWheels from '../../data/useAllWheels';
 
 const WheelList: NextPageWithLayout = () => {
     const session = useSession()
-    const wheels = useEditableWheels()
+    const router = useRouter()
+    const wheels = useAllWheels()
     const { width, height } = useWindowSize()
     if (wheels.error) {
         return wheels.error.status == 433 ? <NotAPlayerCard /> :
@@ -38,6 +40,8 @@ const WheelList: NextPageWithLayout = () => {
                     {wheels.wheels && _.sortBy(wheels.wheels, [(w) => w.createdAt]).map(wheel =>
                         <Col key={wheel.id} className='mh-100 my-1 d-flex justify-content-center align-items-center'>
                             <WheelPreview
+                                // expandable
+                                onClick={() => router.push(`/wheels/${wheel.id}`)}
                                 withAuthor={true}
                                 wheel={wheel}
                                 height={Math.min(width - 192, height) - 192}

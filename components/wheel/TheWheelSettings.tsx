@@ -211,10 +211,10 @@ export default function TheWheelSettings(props: Props) {
                             session.data?.user.isAdmin && <Card className='mt-1' bg='dark' text='light' border='danger'>
                                 <Row className='p-1 '>
                                     <Col >
-                                        <Form.Check className='ms-1 mt-1' type={'switch'} label='Locked' disabled={isSaving || isTestSpinning} defaultChecked={!wheel.locked} onChange={e => handleChange({ locked: e.target.checked })} />
+                                        <Form.Check className='ms-1 mt-1' type={'switch'} label='Locked' disabled={isSaving || isTestSpinning} defaultChecked={wheel.locked} onChange={e => handleChange({ locked: e.target.checked })} />
                                     </Col>
                                     <Col >
-                                        <Form.Check className='ms-1 mt-1' type={'switch'} label='Approved' disabled={isSaving || isTestSpinning} defaultChecked={!wheel.approved} onChange={e => handleChange({ approved: e.target.checked })} />
+                                        <Form.Check className='ms-1 mt-1' type={'switch'} label='Approved' disabled={isSaving || isTestSpinning} defaultChecked={wheel.approved} onChange={e => handleChange({ approved: e.target.checked })} />
                                     </Col>
                                 </Row>
                             </Card>

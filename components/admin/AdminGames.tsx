@@ -212,7 +212,7 @@ export default function AdminGames(props: Props) {
                 >
                     <Card.Header>Game Wheels</Card.Header>
                     <Card.Body>
-                        {gameWheels.wheels.map(x => <GameWheelPreview key={x.wheelId} gameWheel={x} />)}
+                        {gameWheels.wheels.map(x => <GameWheelPreview withAuthor key={x.wheelId} gameWheel={x} />)}
                         <NewButton onClick={() => setShowAddWheelModal(true)} />
                     </Card.Body>
                 </Card>

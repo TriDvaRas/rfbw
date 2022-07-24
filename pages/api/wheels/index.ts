@@ -15,7 +15,7 @@ const router = createRouter<NextApiRequest, NextApiResponse>();
 export default router
     .get(async (req, res: NextApiResponse<Wheel[] | ApiError | null>) => {
         try {
-            const wheels = await Wheel.findAll()
+            const wheels = await Wheel.findAll({ where: { approved: true } })
             res.json(wheels)
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })

@@ -15,12 +15,11 @@ interface Props {
     onSelectEdit?: (item: WheelItem) => void
     onAddNew?: () => void
     newLoading?: boolean
+    fluid?: boolean
 }
 export default function WheelItems(props: Props) {
-    const { wheel, items, newLoading, onAddNew, onSelectEdit } = props
+    const { wheel, items, newLoading, onAddNew, onSelectEdit, fluid } = props
     const [showDeletePopover, setShowDeletePopover] = useState<string | null>()
-
-
 
     function handleAdd() {
         if (onAddNew)
@@ -38,8 +37,8 @@ export default function WheelItems(props: Props) {
 
     return <div>
         <Row>
-            {items.map(x => <Col xl={6} md={6} sm={12} key={x.id}><WheelItemPreview item={x} onClick={wheel.locked ? undefined : () => handleEdit(x)} /></Col>)}
-            {!wheel.locked && items && items.length < wheel.maxSize && <Col xl={6} md={6} sm={12} key={'new'}><WheelItemNewButton loading={newLoading} onClick={() => handleAdd()} /></Col>}
+            {items.map(x => <Col xl={fluid ? 4 : 6} md={6} sm={12} key={x.id}><WheelItemPreview item={x} onClick={wheel.locked || !onSelectEdit ? undefined : () => handleEdit(x)} /></Col>)}
+            {!wheel.locked && onAddNew && items && items.length < wheel.maxSize && <Col xl={6} md={6} sm={12} key={'new'}><WheelItemNewButton loading={newLoading} onClick={() => handleAdd()} /></Col>}
         </Row>
 
     </div>
