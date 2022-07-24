@@ -32,12 +32,13 @@ export default router
 
             const playerActiveTask = await GameTask.findOne({
                 where: {
+                    gameId: req.query.gameId,
                     playerId: player.id,
-                    result: { [Op.ne]: null }
+                    result: null
                 },
                 order: [['fromCoop', 'DESC']]
             })
-            if (playerActiveTask) return res.status(400).json({ error: `Player has unfinished task`, status: 400 })
+            if (playerActiveTask) return res.status(400).json({ error: `Что ты тут забыл? Ты еще прошлый контент не закончил`, status: 400 })
 
             const wheel = await Wheel.findOne({ where: { id: body.wheelId } })
             if (!wheel) return res.status(400).json({ error: `Invalid wheelId`, status: 400 })
@@ -49,6 +50,12 @@ export default router
 
             const resultItem = _.sample(activeItems) as WheelItem
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
+            const task = await GameTask.build({
+                gameId: game.id,
+                wheelItemId: resultItem.id,
+                playerId: player.id,
+                fromCoop: false,
+            })
             res.json({
                 extraSpin,
                 resultItemId: resultItem.id,
@@ -57,6 +64,7 @@ export default router
                 gameId: req.query.gameIds as string,
                 wheelId: wheel.id,
             })
+            setTimeout(() => task.save(), (wheel.prespinDuration) * 1000 + (wheel.spinDuration) * 1000 + 200)
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })
         }

@@ -6,22 +6,26 @@ import { WheelItem } from '../../database/db';
 import { getImageUrl } from '../../util/image';
 import { getTypeIcon } from '../../util/items';
 import TheImage from '../image/TheImage';
+import useWheelItem from '../../data/useWheelItem';
+import PHCard from '../../util/PHCard';
 
 interface Props {
     onClick?: () => void;
     item: WheelItem;
     className?: string
+    height?: number
 }
-export default function WheelItemPreview(props: Props) {
-    const { onClick, item } = props
-    const [squareRef, { width, height }] = useElementSize()
+export default function TaskWheelItemPreview(props: Props) {
+    const { onClick, item, height } = props
+
+    const [squareRef, { width, height: elHeight }] = useElementSize()
     const imagePreview = useImage(item.imageId, true)
     const image = useImage(item.imageId)
-    const size = 240
+    const size = height || 240
     return (
         <div
             ref={squareRef}
-            className={`m-3 d-flex text-light bg-dark ${onClick ? `darken-bg-on-hover` : ``} ${props.className ? props.className : ''}`}
+            className={`d-flex text-light bg-dark ${onClick ? `darken-bg-on-hover` : ``} ${props.className ? props.className : ''}`}
             onClick={onClick}
             style={{
                 height: size,
@@ -35,14 +39,12 @@ export default function WheelItemPreview(props: Props) {
                 <h2 className='mb-1 '>{item.label}</h2>
                 <h5 style={{ textOverflow: 'ellipsis' }}>{item.title}</h5>
                 {/* <div>{item.comments.slice(0,96)}</div> */}
-                <h4 className='ms-2 mt-auto'>{item.hours}<i className="ms-2 bi bi-clock"></i></h4>
-            </div>
-            <div className=' m-3 ms-1 p-2 d-flex align-items-center flex-column justify-content-center' style={{ zIndex: 15 }}>
-                <h4 className='ms-2 mt-2'>{getTypeIcon(item.type)}</h4>
-                <h4 className='ms-2 '><i style={{ color: item.fontColor }} className={`bi ${item.showText ? 'bi-square-fill' : 'bi-square'}`}></i></h4>
-                <h4 className='ms-2 '><i className={`bi ${item.imageMode === 'height' ? 'bi-arrow-down-up' : 'bi-arrow-left-right'}`}></i></h4>
-                <h4 className='ms-2 '><i className={`bi ${item.hasCoop && item.maxCoopPlayers > 1 || item.type !== 'game' ? 'bi-people' : 'bi-person'}`}></i></h4>
-                <h4 className='ms-2 '><i className={`bi ${item.audioId ? 'bi-volume-down' : 'bi-volume-mute'}`}></i></h4>
+                <div className='d-flex mt-auto'>
+                    <h4 className='ms-2 '>{getTypeIcon(item.type)}</h4>
+                    <h4 className='ms-2 '><i className={`bi ${item.hasCoop && item.maxCoopPlayers > 1 || item.type !== 'game' ? 'bi-people' : 'bi-person'}`}></i></h4>
+                    <h4 className='ms-4 '>{item.hours}<i className="ms-1 bi bi-clock"></i></h4>
+            
+                </div>
             </div>
             {
                 width > size * 2.3 ?

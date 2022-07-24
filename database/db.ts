@@ -513,7 +513,7 @@ GameTask.init({
             key: 'id'
         }
     },
-    result: { type: DataTypes.STRING(16), allowNull: false },
+    result: { type: DataTypes.STRING(16), allowNull: true },
     points: { type: DataTypes.INTEGER, allowNull: true },
     fromCoop: { type: DataTypes.BOOLEAN, allowNull: false },
     endedAt: { type: DataTypes.DATE, allowNull: true },

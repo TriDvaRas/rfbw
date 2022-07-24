@@ -9,13 +9,16 @@ import { ApiError } from '../types/common-api';
 import { Audio, Image } from '../database/db';
 import { parseApiError } from '../util/error';
 import useAudio from '../data/useAudio';
+import LoadingDots from '../components/LoadingDots';
 
 interface Props {
     height: number | string
+    loading?: boolean
+    children?: React.ReactNode | React.ReactNode[]
 }
 export default function PHCard(props: Props) {
 
-    return <Card style={{ height: props.height }} bg='dark' text="light">
-
+    return <Card style={{ height: props.height }} bg='dark' text="light" className='d-flex align-items-center justify-content-center'>
+        {props.loading ? <LoadingDots /> : props.children}
     </Card>
 }

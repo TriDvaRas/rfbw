@@ -43,7 +43,7 @@ export default function WheelItemEditModal(props: Props) {
     const [isSaving, setIsSaving] = useState(false)
     const breakpoint = useBreakpoint()
     const [isAudioUploading, setIsAudioUploading] = useState(false)
-
+    
     const altColor = hexRgb(selectedItem.altColor || `#fff`)
     const fontColor = hexRgb(selectedItem.fontColor || `#fff`)
     const formRef = useRef<HTMLFormElement>()
