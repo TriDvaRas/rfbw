@@ -23,6 +23,7 @@ import ReactAudioPlayer from 'react-audio-player';
 import useDelayedState from 'use-delayed-state';
 import { ApiError } from '../../../../types/common-api';
 import { parseApiError } from '../../../../util/error';
+import TaskWheelItemPreview from '../../../../components/wheelItem/TaskWheelItemPreview';
 
 interface Props {
 
@@ -58,6 +59,10 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
     const [extraSpin, setExtraspin] = useState<number>(0)
     const [result, setResult] = useState<WheelItem>()
 
+    const disabledWheelItemIds = wheelItems.wheelItems?.filter(i => playerTasks.tasks?.find(t => t.wheelItemId == i.id)).map(i => i.id)
+    console.log(disabledWheelItemIds);
+    console.log(wheelItems.wheelItems);
+
     function handleSpin() {
         if (!wheel.wheel || !wheelItems.wheelItems || !playerTasks.tasks)
             return
@@ -69,8 +74,8 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
             sae.volume = 0
             sae.play()
         }
-
         const activeWheelItemIds = wheelItems.wheelItems.filter(i => (playerTasks.tasks as GameTask[]).find(t => t.wheelItemId)).map(i => i.id)
+
         axios.post<GameSpinResult>(`/api/games/${gameId}/spin`, {
             wheelId: wheel.wheel.id,
             activeWheelItemIds,
@@ -145,6 +150,7 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
                     <Col xl={7} lg={12} ref={wheelContainerRef} className="mh-100 " >
                         <TheWheel
                             // withTitle
+                            disabledItemIds={disabledWheelItemIds || []}
                             noCard
                             items={wheelItems.wheelItems}
                             height={Math.min(maxCardHeight * 4.5 / 5, maxCardWidth) - 56}
@@ -192,7 +198,7 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
                         }
                         <Collapse in={showResult}>
                             <div className='mw-100 w-100 px-5'>
-                                {result && <WheelItemPreview className='mw-100 mx-0' item={result} />}
+                                {result && showResult && <TaskWheelItemPreview className='mw-100 mx-0 mb-3' item={result} />}
                                 <div className='d-flex mw-100 px-5 flex-column align-items-center justify-content-center'>
                                     {result && <Card bg='dark'>
                                         <Card.Body>

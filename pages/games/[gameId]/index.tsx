@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react';
 import Head from "next/head";
 import { useRouter } from 'next/router';
-import { Alert, Button, Col, Collapse, Modal, Row } from 'react-bootstrap';
+import { Alert, Button, Card, Col, Collapse, Modal, Row } from 'react-bootstrap';
 import GamePreview from "../../../components/game/GamePreview";
 import LoadingDots from "../../../components/LoadingDots";
 import { NotAPlayerCard } from "../../../components/NotAPlayerCard";
@@ -21,6 +21,8 @@ import axios from 'axios';
 import { GameTaskEndResult } from '../../../types/game';
 import { parseApiError } from '../../../util/error';
 import { ApiError } from '../../../types/common-api';
+import useGamePlayers from '../../../data/useGamePlayers';
+import GamePlayerStats from '../../../components/player/GamePlayerStats';
 
 const GameHome: NextPageWithLayout = () => {
     const session = useSession()
@@ -31,18 +33,12 @@ const GameHome: NextPageWithLayout = () => {
     const activeTasks = playerTasks.tasks?.filter(x => !x.result)
     const activeTask = activeTasks && activeTasks[0]
     const activeTaskItem = useWheelItem(activeTask?.wheelItemId)
-
+    const gamePlayers = useGamePlayers(gameId)
 
     const [error, setError] = useState<ApiError | undefined>(undefined)
     const [isLoading, setIsLoading] = useState(false)
     const [showEndModal, setShowEndModal] = useState(false)
 
-    if (game.error) {
-        return game.error.status == 433 ? <NotAPlayerCard /> :
-            <Alert className='mb-0' variant={'danger'}>
-                {game.error.error}
-            </Alert>
-    }
     //#region handlers
     function handleEnd() {
         if (!activeTask || !session.data)
@@ -57,12 +53,23 @@ const GameHome: NextPageWithLayout = () => {
                 setShowEndModal(false)
                 setIsLoading(false)
                 playerTasks.mutate(undefined)
+                gamePlayers.mutate(undefined)
             },
                 (err) => {
                     setError(parseApiError(err))
                 })
     }
     //#endregion
+    if (game.error) {
+        return game.error.status == 433 ? <NotAPlayerCard /> :
+            <Alert className='mb-0' variant={'danger'}>
+                {game.error.error}
+            </Alert>
+    }
+    if (!gamePlayers.players)
+        return <LoadingDots />
+    const gamePLayer = gamePlayers.players.find(x => session.data && x.playerId == session.data.user.id)
+
     return <>
         <Head>
             <title>{game.game?.name || 'Игра'}</title>
@@ -74,7 +81,8 @@ const GameHome: NextPageWithLayout = () => {
                     <Col xl={12} >
                         {game.game && <GamePreview game={game.game} />}
                     </Col>
-                    <Col xl={6} className='mb-3'>
+                    {/* playerTask */}
+                    {gamePLayer && <Col xl={6} className='mb-3'>
                         {
                             playerTasks.loading ? <PHCard loading height={250} /> :
                                 activeTaskItem.item && <TaskWheelItemPreview className='m-0 p-0' height={250} item={activeTaskItem.item} />
@@ -90,34 +98,45 @@ const GameHome: NextPageWithLayout = () => {
                                 <Button onClick={() => { }} disabled className='me-2' variant='danger'>Реролл</Button>
                             </Col>
                         }
-                    </Col>
-                    <Col xl={6} className='mb-3'>
+                    </Col>}
+                    {/* effects */}
+                    {gamePLayer && <Col xl={6} className='mb-3'>
                         <PHCard height={activeTask ? 'calc(288px + 0.5rem)' : 250} >
                             <div>Эффекты еще не изобрели</div>
                             <i className="fs-1 bi bi-emoji-smile"></i>
                         </PHCard>
-                    </Col>
-
-                    <Collapse in={activeTaskItem.item && (activeTaskItem.item.hasCoop && activeTaskItem.item.maxCoopPlayers > 1 || activeTaskItem.item.type !== 'game')}>
+                    </Col>}
+                    {/* coop */}
+                    {gamePLayer && <Collapse in={activeTaskItem.item && (activeTaskItem.item.hasCoop && activeTaskItem.item.maxCoopPlayers > 1 || activeTaskItem.item.type !== 'game')}>
                         <Col xl={12} className='mb-3'>
                             <PHCard height={150} >
                                 <div>Кооп тоже</div>
                                 <i className="fs-1 bi bi-emoji-smile"></i>
                             </PHCard>
                         </Col>
-                    </Collapse>
-                    <Col xl={9} className='mb-3'>
-                        <PHCard height={880} >
+                    </Collapse>}
+                    {/* Stats */}
+                    <Col xl={9} className='mt-5 mb-3'>
+                        {/* <PHCard className='mb-3' height={70} >
+                            <h2>Игроки</h2>
+                        </PHCard> */}
+                        {/* <Card> */}
+                        {gamePlayers.players?.sort((a, b) => b.points - a.points).map(gp => <GamePlayerStats key={gp.playerId} className='mb-3' gamePlayer={gp} />)}
+                        {/* </Card> */}
+                        {/* <PHCard height={880} >
                             <div>И стату</div>
                             <i className="fs-1 bi bi-emoji-smile"></i>
-                        </PHCard>
+                        </PHCard> */}
                     </Col>
-                    <Col xl={3} className='mb-3'>
+                    <Col xl={3} className='mt-5  mb-3'>
                         <PHCard height={880} >
                             <div>А тут я забыл уже что должно быть</div>
                             <i className="fs-1 bi bi-emoji-smile-upside-down"></i>
                         </PHCard>
                     </Col>
+
+
+                    {/* //!MODALS */}
                     <Modal contentClassName='border-dark shadow' show={!!showEndModal && !!activeTaskItem} animation={true} centered >
                         <Modal.Header className='bg-dark-750 text-light border-dark'><h3>Завершение контента</h3></Modal.Header>
                         {

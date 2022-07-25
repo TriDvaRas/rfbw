@@ -177,7 +177,6 @@ export default function AdminGames(props: Props) {
                                         {players.players.map(p => <option disabled={!!gamePlayers.players?.find(x => x.playerId == p.id)} key={p.id} value={p.id}>{p.name}</option>)}
                                     </Form.Select> : <LoadingDots />
                                 }
-
                             </Form.Group>
                             <Button className='mt-3'
                                 disabled={isSaving}

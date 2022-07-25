@@ -15,10 +15,17 @@ interface Props {
     height: number | string
     loading?: boolean
     children?: React.ReactNode | React.ReactNode[]
+    opacity?: number
+    borderRadius?: number | string
+    className?: string
 }
 export default function PHCard(props: Props) {
 
-    return <Card style={{ height: props.height }} bg='dark' text="light" className='d-flex align-items-center justify-content-center'>
+    return <Card style={{
+        height: props.height,
+        opacity: props.opacity || 1,
+        borderRadius: props.borderRadius ? props.borderRadius : undefined,
+    }} bg='dark' text="light" className={`d-flex align-items-center justify-content-center ${props.className || ''} `}>
         {props.loading ? <LoadingDots /> : props.children}
     </Card>
 }

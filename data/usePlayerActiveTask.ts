@@ -1,15 +1,13 @@
 import { AxiosError } from "axios";
-import useSWR from "swr";
-import { Player, Image } from '../database/db';
+import useSWR, { KeyedMutator } from "swr";
+import { Wheel, WheelItem, GameTask } from '../database/db';
 import { ApiError } from "../types/common-api";
 import fetcher from '../util/fetcher';
 
 
 
-export default function useImage(imageId?: string, preview?: boolean) {
-  const { data, mutate, error: _error } = useSWR<Image, AxiosError<ApiError>>(imageId ? `/api/images/${imageId || 'me'}${preview ? '' : '/full'}` : null, fetcher, {
-    revalidateOnFocus: false
-  });
+export default function usePlayerActiveTask(gameId?: string, playerId?: string) {
+  const { data, mutate, error: _error } = useSWR<GameTask | 'none', AxiosError<ApiError>>(gameId && playerId ? `/api/games/${gameId}/players/${playerId}/tasks/active` : null, fetcher);
   const error = _error && (typeof _error.response?.data == 'object' ? _error.response.data : { error: _error.message || 'Unknown Error', status: +(_error.status || 500) })
 
   const loading = !data && !error;
@@ -18,8 +16,8 @@ export default function useImage(imageId?: string, preview?: boolean) {
   return {
     loading,
     loggedOut,
-    image: data,
+    task: data,
     mutate,
     error
-  };
+  }
 }
