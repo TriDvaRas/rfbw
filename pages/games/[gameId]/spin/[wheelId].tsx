@@ -60,8 +60,6 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
     const [result, setResult] = useState<WheelItem>()
 
     const disabledWheelItemIds = wheelItems.wheelItems?.filter(i => playerTasks.tasks?.find(t => t.wheelItemId == i.id)).map(i => i.id)
-    console.log(disabledWheelItemIds);
-    console.log(wheelItems.wheelItems);
 
     function handleSpin() {
         if (!wheel.wheel || !wheelItems.wheelItems || !playerTasks.tasks)
@@ -82,8 +80,6 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
         })
             .then(res => res.data)
             .then((result) => {
-                console.log(result);
-
                 setExtraspin(result.extraSpin)
                 setSelectItemId(result.resultItemId)
                 setFullSpins(wheel.wheel?.minimalSpin || 98)

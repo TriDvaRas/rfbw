@@ -469,9 +469,10 @@ GameWheel.init({
 })
 
 
-export type GameTaskResult = 'drop' | 'finish' | 'skip' | 'reroll';
+export type GameTaskResult = 'drop' | 'finish' | 'skip' | 'reroll' | 'leftCoop';
 
 export class GameTask extends Model {
+    declare id: string
     declare gameId: string
     declare wheelItemId: string
     declare playerId: string
@@ -479,6 +480,7 @@ export class GameTask extends Model {
     declare result?: GameTaskResult
     declare points: number
     declare fromCoop: boolean
+    declare coopParentId?: string
 
     declare endedAt?: string
 
@@ -486,8 +488,8 @@ export class GameTask extends Model {
     declare updatedAt: string
 }
 GameTask.init({
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
     gameId: {
-        primaryKey: true,
         type: DataTypes.UUID,
         allowNull: false,
         references: {
@@ -496,7 +498,6 @@ GameTask.init({
         }
     },
     wheelItemId: {
-        primaryKey: true,
         type: DataTypes.UUID,
         allowNull: false,
         references: {
@@ -505,7 +506,6 @@ GameTask.init({
         }
     },
     playerId: {
-        primaryKey: true,
         type: DataTypes.UUID,
         allowNull: false,
         references: {
@@ -516,12 +516,73 @@ GameTask.init({
     result: { type: DataTypes.STRING(16), allowNull: true },
     points: { type: DataTypes.INTEGER, allowNull: true },
     fromCoop: { type: DataTypes.BOOLEAN, allowNull: false },
+    coopParentId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+            model: GameTask,
+            key: 'id'
+        }
+    },
     endedAt: { type: DataTypes.DATE, allowNull: true },
 }, {
     sequelize,
     modelName: 'gametasks',
+    indexes: [
+        {
+            unique: true,
+            fields: ['gameId', 'wheelItemId', 'playerId']
+        }
+    ],
 })
 
+export type GameEventContentType = 'contentEnd' | 'contentDrop' | 'contentSkip' | 'contentRoll'
+    | 'contentJoinCoop' | 'contentEndCoop' | 'contentLeaveCoop';
+export type GameEventEffectType = 'effectGained' | 'effectLost' | 'effectPointsAdd' | 'effectPointsRemove';
+export type GameEventAdminType = 'adminPointsAdd' | 'adminPointsRemove';
+export type GameEventType = GameEventContentType | GameEventEffectType | GameEventEffectType
+
+export class GameEvent extends Model {
+    declare id: string
+    declare gameId: string
+    declare playerId: string
+
+    declare type: GameEventType
+    declare pointsDelta?: number
+    declare imageId?: string
+    declare taskId?: string
+    declare effectId?: string
+
+    declare createdAt: string
+    declare updatedAt: string
+}
+GameEvent.init({
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    gameId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Game,
+            key: 'id'
+        }
+    },
+    playerId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Player,
+            key: 'id'
+        }
+    },
+    type: { type: DataTypes.STRING(16), allowNull: false },
+
+    pointsDelta: { type: DataTypes.INTEGER, allowNull: true },
+    imageId: { type: DataTypes.UUID, allowNull: true },
+    taskId: { type: DataTypes.UUID, allowNull: true },
+}, {
+    sequelize,
+    modelName: 'gameevents',
+})
 
 
 //TODO remove
@@ -540,6 +601,7 @@ export function syncTables() {
             // GamePoints.sync({ force: true }),
             // GameWheel.sync({ force: true }),
             GameTask.sync({ force: true }),
+            GameEvent.sync({ force: true }),
 
         ])
 }

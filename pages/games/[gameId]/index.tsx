@@ -23,6 +23,9 @@ import { parseApiError } from '../../../util/error';
 import { ApiError } from '../../../types/common-api';
 import useGamePlayers from '../../../data/useGamePlayers';
 import GamePlayerStats from '../../../components/player/GamePlayerStats';
+import moment from 'moment';
+import useGameEvents from '../../../data/useGameEvents';
+import GameEventPreview from '../../../components/player/GameEventPreview';
 
 const GameHome: NextPageWithLayout = () => {
     const session = useSession()
@@ -34,26 +37,32 @@ const GameHome: NextPageWithLayout = () => {
     const activeTask = activeTasks && activeTasks[0]
     const activeTaskItem = useWheelItem(activeTask?.wheelItemId)
     const gamePlayers = useGamePlayers(gameId)
+    const events = useGameEvents(gameId)
 
     const [error, setError] = useState<ApiError | undefined>(undefined)
     const [isLoading, setIsLoading] = useState(false)
     const [showEndModal, setShowEndModal] = useState(false)
+    const [showDropModal, setShowDropModal] = useState(false)
+    const [showSkipModal, setShowSkipModal] = useState(false)
 
     //#region handlers
-    function handleEnd() {
+    function handleEnd(type: 'end' | 'drop' | 'skip') {
         if (!activeTask || !session.data)
             return
         setError(undefined)
         setIsLoading(true)
-        axios.post<GameTaskEndResult>(`/api/games/${gameId}/players/${session.data.user.id}/tasks/end`, {
+        axios.post<GameTaskEndResult>(`/api/games/${gameId}/players/${session.data.user.id}/tasks/${type}`, {
             wheelItemId: activeTask.wheelItemId,
         })
             .then(res => res.data)
             .then((result) => {
                 setShowEndModal(false)
+                setShowDropModal(false)
+                setShowSkipModal(false)
                 setIsLoading(false)
                 playerTasks.mutate(undefined)
                 gamePlayers.mutate(undefined)
+                events.mutate(undefined)
             },
                 (err) => {
                     setError(parseApiError(err))
@@ -93,9 +102,8 @@ const GameHome: NextPageWithLayout = () => {
                         {activeTask &&
                             <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
                                 <Button onClick={() => setShowEndModal(true)} className='me-2'>Завершить</Button>
-                                <Button onClick={() => { }} disabled className='me-2' variant='secondary'>Скип</Button>
-                                <Button onClick={() => { }} disabled className='me-2' variant='danger'>Дроп</Button>
-                                <Button onClick={() => { }} disabled className='me-2' variant='danger'>Реролл</Button>
+                                <Button onClick={() => setShowSkipModal(true)} className='me-2' variant='warning'>Реролл</Button>
+                                <Button onClick={() => setShowDropModal(true)} className='me-2' variant='danger'>Дроп</Button>
                             </Col>
                         }
                     </Col>}
@@ -117,26 +125,19 @@ const GameHome: NextPageWithLayout = () => {
                     </Collapse>}
                     {/* Stats */}
                     <Col xl={9} className='mt-5 mb-3'>
-                        {/* <PHCard className='mb-3' height={70} >
-                            <h2>Игроки</h2>
-                        </PHCard> */}
-                        {/* <Card> */}
+                        <h1 className='ms-3 mb-3'>Участники</h1>
                         {gamePlayers.players?.sort((a, b) => b.points - a.points).map(gp => <GamePlayerStats key={gp.playerId} className='mb-3' gamePlayer={gp} />)}
-                        {/* </Card> */}
-                        {/* <PHCard height={880} >
-                            <div>И стату</div>
-                            <i className="fs-1 bi bi-emoji-smile"></i>
-                        </PHCard> */}
                     </Col>
+                    {/* Events */}
                     <Col xl={3} className='mt-5  mb-3'>
-                        <PHCard height={880} >
-                            <div>А тут я забыл уже что должно быть</div>
-                            <i className="fs-1 bi bi-emoji-smile-upside-down"></i>
-                        </PHCard>
+                        <h1 className='ms-3 mb-3'>События</h1>
+                        {events.events?.map(x => <GameEventPreview key={x.id} className='mb-3' gameEvent={x} />)}
                     </Col>
+
 
 
                     {/* //!MODALS */}
+                    {/* end */}
                     <Modal contentClassName='border-dark shadow' show={!!showEndModal && !!activeTaskItem} animation={true} centered >
                         <Modal.Header className='bg-dark-750 text-light border-dark'><h3>Завершение контента</h3></Modal.Header>
                         {
@@ -147,10 +148,39 @@ const GameHome: NextPageWithLayout = () => {
                         }
 
                         <Modal.Footer className='bg-dark-750 text-light border-dark'>
-                            <Button variant='primary' disabled={isLoading} className='float-right' onClick={() => handleEnd()}>Завершить</Button>
+                            <Button variant='primary' disabled={isLoading} className='float-right' onClick={() => handleEnd('end')}>Завершить</Button>
                             <Button variant='secondary' disabled={isLoading} className='float-right mx-3' onClick={() => setShowEndModal(false)}>Отмена</Button>
                         </Modal.Footer>
+                    </Modal>
+                    {/* drop */}
+                    <Modal contentClassName='border-dark shadow' show={!!showDropModal && !!activeTaskItem} animation={true} centered >
+                        <Modal.Header className='bg-dark-750 text-light border-dark'><h3>Дроп контента</h3></Modal.Header>
+                        {
+                            activeTaskItem.item && <Modal.Body className='bg-dark text-light border-dark'>
+                                За дроп ты потеряешь <b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 5)}</b>.
+                            </Modal.Body>
+                        }
 
+                        <Modal.Footer className='bg-dark-750 text-light border-dark'>
+                            <Button variant='danger' disabled={isLoading} className='float-right' onClick={() => handleEnd('drop')}>Завершить</Button>
+                            <Button variant='secondary' disabled={isLoading} className='float-right mx-3' onClick={() => setShowDropModal(false)}>Отмена</Button>
+                        </Modal.Footer>
+                    </Modal>
+                    {/* skip */}
+                    <Modal contentClassName='border-dark shadow' show={!!showSkipModal && !!activeTaskItem} animation={true} centered >
+                        <Modal.Header className='bg-dark-750 text-light border-dark'><h3>Реролл контента</h3></Modal.Header>
+                        {
+                            activeTaskItem.item && <Modal.Body className='bg-dark text-light border-dark'>
+                                За реролл ты не потеряешь очков, но ты должен будешь доказать что уже играл/смотрел данный контент (если кто то доебется).
+                                После реролла нельзя сменить колесо игрока для следующего прокрута.
+                                При обнружении абуза ты потеряешь  <b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
+                            </Modal.Body>
+                        }
+
+                        <Modal.Footer className='bg-dark-750 text-light border-dark'>
+                            <Button variant='danger' disabled={isLoading} className='float-right' onClick={() => handleEnd('skip')}>Завершить</Button>
+                            <Button variant='secondary' disabled={isLoading} className='float-right mx-3' onClick={() => setShowSkipModal(false)}>Отмена</Button>
+                        </Modal.Footer>
                     </Modal>
                 </Row>
         }

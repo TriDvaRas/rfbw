@@ -16,14 +16,21 @@ const Bar = ({ }: Props) => {
 
     return (
         <div id='navbar'>
-            <Navbar expand='md'  bg="dark-700" variant="dark" >
+            <Navbar
+                expand='md'
+                bg="dark-700"
+                variant="dark"
+                style={{
+                    backgroundColor: '#4c3b62'
+                }}
+            >
                 <div onClick={() => router.push(`/`)}>
                     <h3 className='mb-0 mx-3'>RFBW<span className='egg-text'></span></h3>
                 </div>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav
-                        style={{fontSize:'1.25rem'}}
+                        style={{ fontSize: '1.25rem' }}
                         className=""
                         activeKey={router.asPath}
                         onSelect={(selectedKey) => router.push(selectedKey as string)}

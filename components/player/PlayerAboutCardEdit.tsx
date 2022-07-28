@@ -37,7 +37,6 @@ export default function PlayerAboutCardEdit(props: Props) {
         if (!player)
             return
         const form = formRef.current as any
-        console.log(form);
         if (form.checkValidity() === false) {
             setValidated(true);
         }

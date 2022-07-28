@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
 import { createRouter } from 'next-connect'
-import { Game, Wheel, Player, WheelItem, GameTask } from '../../../../database/db';
+import { Game, Wheel, Player, WheelItem, GameTask, GameEvent } from '../../../../database/db';
 import commonErrorHandlers from '../../../../middleware/commonErrorHandlers'
 import requireApiSession from '../../../../middleware/requireApiSession'
 import requirePlayer from '../../../../middleware/requirePlayer'
@@ -9,7 +9,7 @@ import { ApiError } from '../../../../types/common-api'
 import { authOptions } from "../../auth/[...nextauth]"
 import { Op } from 'sequelize';
 import { GameSpinResult } from '../../../../types/game';
-import _ from 'lodash';
+import _, { result } from 'lodash';
 
 
 
@@ -50,7 +50,7 @@ export default router
 
             const resultItem = _.sample(activeItems) as WheelItem
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
-            const task = await GameTask.build({
+            const task = GameTask.build({
                 gameId: game.id,
                 wheelItemId: resultItem.id,
                 playerId: player.id,
@@ -64,7 +64,17 @@ export default router
                 gameId: req.query.gameIds as string,
                 wheelId: wheel.id,
             })
-            setTimeout(() => task.save(), (wheel.prespinDuration) * 1000 + (wheel.spinDuration) * 1000 + 200)
+            const event = GameEvent.build({
+                gameId: game.id,
+                playerId: player.id,
+                imageId: resultItem.imageId,
+                taskId: task.id,
+                type: 'contentRoll',
+            })
+            setTimeout(() => {
+                task.save()
+                event.save()
+            }, (wheel.prespinDuration) * 1000 + (wheel.spinDuration) * 1000)
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })
         }

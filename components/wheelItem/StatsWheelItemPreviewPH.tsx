@@ -46,11 +46,11 @@ export default function StatsWheelItemPreviewPH(props: Props) {
                         width: `${size}px`,
                         backgroundSize: 'cover',
                         backgroundImage: getImageUrl(imagePreview.image, image.image),
-                        WebkitMaskImage: '-webkit-gradient(linear, 0% top, 60% top, from(rgba(0, 0, 0, 0)), to(rgba(0, 0, 0, .9)))',
+                        WebkitMaskImage: '-webkit-gradient(linear, 0% top, 10% top, from(rgba(0, 0, 0, 0)), to(rgba(0, 0, 0, .9)))',
                         maskImage: 'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,.9))',
                     }}></div> : null
             }
-            <div className={`flex-shrink-0`} style={{
+            {/* <div className={`flex-shrink-0`} style={{
                 zIndex: 14,
                 right: 0,
                 backgroundPosition: 'center',
@@ -62,7 +62,7 @@ export default function StatsWheelItemPreviewPH(props: Props) {
                 WebkitMaskImage: '-webkit-gradient(linear, 0% top, 100% top, from(rgba(0, 0, 0, 0.1)), to(rgba(0, 0, 0, .23)))',
                 filter: 'blur(5.5px)',
                 maskImage: 'linear-gradient(to right, rgba(0,0,0,0.1), rgba(0,0,0,.23))',
-            }}></div>
+            }}></div> */}
         </div>
     )
 }

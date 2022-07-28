@@ -38,7 +38,6 @@ export default function AudioUpload(props: Props) {
         form.append("audio", files[0], files[0].name)
         form.append("type", type)
         form.append("originalName", files[0].name)
-        console.log(files[0]);
 
         axios.post<Audio>(`/api/audios/upload`, form, {
             headers: { 'content-type': 'multipart/form-data' },

@@ -45,10 +45,9 @@ export default router
             const item = await WheelItem.findOne({ where: { id: playerActiveTask.wheelItemId } })
             if (!item)
                 return res.status(404).json({ error: 'А где WheelItem', status: 404 })
-            gamePlayer.ended += 1
-            gamePlayer.points += item.hours * 10
-            playerActiveTask.result = 'finish'
-            playerActiveTask.points = item.hours * 10
+            gamePlayer.rerolled += 1
+            playerActiveTask.result = 'skip'
+            playerActiveTask.points = 0
             playerActiveTask.save()
             gamePlayer.save()
             await GameEvent.create({
@@ -56,8 +55,7 @@ export default router
                 playerId: gamePlayer.playerId,
                 imageId: item.imageId,
                 taskId: playerActiveTask.id,
-                type: 'contentEnd',
-                pointsDelta: playerActiveTask.points,
+                type: 'contentSkip',
             })
             res.send({
                 success: true

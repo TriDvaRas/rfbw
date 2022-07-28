@@ -28,14 +28,14 @@ export default function GamePlayerStats(props: Props) {
     const wheelItem = _playerTaskWheelItem.item
     const imagePreview = useImage(player?.imageId, true)
     const image = useImage(undefined)
-    const size = props.height || 230
+    const size = props.height || 70
     return player && (playerTask || !withTask) ?
         <div
             ref={squareRef}
             className={`d-flex text-light bg-dark-850 ${onClick ? `darken-bg-on-hover` : ``} ${props.className ? props.className : ''}`}
             onClick={onClick}
             style={{
-                // height: 70,
+                height: size,
                 borderRadius: '16px',
                 overflow: 'hidden',
                 cursor: onClick ? 'pointer' : undefined,
@@ -80,7 +80,7 @@ export default function GamePlayerStats(props: Props) {
                         wheelItem && <StatsWheelItemPreview item={wheelItem} />}
                 </div>
             </div>
-            {/* <div className={`flex-shrink-0`} style={{
+            <div className={`flex-shrink-0`} style={{
                 zIndex: 14,
                 right: 0,
                 backgroundPosition: 'center',
@@ -89,10 +89,10 @@ export default function GamePlayerStats(props: Props) {
                 marginLeft: `-${width}px`,
                 backgroundSize: 'cover',
                 backgroundImage: player.imageId ? getImageUrl(imagePreview.image, image.image) : undefined,
-                WebkitMaskImage: '-webkit-gradient(linear, 0% top, 100% top, from(rgba(0, 0, 0, 0.1)), to(rgba(0, 0, 0, .23)))',
+                WebkitMaskImage: '-webkit-gradient(linear, 45% top, 52% top, from(rgba(0, 0, 0, 0.05)), to(rgba(0, 0, 0, 0)))',
                 filter: 'blur(5.5px)',
-                maskImage: 'linear-gradient(to right, rgba(0,0,0,0.1), rgba(0,0,0,.23))',
-            }}></div> */}
+                maskImage: 'linear-gradient(to right, rgba(0,0,0,0.05), rgba(0,0,0,.0))',
+            }}></div>
         </div>
         : <LoadingDots />
 }

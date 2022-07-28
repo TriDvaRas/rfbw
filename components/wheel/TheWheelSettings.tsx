@@ -60,7 +60,6 @@ export default function TheWheelSettings(props: Props) {
     };
     function handleSave(event: any) {
         const form = formRef.current as any
-        console.log(form);
         if (form.checkValidity() === false) {
             setValidated(true);
         }
