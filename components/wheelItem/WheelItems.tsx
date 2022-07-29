@@ -6,8 +6,8 @@ import {
 import LoadingDots from '../LoadingDots';
 import { getTypeIcon } from '../../util/items';
 import { Wheel, WheelItem } from '../../database/db';
-import WheelItemPreview from '../effect/EffectPreview';
 import WheelItemNewButton from './WheelItemNewButton';
+import WheelItemPreview from './WheelItemPreview';
 
 interface Props {
     wheel: Wheel
