@@ -66,7 +66,7 @@ Rules.init({
 export class Image extends Model {
     declare id: string
     declare addedById: string
-    declare type: 'player' | 'wheelitem' | 'game' | 'other'
+    declare type: 'player' | 'wheelitem' | 'game' | 'effect' | 'other'
     declare imageData: string
     declare preview: boolean
     declare mime: string
@@ -267,8 +267,10 @@ WheelItem.init({
         allowNull: false,
         references: {
             model: Wheel,
-            key: 'id'
-        }
+            key: 'id',
+
+        },
+        onDelete: 'cascade'
     },
     addedById: {
         type: DataTypes.UUID,
@@ -583,6 +585,82 @@ GameEvent.init({
     sequelize,
     modelName: 'gameevents',
 })
+export type EffectType = 'card' | 'secret' | 'positive' | 'negative' | 'system';
+
+export class Effect extends Model {
+    declare id: string
+    declare lid: number
+
+    declare title: string
+    declare description: string
+    declare groupId?: number
+    declare type: EffectType
+    declare isDefault: boolean
+    declare imageId?: string
+
+
+    declare createdAt: string
+    declare updatedAt: string
+}
+Effect.init({
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    lid: { type: DataTypes.INTEGER, allowNull: false },
+    title: { type: DataTypes.STRING(64), allowNull: false },
+    description: { type: DataTypes.STRING(512), allowNull: false },
+    groupId: { type: DataTypes.INTEGER, allowNull: true },
+    type: { type: DataTypes.STRING(16), allowNull: false },
+    isDefault: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    imageId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    },
+}, {
+    sequelize,
+    modelName: 'effects',
+})
+export class GameEffect extends Model {
+    declare id: string
+    declare gameId: string
+    declare effectId: string
+
+    declare cooldown: number
+    declare shuffleValue: number
+    declare isEnabled: boolean
+
+    declare createdAt: string
+    declare updatedAt: string
+}
+GameEffect.init({
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    gameId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Game,
+            key: 'id'
+        }
+    },
+    effectId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Effect,
+            key: 'id'
+        }
+    },
+    cooldown: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    shuffleValue: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    isEnabled: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+}, {
+    sequelize,
+    modelName: 'gameeffects',
+    indexes: [
+        {
+            unique: true,
+            fields: ['gameId', 'effectId']
+        }
+    ],
+})
 
 
 //TODO remove
@@ -595,13 +673,15 @@ export function syncTables() {
             // Player.sync({ alter: true }),
             // Audio.sync({ alter: true }),
             // Wheel.sync({ alter: true }),
-            // WheelItem.sync({ force: true }),
+            // WheelItem.sync({ alter: true }),
             // Game.sync({ force: true }),
             // GamePlayer.sync({ force: true }),
             // GamePoints.sync({ force: true }),
             // GameWheel.sync({ force: true }),
-            GameTask.sync({ force: true }),
-            GameEvent.sync({ force: true }),
+            // GameTask.sync({ force: true }),
+            // GameEvent.sync({ force: true }),
+            Effect.sync({ alter: true }),
+            GameEffect.sync({ alter: true }),
 
         ])
 }

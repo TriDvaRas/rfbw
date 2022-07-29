@@ -13,6 +13,7 @@ import '../styles/hover-effects.sass';
 import '../styles/wheel.css';
 import '../styles/rotate.sass';
 import '../styles/image.sass';
+import '../styles/effects.sass';
 import 'simplebar/dist/simplebar.min.css';
 import 'react-datetime-picker/dist/DateTimePicker.css';
 import 'react-calendar/dist/Calendar.css';

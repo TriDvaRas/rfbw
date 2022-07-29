@@ -2,21 +2,24 @@ import React from 'react';
 import { Card } from 'react-bootstrap';
 import { useElementSize } from 'usehooks-ts';
 import useImage from '../../data/useImage';
-import { WheelItem } from '../../database/db';
+import { WheelItem, Effect } from '../../database/db';
+import { effectColors } from '../../util/highlightColors';
 import { getImageUrl } from '../../util/image';
 import { getTypeIcon } from '../../util/items';
+import { highlightFgClasses } from '../../util/lines';
 import TheImage from '../image/TheImage';
 
 interface Props {
     onClick?: () => void;
-    item: WheelItem;
-    className?: string
+    effect: Effect;
+    className?: string;
+    useFullImage?: boolean
 }
-export default function WheelItemPreview(props: Props) {
-    const { onClick, item } = props
+export default function EffectPreview(props: Props) {
+    const { onClick, effect, useFullImage } = props
     const [squareRef, { width, height }] = useElementSize()
-    const imagePreview = useImage(item.imageId, true)
-    const image = useImage(item.imageId)
+    const imagePreview = useImage(effect.imageId, true)
+    const image = useImage(useFullImage ? effect.imageId : undefined)
     const size = 240
     return (
         <div
@@ -32,17 +35,11 @@ export default function WheelItemPreview(props: Props) {
             }}>
 
             <div className='flex-grow-1 me-1 m-3 px-2 d-flex align-items-start flex-column' style={{ zIndex: 15 }}>
-                <h2 className='mb-1 '>{item.label}</h2>
-                <h5 style={{ textOverflow: 'ellipsis' }}>{item.title}</h5>
-                {/* <div>{item.comments.slice(0,96)}</div> */}
-                <h4 className='ms-2 mt-auto'>{item.hours}<i className="ms-2 bi bi-clock"></i></h4>
-            </div>
-            <div className=' m-3 ms-1 p-2 d-flex align-items-center flex-column justify-content-center' style={{ zIndex: 15 }}>
-                <h4 className='ms-2 mt-2'>{getTypeIcon(item.type)}</h4>
-                <h4 className='ms-2 '><i style={{ color: item.fontColor }} className={`bi ${item.showText ? 'bi-square-fill' : 'bi-square'}`}></i></h4>
-                <h4 className='ms-2 '><i className={`bi ${item.imageMode === 'height' ? 'bi-arrow-down-up' : 'bi-arrow-left-right'}`}></i></h4>
-                <h4 className='ms-2 '><i className={`bi ${item.hasCoop && item.maxCoopPlayers > 1 || item.type !== 'game' ? 'bi-people' : 'bi-person'}`}></i></h4>
-                <h4 className='ms-2 '><i className={`bi ${item.audioId ? 'bi-volume-down' : 'bi-volume-mute'}`}></i></h4>
+                <div className='d-flex w-100'>
+                    <h2 className='mb-2 '>{effect.title}</h2>
+                    <h2 className='mb-2 ms-auto'>{getTypeIcon(effect.type)}</h2>
+                </div>
+                <h5 style={{ textOverflow: 'ellipsis' }} dangerouslySetInnerHTML={{ __html: highlightFgClasses(effect.description, effectColors) }}></h5>
             </div>
             {
                 width > size * 2.3 ?
@@ -53,7 +50,7 @@ export default function WheelItemPreview(props: Props) {
                         height: `${size}px`,
                         width: `${size}px`,
                         backgroundSize: 'cover',
-                        backgroundImage: item.imageId ? getImageUrl(imagePreview.image, image.image) : undefined,
+                        backgroundImage: effect.imageId ? getImageUrl(imagePreview.image, image.image) : undefined,
                         WebkitMaskImage: '-webkit-gradient(linear, 0% top, 60% top, from(rgba(0, 0, 0, 0)), to(rgba(0, 0, 0, 1)))',
                         maskImage: 'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,1))',
                     }}></div> : null
@@ -66,7 +63,7 @@ export default function WheelItemPreview(props: Props) {
                 width: `${width}px`,
                 marginLeft: `-${width}px`,
                 backgroundSize: 'cover',
-                backgroundImage: item.imageId ? getImageUrl(imagePreview.image, image.image) : undefined,
+                backgroundImage: effect.imageId ? getImageUrl(imagePreview.image, image.image) : undefined,
                 WebkitMaskImage: '-webkit-gradient(linear, 0% top, 100% top, from(rgba(0, 0, 0, 0.1)), to(rgba(0, 0, 0, .23)))',
                 filter: 'blur(5.5px)',
                 maskImage: 'linear-gradient(to right, rgba(0,0,0,0.1), rgba(0,0,0,.23))',

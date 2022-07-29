@@ -23,7 +23,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "_garbage/migrageEffects.ts"  ],
   "exclude": [
     "node_modules"
   ]

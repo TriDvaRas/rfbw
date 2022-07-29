@@ -11,7 +11,7 @@ import { NextPageWithLayout } from "../../_app";
 import PHCard from '../../../util/PHCard';
 import GetThinLayout from '../../../layouts/thin';
 import usePlayerTasks from '../../../data/usePlayerTasks';
-import WheelItemPreview from '../../../components/wheelItem/WheelItemPreview';
+import WheelItemPreview from '../../../components/effect/EffectPreview';
 import TaskWheelItemPreview from '../../../components/wheelItem/TaskWheelItemPreview';
 import useWheelItem from '../../../data/useWheelItem';
 import NewButton from '../../../components/NewButton';

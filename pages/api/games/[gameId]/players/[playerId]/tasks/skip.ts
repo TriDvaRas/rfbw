@@ -48,6 +48,7 @@ export default router
             gamePlayer.rerolled += 1
             playerActiveTask.result = 'skip'
             playerActiveTask.points = 0
+            playerActiveTask.endedAt = new Date().toISOString()
             playerActiveTask.save()
             gamePlayer.save()
             await GameEvent.create({

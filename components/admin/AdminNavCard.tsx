@@ -14,6 +14,10 @@ export default function AdminNavCard(props: Props) {
         to: string;
     }> = [
             {
+                title: "Правила",
+                to: 'rules'
+            },
+            {
                 title: "Люди",
                 to: 'users'
             },
@@ -26,8 +30,8 @@ export default function AdminNavCard(props: Props) {
                 to: 'games'
             },
             {
-                title: "Правила",
-                to: 'rules'
+                title: "Эффекты",
+                to: 'effects'
             },
         ]
     //TODO function testasButtanitas() {

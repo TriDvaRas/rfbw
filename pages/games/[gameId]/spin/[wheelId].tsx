@@ -18,7 +18,7 @@ import axios from 'axios';
 import usePlayerTasks from '../../../../data/usePlayerTasks';
 import { GameTask, WheelItem } from '../../../../database/db';
 import { GameSpinResult } from '../../../../types/game';
-import WheelItemPreview from '../../../../components/wheelItem/WheelItemPreview';
+import WheelItemPreview from '../../../../components/effect/EffectPreview';
 import ReactAudioPlayer from 'react-audio-player';
 import useDelayedState from 'use-delayed-state';
 import { ApiError } from '../../../../types/common-api';

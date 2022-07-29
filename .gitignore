@@ -2,6 +2,7 @@
 .env
 _sbx
 uploads/*
+_garbage
 # dependencies
 /node_modules
 /.pnp

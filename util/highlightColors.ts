@@ -29,23 +29,27 @@ const fgColors = [
 const effectColors = [
     {
         "tag": "positive",
-        "class": 'bg-primary'
+        "class": 'effect-bg-positive'
     },
     {
         "tag": "neutral",
-        "class": 'bg-secondary'
+        "class": 'effect-bg-neutral'
     },
     {
         "tag": "card",
-        "class": 'bg-info'
+        "class": 'effect-bg-card'
     },
     {
         "tag": "secret",
-        "class": 'bg-warning text-dark-600'
+        "class": 'effect-bg-secret'
     },
     {
         "tag": "negative",
-        "class": 'bg-danger'
+        "class": 'effect-bg-negative'
+    },
+    {
+        "tag": "system",
+        "class": 'effect-bg-system'
     },
 ]
 export { bgColors, fgColors, effectColors }

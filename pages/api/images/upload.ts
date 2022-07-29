@@ -104,6 +104,8 @@ function getMinSizes(type: string) {
             return [500, 300]
         case 'game':
             return [750, 300]
+        case 'effect':
+            return [300, 150]
         default:
             return [500, 500]
     }

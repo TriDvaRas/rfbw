@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
 import { createRouter } from 'next-connect'
 import { Game, Wheel } from '../../../../database/db'
+import adminOnly from '../../../../middleware/adminOnly'
 import commonErrorHandlers from '../../../../middleware/commonErrorHandlers'
 import requireApiSession from '../../../../middleware/requireApiSession'
 import requirePlayer from '../../../../middleware/requirePlayer'
@@ -29,7 +30,7 @@ export default router
         }
     })
     .use(requireApiSession)
-    .use(requirePlayer)
+    .use(adminOnly)
     .patch(async (req, res) => {
         try {
             const game = await Game.findOne({

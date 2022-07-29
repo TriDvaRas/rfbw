@@ -49,6 +49,7 @@ export default router
             gamePlayer.points += item.hours * 10
             playerActiveTask.result = 'finish'
             playerActiveTask.points = item.hours * 10
+            playerActiveTask.endedAt = new Date().toISOString()
             playerActiveTask.save()
             gamePlayer.save()
             await GameEvent.create({
