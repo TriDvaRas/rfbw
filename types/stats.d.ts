@@ -3,6 +3,7 @@ export interface GameStats {
     players: number
     wheels: number
     wheelItems: number
+    effects: number
 }
 export interface WheelStats {
     wheelId: string

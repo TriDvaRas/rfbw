@@ -49,10 +49,17 @@ export default function GamePreview(props: Props) {
                         : <Spinner animation='grow' variant='secondary' />
                 }
             </div>
-            <div className='flex-grow-0 me-1 m-3 px-2 d-flex align-items-start flex-column me-5' style={{ zIndex: 15 }}>
+            <div className='flex-grow-0 me-1 m-3 px-2 d-flex align-items-start flex-column' style={{ zIndex: 15 }}>
                 {
                     gameStats.stats ?
                         <h2 className='mb-0 ms-2 '>{gameStats.stats.wheelItems}<i className='ms-1 bi bi-pie-chart'></i></h2>
+                        : <Spinner animation='grow' variant='secondary' />
+                }
+            </div>
+            <div className='flex-grow-0 me-1 m-3 px-2 d-flex align-items-start flex-column me-4' style={{ zIndex: 15 }}>
+                {
+                    gameStats.stats ?
+                        <h2 className='mb-0 ms-2 '>{gameStats.stats.effects}<i className='ms-1 bi bi-stars'></i></h2>
                         : <Spinner animation='grow' variant='secondary' />
                 }
             </div>

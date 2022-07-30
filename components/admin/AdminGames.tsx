@@ -4,7 +4,7 @@ import {
     Button, Card, Col, Form, Modal, Row, Table
 } from 'react-bootstrap';
 import useGames from '../../data/useGames';
-import { Game, GamePlayer, GameWheel } from '../../database/db';
+import { Game, GamePlayer, GameWheel, GameEffect } from '../../database/db';
 import GamePreview from '../game/GamePreview';
 import LoadingDots from '../LoadingDots';
 import axios, { AxiosError } from 'axios';
@@ -20,6 +20,10 @@ import useAllPlayers from '../../data/useAllPlayers';
 import useAllWheels from '../../data/useAllWheels';
 import useGameWheels from '../../data/useGameWheels';
 import GameWheelPreview from '../wheel/GameWheelPreview';
+import useGameEffects from '../../data/useGameEffects';
+import useAllEffects from '../../data/useAllEffects';
+import _ from 'lodash';
+import { getEffectTypeIcon } from '../../util/items';
 
 interface Props {
     cardHeight: number;
@@ -30,6 +34,8 @@ export default function AdminGames(props: Props) {
     const gamePlayers = useGamePlayers(editGame?.id)
     const players = useAllPlayers()
     const gameWheels = useGameWheels(editGame?.id)
+    const effects = useAllEffects()
+    const gameEffects = useGameEffects(editGame?.id)
     const wheels = useAllWheels()
     const [isImageUploading, setIsImageUploading] = useState(false)
 
@@ -41,6 +47,11 @@ export default function AdminGames(props: Props) {
 
     const [showAddWheelModal, setShowAddWheelModal] = useState(false)
     const [newWheelId, setNewWheelId] = useState<string | undefined>()
+
+    const [showAddEffectModal, setShowAddEffectModal] = useState(false)
+    const [newEffectId, setNewEffectId] = useState<string | undefined>()
+    const [sortBy, setSortBy] = useState<string>('lid')
+
     return (
         <Row>
             <Col lg={12}>
@@ -252,6 +263,94 @@ export default function AdminGames(props: Props) {
                                         gameWheels.mutate([...(gameWheels.wheels || []), data.data])
                                         setNewWheelId(undefined)
                                         setShowAddWheelModal(false)
+                                    }).catch((err: AxiosError<ApiError>) => {
+                                        setIsSaving(false)
+                                        setError(parseApiError(err))
+                                    })
+                                }}>Add</Button>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+            </Col>}
+            {editGame && gameWheels.wheels && effects.effects && <Col lg={12}>
+                <Card
+                    bg='dark'
+                    text='light'
+                    className="my-3 me-3 w-100"
+                >
+                    <Card.Header>Game Effects <Button>Save</Button></Card.Header>
+                    <Card.Body>
+                        <Table variant="dark" hover className='mb-0 '>
+                            <thead className='bg-dark-700 '>
+                                <tr>
+                                    <th onClick={() => setSortBy('id')} className='text-center'>id</th>
+                                    <th onClick={() => setSortBy('lid')} className='text-center'>ttiel</th>
+                                    <th onClick={() => setSortBy('lid')} className='text-center'>CD</th>
+                                    <th onClick={() => setSortBy('title')} className='text-center'>Shuff</th>
+                                    <th onClick={() => setSortBy('title')} className='text-center'>Enabled</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {_.sortBy((gameEffects.effects || []).filter(e => !effects.effects?.find(x => x.id === e.effectId)?.isDefault), 'createdAt').map(effect => <tr key={effect.id} onClick={() => { }} className=''>
+                                    <td className='text-center td-min' style={{ fontSize: '50%' }}>{effect.id}</td>
+                                    <td className=' '>{effects.effects?.find(x => x.id === effect.effectId)?.title}</td>
+                                    <td className='text-center td-min'>{effect.cooldown}</td>
+                                    <td className='text-center td-min'>{effect.shuffleValue}</td>
+                                    <td className='text-center td-min'>{effect.isEnabled ? '+' : ''}</td>
+                                </tr>)}
+                                {
+                                    effects.effects && <tr>
+                                        <td colSpan={9} className='text-center py-0' onClick={() => setShowAddEffectModal(true)}>
+                                            <i className="bi bi-plus wheel-item-add " ></i>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </Table>
+                    </Card.Body>
+                </Card>
+                <Modal
+                    size='lg'
+                    show={showAddEffectModal}
+                    contentClassName='border-dark shadow'
+                    centered={true}
+                    onHide={() => setShowAddEffectModal(false)}
+                >
+                    <Modal.Header className='bg-dark-700 text-light border-dark'>
+                        <Modal.Title>Adding wheel to {editGame.name}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className='bg-dark-750 text-light'>
+                        <Form>
+                            <Form.Group  >
+                                <Form.Label>Effect</Form.Label>
+                                {/* {`${newWheelId}`} */}
+                                {
+                                    effects.effects ? <Form.Select onChange={e => setNewEffectId(e.target.value)}>
+                                        <option disabled selected={!newWheelId}>Select effect...</option>
+                                        {_.sortBy(effects.effects, 'lid')
+                                            .filter(e => !e.isDefault)
+                                            .map(e =>
+                                                <option disabled={!!gameEffects.effects?.find(x => x.effectId == e.id)} key={e.id} value={e.id}>{e.lid} {e.title}</option>
+                                            )}
+                                    </Form.Select> : <LoadingDots />
+                                }
+                            </Form.Group>
+                            <Button className='mt-3'
+                                disabled={isSaving}
+                                onClick={() => {
+                                    if (!newEffectId)
+                                        return
+                                    setError(undefined)
+                                    setIsSaving(true)
+                                    axios.post<GameEffect>(`/api/games/${editGame.id}/effects`, {
+                                        effectId: newEffectId,
+                                        gameId: editGame.id,
+                                    }).then((data) => {
+                                        setIsSaving(false)
+                                        gameEffects.mutate([...(gameEffects.effects || []), data.data])
+                                        setNewEffectId(undefined)
+                                        setShowAddEffectModal(false)
                                     }).catch((err: AxiosError<ApiError>) => {
                                         setIsSaving(false)
                                         setError(parseApiError(err))

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
 import { createRouter } from 'next-connect'
-import { Game, Wheel, WheelItem } from '../../../database/db';
+import { Game, Wheel, WheelItem, Effect, GameEffect } from '../../../database/db';
 import adminOnly from '../../../middleware/adminOnly';
 import commonErrorHandlers from '../../../middleware/commonErrorHandlers'
 import requireApiSession from '../../../middleware/requireApiSession'
@@ -33,6 +33,20 @@ export default router
                 startsAt: req.body.startsAt,
                 endsAt: req.body.endsAt,
             })
+            const defEffects = await Effect.findAll({
+                where: {
+                    isDefault: true
+                }
+            })
+            for (const eff of defEffects) {
+                await GameEffect.create({
+                    gameId: game.id,
+                    effectId: eff.id,
+                    cooldown: 0,
+                    shuffleValue: 0,
+                    isEnabled: true,
+                })
+            }
             res.json(game)
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })

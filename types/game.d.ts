@@ -5,6 +5,12 @@ export interface GameSpinResult {
     resultItemId: string
     extraSpin: number
 }
+export interface GameSpinEffectResult {
+    gameId: string
+    playerId: string
+    resultItemId: string
+    extraSpin: number
+}
 export interface GameTaskEndResult {
     success: boolean
 }

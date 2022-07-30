@@ -113,6 +113,8 @@ export default function AdminEffectCardEdit(props: Props) {
                                             </Form.Select>
                                         </Form.Group>
                                     </Col>
+                                    <Form.Check className='ms-1 mt-1' type={'switch'} label={<div >Default</div>} disabled={isImageUploading || isSaving} checked={effect.isDefault} onChange={e => handleUpdate({ isDefault: e.target.checked })} />
+
                                 </Row>
                                 <Form.Group className='mb-3'>
                                     <Form.Label>Его фотокарточка</Form.Label>

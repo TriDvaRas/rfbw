@@ -164,54 +164,64 @@
 }
 
 .wheel-effects {
-  background-color: #FF1493;
-  border: solid #FF1493 var(--wheel-border-size);
+  background-color: #e21281;
+  border: solid #e21281 var(--wheel-border-size);
+  --border-color: #e21281;
+  --wheel-color: #e21281;
   animation: bgColor 10s infinite linear;
 }
-
 @keyframes bgColor {
   0% {
-    background-color: #FF1493;
-    border-color: #FF1493;
+    background-color: #e21281;
+    border-color: #e21281;
+    --border-color: #e21281;
   }
 
   12.5% {
-    background-color: #FF0000;
-    border-color: #FF0000;
+    background-color: #d70000;
+    border-color: #d70000;
+    --border-color: #d70000;
   }
 
   25% {
-    background-color: #FFA500;
-    border-color: #FFA500;
+    background-color: #d08700;
+    border-color: #d08700;
+    --border-color: #d08700;
   }
 
   37.5% {
-    background-color: #FFFF00;
-    border-color: #FFFF00;
+    background-color: #d0d000;
+    border-color: #d0d000;
+    --border-color: #d0d000;
   }
 
-  50% {
-    background-color: #7FFF00;
-    border-color: #7FFF00;
+  45% {
+    background-color: #64c800;
+    border-color: #64c800;
+    --border-color: #64c800;
   }
 
-  62.5% {
-    background-color: #00FFFF;
-    border-color: #00FFFF;
+  58.5% {
+    background-color: #00cfcf;
+    border-color: #00cfcf;
+    --border-color: #00cfcf;
   }
 
   75% {
-    background-color: #0000FF;
-    border-color: #0000FF;
+    background-color: #0000c9;
+    border-color: #0000c9;
+    --border-color: #0000c9;
   }
 
-  87.5% {
-    background-color: #9932CC;
-    border-color: #9932CC;
+  89.5% {
+    background-color: #8a0dc8;
+    border-color: #8a0dc8;
+    --border-color: #8a0dc8;
   }
 
   100% {
-    background-color: #FF1493;
-    border-color: #FF1493;
+    background-color: #e21281;
+    border-color: #e21281;
+    --border-color: #e21281;
   }
 }

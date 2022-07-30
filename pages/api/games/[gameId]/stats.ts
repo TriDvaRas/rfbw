@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createRouter } from 'next-connect';
-import { Game, GameWheel, Wheel, GamePlayer, WheelItem } from '../../../../database/db';
+import { Game, GameWheel, Wheel, GamePlayer, WheelItem, GameEffect, Effect } from '../../../../database/db';
 import commonErrorHandlers from '../../../../middleware/commonErrorHandlers';
 import { ApiError } from '../../../../types/common-api';
 import { GameStats } from '../../../../types/stats';
@@ -36,12 +36,26 @@ export default router
                     gameId: game.id
                 }
             })
+            const dEffects = await Effect.findAll({
+                where: {
+                    isDefault: true,
+                }
+            })
+            const effects = (await GameEffect.count({
+                where: {
+                    gameId: game.id,
+                    effectId: {
+                        [Op.notIn]: dEffects.map(x => x.id)
+                    }
+                }
+            }))
             const wheels = gameWheels.length
             res.json({
                 gameId: game.id,
                 players,
                 wheels,
                 wheelItems,
+                effects
             })
 
         } catch (error: any) {

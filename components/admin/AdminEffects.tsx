@@ -45,17 +45,18 @@ export default function AdminEffects(props: Props) {
                     style={{ maxHeight: props.cardHeight }}
                 >
                     <Card.Header><h3>События</h3></Card.Header>
-                    <div style={{ minHeight: props.cardHeight - 68 }}>
+                    <div style={{ maxHeight: props.cardHeight - 68, overflow: 'auto' }}>
                         <Table variant="dark" hover className='mb-0 '>
                             <thead className='bg-dark-700 '>
                                 <tr>
-                                    <th onClick={()=>setSortBy('id')} className='text-center'>id</th>
-                                    <th onClick={()=>setSortBy('lid')} className='text-center'>lid</th>
-                                    <th onClick={()=>setSortBy('title')} className='text-center'>Название</th>
-                                    <th onClick={()=>setSortBy('description')} className='text-center'>Описание</th>
-                                    <th onClick={()=>setSortBy('groupId')} className='text-center'>Группа</th>
-                                    <th onClick={()=>setSortBy('type')} className='text-center'>Тип</th>
-                                    <th onClick={()=>setSortBy('imageId')} className='text-center'><i className="bi bi-card-image"></i></th>
+                                    <th onClick={() => setSortBy('id')} className='text-center'>id</th>
+                                    <th onClick={() => setSortBy('lid')} className='text-center'>lid</th>
+                                    <th onClick={() => setSortBy('title')} className='text-center'>Название</th>
+                                    <th onClick={() => setSortBy('description')} className='text-center'>Описание</th>
+                                    <th onClick={() => setSortBy('groupId')} className='text-center'>Группа</th>
+                                    <th onClick={() => setSortBy('type')} className='text-center'>Тип</th>
+                                    <th onClick={() => setSortBy('imageId')} className='text-center'><i className="bi bi-card-image"></i></th>
+                                    <th onClick={() => setSortBy('imageId')} className='text-center'><i className="bi bi-hdd-fill"></i></th>
 
                                 </tr>
                             </thead>
@@ -68,6 +69,7 @@ export default function AdminEffects(props: Props) {
                                     <td className='text-center td-min'>{effect.groupId}</td>
                                     <td className='text-center td-min'>{effect.type}</td>
                                     <td className='text-center td-min'>{effect.imageId ? <i className="bi bi-card-image"></i> : null}</td>
+                                    <td className='text-center td-min'>{effect.isDefault ? <i className="bi bi-hdd-fill"></i> : null}</td>
                                 </tr>
                                 )}
                                 {
@@ -83,6 +85,21 @@ export default function AdminEffects(props: Props) {
                 </Card>
             </Col>
             <Col xl={4} xs={12}>
+
+                {error && <Alert className='mb-0' variant={'danger'}>
+                    {error.error}
+                </Alert>}
+                {!selectedEffect || <EffectPreview effect={selectedEffect} className='m-3' />}
+                {!selectedEffect || <AdminEffectCardEdit
+                    // maxHeight={props.cardHeight - 18 - previewHeight}
+                    onSaved={handleSaved}
+                    onChange={(upd) =>
+                        setSelectedEffect({
+                            ...selectedEffect,
+                            ...upd
+                        } as Effect)
+                    }
+                    effect={selectedEffect} />}
                 <Card bg='dark' className='m-3'>
                     <Card.Header>
                         <h3>Шпора по группам</h3>
@@ -101,20 +118,6 @@ export default function AdminEffects(props: Props) {
                         </ul>
                     </Card.Body>
                 </Card>
-                {error && <Alert className='mb-0' variant={'danger'}>
-                    {error.error}
-                </Alert>}
-                {!selectedEffect || <EffectPreview effect={selectedEffect} className='m-3' />}
-                {!selectedEffect || <AdminEffectCardEdit
-                    // maxHeight={props.cardHeight - 18 - previewHeight}
-                    onSaved={handleSaved}
-                    onChange={(upd) =>
-                        setSelectedEffect({
-                            ...selectedEffect,
-                            ...upd
-                        } as Effect)
-                    }
-                    effect={selectedEffect} />}
             </Col>
         </Row>
     )

@@ -581,11 +581,12 @@ GameEvent.init({
     pointsDelta: { type: DataTypes.INTEGER, allowNull: true },
     imageId: { type: DataTypes.UUID, allowNull: true },
     taskId: { type: DataTypes.UUID, allowNull: true },
+    effectId: { type: DataTypes.UUID, allowNull: true },
 }, {
     sequelize,
     modelName: 'gameevents',
 })
-export type EffectType = 'card' | 'secret' | 'positive' | 'negative' | 'system';
+export type EffectType = 'card' | 'secret' | 'positive' | 'neutral' | 'negative' | 'system';
 
 export class Effect extends Model {
     declare id: string
@@ -661,7 +662,66 @@ GameEffect.init({
         }
     ],
 })
+Effect.hasMany(GameEffect);
+GameEffect.belongsTo(Effect);
+export interface GameEffectWithEffect extends GameEffect {
+    effect: Effect
+}
 
+
+export class GameEffectState<T = { [key: string]: any }> extends Model {
+    declare id: string
+    declare gameId: string
+    declare effectId: string
+    declare playerId: string
+    declare isEnded: boolean
+    declare vars?: T
+
+
+    declare createdAt: string
+    declare updatedAt: string
+}
+
+GameEffectState.init({
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    gameId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Game,
+            key: 'id'
+        }
+    },
+    effectId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Effect,
+            key: 'id'
+        }
+    },
+    playerId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Player,
+            key: 'id'
+        }
+    },
+    isEnded: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    vars: { type: DataTypes.JSON, allowNull: true },
+}, {
+    sequelize,
+    modelName: 'gameeffectstates',
+})
+Effect.hasMany(GameEffectState);
+GameEffectState.belongsTo(Effect);
+Player.hasMany(GameEffectState);
+GameEffectState.belongsTo(Player);
+export interface GameEffectStateWithEffectWithPlayer extends GameEffectState {
+    effect: Effect
+    player: Player
+}
 
 //TODO remove
 export function syncTables() {
@@ -679,9 +739,9 @@ export function syncTables() {
             // GamePoints.sync({ force: true }),
             // GameWheel.sync({ force: true }),
             // GameTask.sync({ force: true }),
-            // GameEvent.sync({ force: true }),
-            Effect.sync({ alter: true }),
-            GameEffect.sync({ alter: true }),
-
+            GameEvent.sync({ force: true }),
+            // Effect.sync({ alter: true }),
+            // GameEffect.sync({ alter: true }),
+            // GameEffectState.sync({ alter: true }),
         ])
 }

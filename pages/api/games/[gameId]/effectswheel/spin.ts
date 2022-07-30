@@ -1,26 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
 import { createRouter } from 'next-connect'
-import { Game, Wheel, Player, WheelItem, GameTask, GameEvent, Effect, GameEffectState, GameEffectStateWithEffectWithPlayer } from '../../../../database/db';
-import commonErrorHandlers from '../../../../middleware/commonErrorHandlers'
-import requireApiSession from '../../../../middleware/requireApiSession'
-import requirePlayer from '../../../../middleware/requirePlayer'
-import { ApiError } from '../../../../types/common-api'
-import { authOptions } from "../../auth/[...nextauth]"
+import { Game, Wheel, Player, WheelItem, GameTask, GameEvent, Effect, GameEffect, GameEffectWithEffect, GameEffectState, GameEffectStateWithEffectWithPlayer } from '../../../../../database/db';
+import commonErrorHandlers from '../../../../../middleware/commonErrorHandlers'
+import requireApiSession from '../../../../../middleware/requireApiSession'
+import requirePlayer from '../../../../../middleware/requirePlayer'
+import { ApiError } from '../../../../../types/common-api'
+import { authOptions } from "../../../auth/[...nextauth]"
 import { Op } from 'sequelize';
-import { GameSpinResult } from '../../../../types/game';
+import { GameSpinResult, GameSpinEffectResult } from '../../../../../types/game';
 import _, { result } from 'lodash';
+import { effectsConfig } from '../../../../../config';
 
 
 
-const router = createRouter<NextApiRequest, NextApiResponse<GameSpinResult | ApiError | null>>();
+const router = createRouter<NextApiRequest, NextApiResponse<GameSpinEffectResult | ApiError | null>>();
 
 export default router
     .use(requireApiSession)
     .use(requirePlayer)
     .post(async (req, res) => {
         const body: {
-            wheelId: string
             activeWheelItemIds: string[]
         } = req.body
         try {
@@ -48,44 +48,46 @@ export default router
                 include: [Effect, Player]
             }) as GameEffectStateWithEffectWithPlayer[]
             const effect35 = playerEffectStates.find(x => x.effect.lid == 35)
-            if (effect35)
+            if (!effect35)
                 return res.status(400).json({ error: `Я тебе запрещаю это крутить`, status: 400 })
-                
-            const wheel = await Wheel.findOne({ where: { id: body.wheelId } })
-            if (!wheel) return res.status(400).json({ error: `Invalid wheelId`, status: 400 })
 
-            const wheelItems = await WheelItem.findAll({ where: { wheelId: wheel.id }, })
-            const playerGameTasks = await GameTask.findAll({ where: { gameId: game.id, playerId: player.id } })
-            const activeItems = wheelItems.filter(x => !playerGameTasks.find(y => y.wheelItemId === x.id))
-            if (activeItems.length == 0) return res.status(400).json({ error: `Empty wheel`, status: 400 })
-
-            const resultItem = activeItems[Math.floor(activeItems.length * Math.random())] as WheelItem
-            const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
-            const task = GameTask.build({
-                gameId: game.id,
-                wheelItemId: resultItem.id,
-                playerId: player.id,
-                fromCoop: false,
+            const dEffects = await Effect.findAll({
+                where: {
+                    isDefault: true,
+                }
             })
+            const effectsWheelItems = await GameEffect.findAll({
+                where: {
+                    gameId: req.query.gameId,
+                    isEnabled: true,
+                    effectId: {
+                        [Op.notIn]: dEffects.map(x => x.id)
+                    }
+                },
+                include: Effect
+            }) as GameEffectWithEffect[]
+            const activeItems = effectsWheelItems.filter(x => x.cooldown == 0)
+            const resultItem = activeItems[Math.floor(activeItems.length * Math.random())] as GameEffectWithEffect
+            const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
+            effect35.isEnded = true
+            effect35.save()
             res.json({
                 extraSpin,
                 resultItemId: resultItem.id,
 
                 playerId: user.id,
                 gameId: req.query.gameIds as string,
-                wheelId: wheel.id,
             })
             const event = GameEvent.build({
                 gameId: game.id,
                 playerId: player.id,
-                imageId: resultItem.imageId,
-                taskId: task.id,
-                type: 'contentRoll',
+                imageId: resultItem.effect.imageId,
+                effectId: resultItem.effect.id,
+                type: 'effectGained',
             })
             setTimeout(() => {
-                task.save()
                 event.save()
-            }, (wheel.prespinDuration) * 1000 + (wheel.spinDuration) * 1000)
+            }, (effectsConfig.spinDur) * 1000 - 200)
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })
         }

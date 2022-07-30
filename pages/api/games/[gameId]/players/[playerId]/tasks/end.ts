@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
 import { createRouter } from 'next-connect'
-import { Game, Wheel, GamePlayer, GameTask, WheelItem, GameEvent } from '../../../../../../../database/db';
+import { Game, Wheel, GamePlayer, GameTask, WheelItem, GameEvent, GameEffectState } from '../../../../../../../database/db';
 import adminOnly from '../../../../../../../middleware/adminOnly';
 import commonErrorHandlers from '../../../../../../../middleware/commonErrorHandlers'
 import requireApiSession from '../../../../../../../middleware/requireApiSession'
@@ -59,6 +59,11 @@ export default router
                 taskId: playerActiveTask.id,
                 type: 'contentEnd',
                 pointsDelta: playerActiveTask.points,
+            })
+            await GameEffectState.create({
+                gameId: gamePlayer.gameId,
+                playerId: gamePlayer.playerId,
+                effectId: '7c44ff0a-517c-49c2-be93-afb97b559a52', // (35) allow effect wheel spin
             })
             res.send({
                 success: true

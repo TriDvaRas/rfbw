@@ -4,7 +4,7 @@ import useImage from '../../data/useImage';
 import usePlayer from '../../data/usePlayer';
 import usePlayerActiveTask from '../../data/usePlayerActiveTask';
 import useWheelItem from '../../data/useWheelItem';
-import { GamePlayer, GameEvent, Player, WheelItem, GameTask } from '../../database/db';
+import { GamePlayer, GameEvent, Player, WheelItem, GameTask, Effect } from '../../database/db';
 import { getImageUrl } from '../../util/image';
 import PHCard from '../../util/PHCard';
 import LoadingDots from '../LoadingDots';
@@ -17,6 +17,7 @@ import ReactTimeago from 'react-timeago';
 import ruLocale from 'react-timeago/lib/language-strings/ru'
 //@ts-ignore
 import buildFormatter from 'react-timeago/lib/formatters/buildFormatter'
+import useTheEffect from '../../data/useTheEffect';
 const formatter = buildFormatter(ruLocale)
 
 interface Props {
@@ -31,18 +32,21 @@ export default function GameEventPreview(props: Props) {
     const [squareRef, { width, height }] = useElementSize()
     const _player = usePlayer(gameEvent.playerId)
     const _playerTask = useGameTask(gameEvent.taskId)
+    const _playerEffect = useTheEffect(gameEvent.effectId)
     const _playerTaskWheelItem = useWheelItem(_playerTask.task?.wheelItemId)
     const player = _player.player
     const playerTask = _playerTask.task
+    const effect = _playerEffect.effect
     const wheelItem = _playerTaskWheelItem.item
     const imagePreview = useImage(gameEvent?.imageId, true)
     const image = useImage(undefined)
     const size = props.height || 102
-    const blocks: ReactElement | undefined = undefined
+    console.log(player);
+    console.log(effect);
+    
+    const [left, right] = getBlocks(gameEvent, player, playerTask, wheelItem, effect)
 
-    const [left, right] = getBlocks(gameEvent, player, playerTask, wheelItem)
-
-    return player && (playerTask || !withTask) && left && right ?
+    return player && left && right ?
         <div
             ref={squareRef}
             className={`d-flex text-light bg-dark-850 ${onClick ? `darken-bg-on-hover` : ``} ${props.className ? props.className : ''}`}
@@ -77,13 +81,13 @@ export default function GameEventPreview(props: Props) {
         : <LoadingDots />
 }
 
-function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: WheelItem,) {
+function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: WheelItem, effect?: Effect) {
     switch (event.type) {
         case 'contentEnd':
             return player && item && [
-                <div key={1} className='ms-2 flex-grow-1 my-auto d-flex flex-column '>
+                <div key={1} className='ms-3 flex-grow-1 my-auto d-flex flex-column '>
                     <h5 className=''>
-                        {player.name} <span style={{ fontSize: '80%' }}>завершил</span> {item.label}
+                        {player.name} <span style={{ fontSize: '80%' }}>завершил контент</span> {item.label}
                     </h5>
                     <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
                 </div>,
@@ -94,9 +98,9 @@ function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: Wh
             ] || []
         case 'contentDrop':
             return player && item && [
-                <div key={1} className='ms-2 flex-grow-1 my-auto d-flex flex-column '>
+                <div key={1} className='ms-3 flex-grow-1 my-auto d-flex flex-column '>
                     <h5 className=''>
-                        {player.name} <span style={{ fontSize: '80%' }}>завершил</span> {item.label}
+                        {player.name} <span style={{ fontSize: '80%' }}>дропнул контент</span> {item.label}
                     </h5>
                     <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
                 </div>,
@@ -107,9 +111,9 @@ function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: Wh
             ] || []
         case 'contentSkip':
             return player && item && [
-                <div key={1} className='ms-2 flex-grow-1 my-auto d-flex flex-column '>
+                <div key={1} className='ms-3 flex-grow-1 my-auto d-flex flex-column '>
                     <h5 className=''>
-                        {player.name} <span style={{ fontSize: '80%' }}>рерольнул</span> {item.label}
+                        {player.name} <span style={{ fontSize: '80%' }}>рерольнул контент</span> {item.label}
                     </h5>
                     <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
                 </div>,
@@ -117,9 +121,19 @@ function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: Wh
             ] || []
         case 'contentRoll':
             return player && item && [
-                <div key={1} className='ms-2 flex-grow-1 my-auto d-flex flex-column '>
+                <div key={1} className='ms-3 flex-grow-1 my-auto d-flex flex-column '>
                     <h5 key={1} className=''>
-                        {player.name} <span style={{ fontSize: '80%' }}>получил</span> {item.label}
+                        {player.name} <span style={{ fontSize: '80%' }}>получил контент</span> {item.label}
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                <></>
+            ] || []
+        case 'effectGained':
+            return player && effect && [
+                <div key={1} className='ms-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 key={1} className=''>
+                        {player.name} <span style={{ fontSize: '80%' }}>получил событие</span> {effect.title}
                     </h5>
                     <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
                 </div>,
@@ -139,6 +153,8 @@ function getBorder(eventType: GameEvent['type']) {
             return '1px solid #ff620099'
         case 'contentDrop':
             return '1px solid #ff000099'
+        case 'effectGained':
+            return '1px solid #38E1FF99'
 
         default:
             return undefined

@@ -7,7 +7,7 @@ import AdminNavCard from '../../components/admin/AdminNavCard';
 import GetDefaultLayout from '../../layouts/default';
 import { NextPageWithLayout } from '../_app';
 
-const Home: NextPageWithLayout = () => {
+const AdminGamesPage: NextPageWithLayout = () => {
   const { height, width } = useWindowSize()
   const maxCardHeight = height - 56 - 32
   const session = useSession()
@@ -24,5 +24,5 @@ const Home: NextPageWithLayout = () => {
     </Col>
   </Row >
 }
-Home.getLayout = GetDefaultLayout
-export default Home
+AdminGamesPage.getLayout = GetDefaultLayout
+export default AdminGamesPage

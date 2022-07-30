@@ -1,31 +1,30 @@
+import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import Head from "next/head";
 import { useRouter } from 'next/router';
-import { Alert, Button, Card, Col, Collapse, Modal, Row } from 'react-bootstrap';
+import { useState } from 'react';
+import { Alert, Button, Col, Collapse, Modal, Row } from 'react-bootstrap';
+import EffectStatePreview from '../../../components/effect/EffectStatePreview';
 import GamePreview from "../../../components/game/GamePreview";
 import LoadingDots from "../../../components/LoadingDots";
-import { NotAPlayerCard } from "../../../components/NotAPlayerCard";
-import useGame from '../../../data/useGame';
-import GetGameLayout from "../../../layouts/game";
-import { NextPageWithLayout } from "../../_app";
-import PHCard from '../../../util/PHCard';
-import GetThinLayout from '../../../layouts/thin';
-import usePlayerTasks from '../../../data/usePlayerTasks';
-import WheelItemPreview from '../../../components/effect/EffectPreview';
-import TaskWheelItemPreview from '../../../components/wheelItem/TaskWheelItemPreview';
-import useWheelItem from '../../../data/useWheelItem';
 import NewButton from '../../../components/NewButton';
-import { useState } from 'react';
-import { formatPointsString } from '../../../util/lines';
-import axios from 'axios';
+import { NotAPlayerCard } from "../../../components/NotAPlayerCard";
+import GameEventPreview from '../../../components/player/GameEventPreview';
+import GamePlayerStats from '../../../components/player/GamePlayerStats';
+import TaskWheelItemPreview from '../../../components/wheelItem/TaskWheelItemPreview';
+import useGame from '../../../data/useGame';
+import useGameEvents from '../../../data/useGameEvents';
+import useGamePlayers from '../../../data/useGamePlayers';
+import usePlayerEffectStates from '../../../data/usePlayerEffects';
+import usePlayerTasks from '../../../data/usePlayerTasks';
+import useWheelItem from '../../../data/useWheelItem';
+import GetThinLayout from '../../../layouts/thin';
+import { ApiError } from '../../../types/common-api';
 import { GameTaskEndResult } from '../../../types/game';
 import { parseApiError } from '../../../util/error';
-import { ApiError } from '../../../types/common-api';
-import useGamePlayers from '../../../data/useGamePlayers';
-import GamePlayerStats from '../../../components/player/GamePlayerStats';
-import moment from 'moment';
-import useGameEvents from '../../../data/useGameEvents';
-import GameEventPreview from '../../../components/player/GameEventPreview';
+import { formatPointsString } from '../../../util/lines';
+import PHCard from '../../../util/PHCard';
+import { NextPageWithLayout } from "../../_app";
 
 const GameHome: NextPageWithLayout = () => {
     const session = useSession()
@@ -38,6 +37,8 @@ const GameHome: NextPageWithLayout = () => {
     const activeTaskItem = useWheelItem(activeTask?.wheelItemId)
     const gamePlayers = useGamePlayers(gameId)
     const events = useGameEvents(gameId)
+
+    const playerEffects = usePlayerEffectStates(gameId, session.data?.user.id)
 
     const [error, setError] = useState<ApiError | undefined>(undefined)
     const [isLoading, setIsLoading] = useState(false)
@@ -63,6 +64,7 @@ const GameHome: NextPageWithLayout = () => {
                 playerTasks.mutate(undefined)
                 gamePlayers.mutate(undefined)
                 events.mutate(undefined)
+                playerEffects.mutate(undefined)
             },
                 (err) => {
                     setError(parseApiError(err))
@@ -78,7 +80,7 @@ const GameHome: NextPageWithLayout = () => {
     if (!gamePlayers.players)
         return <LoadingDots />
     const gamePLayer = gamePlayers.players.find(x => session.data && x.playerId == session.data.user.id)
-
+    const canRollEffect = playerEffects.states?.find(x => x.effectId == '7c44ff0a-517c-49c2-be93-afb97b559a52')
     return <>
         <Head>
             <title>{game.game?.name || 'Игра'}</title>
@@ -91,13 +93,16 @@ const GameHome: NextPageWithLayout = () => {
                         {game.game && <GamePreview game={game.game} />}
                     </Col>
                     {/* playerTask */}
-                    {gamePLayer && <Col xl={6} className='mb-3'>
+                    {gamePLayer && <Col xl={6} className='mb-5'>
+                        <h1 className='ms-3 mb-3'>Контент</h1>
                         {
                             playerTasks.loading ? <PHCard loading height={250} /> :
-                                activeTaskItem.item && <TaskWheelItemPreview className='m-0 p-0' height={250} item={activeTaskItem.item} />
+                                activeTaskItem.item && <TaskWheelItemPreview className='m-0 p-0' height={200} item={activeTaskItem.item} />
                         }
                         {
-                            activeTasks && !activeTask && <NewButton text={'Получить контент'} onClick={() => router.push(`/games/${gameId}/spin`)} />
+                            activeTasks && !activeTask && (canRollEffect ?
+                                <NewButton text={'Получить эффект'} className='mb-2' onClick={() => router.push(`/games/${gameId}/spineffects`)} /> :
+                                <NewButton text={'Получить контент'} className='mb-2' onClick={() => router.push(`/games/${gameId}/spin`)} />)
                         }
                         {activeTask &&
                             <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
@@ -109,10 +114,11 @@ const GameHome: NextPageWithLayout = () => {
                     </Col>}
                     {/* effects */}
                     {gamePLayer && <Col xl={6} className='mb-3'>
-                        <PHCard height={activeTask ? 'calc(288px + 0.5rem)' : 250} >
-                            <div>Эффекты еще не изобрели</div>
-                            <i className="fs-1 bi bi-emoji-smile"></i>
-                        </PHCard>
+                        <h1 className='ms-3 mb-3'>Эффекты</h1>
+                        <div className='px-3 d-flex'>
+                            {playerEffects.states?.length === 0}
+                            {!playerEffects.states ? <LoadingDots /> : playerEffects.states?.map(x => <EffectStatePreview key={x.id} className='mb-3' effectState={x} />)}
+                        </div>
                     </Col>}
                     {/* coop */}
                     {gamePLayer && <Collapse in={activeTaskItem.item && (activeTaskItem.item.hasCoop && activeTaskItem.item.maxCoopPlayers > 1 || activeTaskItem.item.type !== 'game')}>
