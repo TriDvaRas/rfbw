@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createRouter } from 'next-connect';
-import { GameEffectState } from '../../../../../../../database/db';
+import { GameEffectState, GameEffectStateWithEffectWithPlayer, Effect, Player } from '../../../../../../../database/db';
 import commonErrorHandlers from '../../../../../../../middleware/commonErrorHandlers';
 import { ApiError } from '../../../../../../../types/common-api';
 
@@ -9,14 +9,15 @@ import { ApiError } from '../../../../../../../types/common-api';
 const router = createRouter<NextApiRequest, NextApiResponse>();
 
 export default router
-    .get(async (req, res: NextApiResponse<GameEffectState[] | ApiError | null>) => {
+    .get(async (req, res: NextApiResponse<GameEffectStateWithEffectWithPlayer[] | ApiError | null>) => {
         try {
-            const effects = await GameEffectState<any>.findAll({
+            const effects = await GameEffectStateWithEffectWithPlayer<any>.findAll({
                 where: {
                     gameId: req.query.gameId,
                     playerId: req.query.playerId,
-                    isEnded: false
-                }
+                    isEnded: false,
+                },
+                include: [Effect, Player]
             })
             res.json(effects)
         } catch (error: any) {

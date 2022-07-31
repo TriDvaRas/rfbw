@@ -1,44 +1,101 @@
-import _ from "lodash";
-import { GameEffectState } from "../../database/db";
+import { Op } from 'sequelize';
+import { Effect, GameEffectStateWithEffectWithPlayer, GameEffectWithEffect, GamePlayer, Player, GameEffectState, WheelItem, GameTaskWithWheelItem } from '../../database/db';
+import { EffectStateQuestionVars } from '../../types/effectStateVars';
 
-type GenericObject = { [key: string]: any };
-const afterSpecialEffectsMap = new Map<number, (playerId: number) => Promise<GameEffectState | undefined>>()
+const afterSpecialEffectsMap = new Map<number, (gameId: string, playerId: string) => Promise<GameEffectStateWithEffectWithPlayer | undefined>>()
 // //!1
-// afterSpecialEffectsMap.set(1, async (playerId: number) => {
-//     const effect = await db.newEffectState(playerId, 36, {
-//         question: 'Выберите игрока и негативный эффект который хотите на него наложить',
-//         players: (await db.getPlayers()).filter(x => x.id != playerId),
-//         effects: (await db.getEffects({ cooldown: 0, is_negative: true })).filter(x => x.groupId < 40 || x.groupId >= 50)
-//     })
-//     return effect
-// })
-// //!2
-// afterSpecialEffectsMap.set(2, async (playerId: number) => {
-//     const effect = await db.newEffectState(playerId, 37, {
-//         question: 'Выберите игрока и положительный эффект который хотите на него наложить',
-//         players: (await db.getPlayers()).filter(x => x.id != playerId),
-//         effects: (await db.getEffects({ cooldown: 0, is_positive: true })).filter(x => x.groupId < 40 || x.groupId >= 50)
-//     })
-//     return effect
+afterSpecialEffectsMap.set(1, async (gameId, playerId) => {
+    const effect = await GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>.create({
+        playerId,
+        gameId,
+        effectId: '572f34fa-ce8f-4b79-86ca-b09fb6cae034',//36
+        vars: {
+            question: 'Выберите игрока и негативный эффект который хотите на него наложить',
+            players: (await GamePlayer.findAll({
+                where: {
+                    gameId,
+                    playerId: { [Op.ne]: playerId }
+                },
+                include: Player
+            })),
+            effects: await GameEffectWithEffect.findAll({
+                where: {
+                    gameId,
+                    isEnabled: true,
+                },
+                include: {
+                    model: Effect,
+                    required: true,
+                    where: {
+                        type: 'negative',
+                        isDefault: false
+                    }
+                }
+            })
 
-// })
+        } as EffectStateQuestionVars
+    }, { include: [Effect, Player] })
+    return effect as GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>
+})
+// //!2
+afterSpecialEffectsMap.set(2, async (gameId, playerId) => {
+    const effect = await GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>.create({
+        playerId,
+        gameId,
+        effectId: '0f17a70c-0177-4162-b827-009ad9ae2034',//37
+        vars: {
+            question: 'Выберите игрока и положительный эффект который хотите на него наложить',
+            players: (await GamePlayer.findAll({
+                where: {
+                    gameId,
+                    playerId: { [Op.ne]: playerId }
+                },
+                include: Player
+            })),
+            effects: await GameEffectWithEffect.findAll({
+                where: {
+                    gameId,
+                    isEnabled: true,
+                },
+                include: {
+                    model: Effect,
+                    required: true,
+                    where: {
+                        type: 'positive',
+                        isDefault: false
+                    }
+                }
+            })
+        } as EffectStateQuestionVars
+    }, { include: [Effect, Player] })
+    return effect as GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>
+})
 // //!3
-// afterSpecialEffectsMap.set(3, async (playerId: number) => {
-//     const lastTask = await db.getPlayerLastTask(playerId)
-//     broadcastEvent(`post:new`, {
-//         post: await db.newPost('effectcustom', {
-//             pattern: `Следующий ролл {player} будет на колесе {owner} по причине {effect}`,
-//             variables: {
-//                 playerId,
-//                 ownerId: await db.getWheelOwnerId(lastTask.wheelItem.wheelId),
-//                 effectId: 3
-//             },
-//         } as IPostCustom['variables'])
-//     })
-//     return await db.newEffectState(playerId, 3, { wheelId: lastTask.wheelItem.wheelId })
-// })
+afterSpecialEffectsMap.set(3, async (gameId, playerId) => {
+    const lastTask = await GameTaskWithWheelItem.findOne({
+        where: {
+            gameId,
+            playerId: playerId,
+            fromCoop: false
+        },
+        order: [['createdAt', 'DESC']], 
+        include: WheelItem
+    })
+    console.log(lastTask);
+    
+    if (lastTask) {
+        return await GameEffectStateWithEffectWithPlayer<any>.create({
+            playerId,
+            gameId,
+            effectId: 'efd1f7ba-df8a-4617-ab70-c63a39a6b077',//3
+            vars: {
+                wheelId: lastTask.wheelitem.wheelId,
+            }
+        }, { include: [Effect, Player] })
+    }
+})
 // //!4
-// afterSpecialEffectsMap.set(4, async (playerId: number) => {
+// afterSpecialEffectsMap.set(4, async (gameId, playerId) => {
 //     const effect = await db.newEffectState(playerId, 38, {
 //         question: `Поставь оценку только что завершенному контенту`,
 //         scores: [
@@ -57,19 +114,19 @@ const afterSpecialEffectsMap = new Map<number, (playerId: number) => Promise<Gam
 //     return effect
 // })
 // //!5
-// afterSpecialEffectsMap.set(5, async (playerId: number) => {
+// afterSpecialEffectsMap.set(5, async (gameId, playerId) => {
 //     return await db.newEffectState(playerId, 5)
 // })
 // //!6
-// afterSpecialEffectsMap.set(6, async (playerId: number) => {
+// afterSpecialEffectsMap.set(6, async (gameId, playerId) => {
 //     return await db.newEffectState(playerId, 6)
 // })
 // //!7
-// afterSpecialEffectsMap.set(7, async (playerId: number) => {
+// afterSpecialEffectsMap.set(7, async (gameId, playerId) => {
 //     return await db.newEffectState(playerId, 7)
 // })
 // //!8
-// afterSpecialEffectsMap.set(8, async (playerId: number) => {
+// afterSpecialEffectsMap.set(8, async (gameId, playerId) => {
 //     const playerEffects = await db.getPlayerEffects(playerId)
 //     if (playerEffects.find(x => x.effect.id === 9)) {
 //         await db.endEffectState(playerId, 9)
@@ -93,7 +150,7 @@ const afterSpecialEffectsMap = new Map<number, (playerId: number) => Promise<Gam
 //         return await db.newEffectState(playerId, 8)
 // })
 // //!9
-// afterSpecialEffectsMap.set(9, async (playerId: number) => {
+// afterSpecialEffectsMap.set(9, async (gameId, playerId) => {
 //     const playerEffects = await db.getPlayerEffects(playerId)
 //     if (playerEffects.find(x => x.effect.id === 8)) {
 //         await db.endEffectState(playerId, 9)
@@ -117,7 +174,7 @@ const afterSpecialEffectsMap = new Map<number, (playerId: number) => Promise<Gam
 //         return await db.newEffectState(playerId, 9)
 // })
 // //!10
-// afterSpecialEffectsMap.set(10, async (playerId: number) => {
+// afterSpecialEffectsMap.set(10, async (gameId, playerId) => {
 //     const players = (await db.getPlayers())
 //     const otherPlayers = players.filter(x => x.id !== playerId)
 //     const player = otherPlayers[Math.floor(Math.random() * otherPlayers.length)]
@@ -128,22 +185,25 @@ const afterSpecialEffectsMap = new Map<number, (playerId: number) => Promise<Gam
 //     })
 // })
 // //!11
-// afterSpecialEffectsMap.set(11, async (playerId: number) => {
-//     return await db.newEffectState(playerId, 35)
-// })
+afterSpecialEffectsMap.set(11, async (gameId, playerId) => {
+    return await GameEffectStateWithEffectWithPlayer<any>.create({
+        gameId, playerId,
+        effectId: '7c44ff0a-517c-49c2-be93-afb97b559a52', // (35) allow effect wheel spin
+    })
+})
 // //!12
-// afterSpecialEffectsMap.set(12, async (playerId: number) => {
-//     return undefined
-// })
+afterSpecialEffectsMap.set(12, async (gameId, playerId) => {
+    return undefined
+})
 // //!13
-// afterSpecialEffectsMap.set(13, async (playerId: number) => {
+// afterSpecialEffectsMap.set(13, async (gameId, playerId) => {
 //     return await db.newEffectState(playerId, 41, {
 //         question: `Выбери кто будет крутить твое колесо в следующем ролле`,
 //         players: (await db.getPlayers()).filter(x => x.id !== playerId)
 //     })
 // })
 // //!14
-// afterSpecialEffectsMap.set(14, async (playerId: number) => {
+// afterSpecialEffectsMap.set(14, async (gameId, playerId) => {
 //     const wheels = applyDisabled(await db.getWheels(), await db.getPlayerTasksIds(playerId))
 //     const availableWheels = wheels.filter(w => w.ownerId !== playerId && w.items?.find(x => !x.disabled))
 //     const selectedWheel = availableWheels[Math.floor(Math.random() * availableWheels.length)]
@@ -160,7 +220,7 @@ const afterSpecialEffectsMap = new Map<number, (playerId: number) => Promise<Gam
 //     return await db.newEffectState(playerId, 32, { wheelId: selectedWheel.id })
 // })
 // //!15
-// afterSpecialEffectsMap.set(15, async (playerId: number) => {
+// afterSpecialEffectsMap.set(15, async (gameId, playerId) => {
 //     const secretState = await db.newSecretState(playerId, 15)
 //     broadcastEvent('secret:new', {
 //         idPlayer: playerId,
@@ -169,7 +229,7 @@ const afterSpecialEffectsMap = new Map<number, (playerId: number) => Promise<Gam
 //     return await db.newEffectState(playerId, 47, { secretStateId: secretState.id })
 // })
 // //!16
-// afterSpecialEffectsMap.set(16, async (playerId: number) => {
+// afterSpecialEffectsMap.set(16, async (gameId, playerId) => {
 //     const secretState = await db.newSecretState(playerId, 16)
 //     broadcastEvent('secret:new', {
 //         idPlayer: playerId,
@@ -178,15 +238,27 @@ const afterSpecialEffectsMap = new Map<number, (playerId: number) => Promise<Gam
 //     return await db.newEffectState(playerId, 47, { secretStateId: secretState.id })
 // })
 // //!17
-// afterSpecialEffectsMap.set(17, async (playerId: number) => {
-//     await addPoints(playerId, 15, `Привалило`)
-//     return undefined
-// })
+afterSpecialEffectsMap.set(17, async (gameId, playerId) => {
+    const targetPlayer = await GamePlayer.findOne({
+        where: { gameId, playerId }
+    })
+    if (!targetPlayer)
+        throw new Error(`Игрок не найден? Схуяли?`)
+    targetPlayer.points += 15
+    await targetPlayer.save()
+    return undefined
+})
 // //!18
-// afterSpecialEffectsMap.set(18, async (playerId: number) => {
-//     await removePoints(playerId, 15, `На пенек сел`)
-//     return undefined
-// })
+afterSpecialEffectsMap.set(18, async (gameId, playerId) => {
+    const targetPlayer = await GamePlayer.findOne({
+        where: { gameId, playerId }
+    })
+    if (!targetPlayer)
+        throw new Error(`Игрок не найден? Схуяли?`)
+    targetPlayer.points -= 15
+    await targetPlayer.save()
+    return undefined
+})
 // //!19
 // afterSpecialEffectsMap.set(19, async (playerId: number) => {
 //     const cardState = await db.newCardState(playerId, 19)

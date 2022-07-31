@@ -72,7 +72,7 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
             sae.volume = 0
             sae.play()
         }
-        const activeWheelItemIds = wheelItems.wheelItems.filter(i => (playerTasks.tasks as GameTask[]).find(t => t.wheelItemId)).map(i => i.id)
+        const activeWheelItemIds = wheelItems.wheelItems.filter(i => !(playerTasks.tasks as GameTask[]).find(t => i.id == t.wheelItemId)).map(i => i.id)
 
         axios.post<GameSpinResult>(`/api/games/${gameId}/spin`, {
             wheelId: wheel.wheel.id,

@@ -39,18 +39,23 @@ export default router
                 order: [['fromCoop', 'DESC']]
             })
             if (playerActiveTask) return res.status(400).json({ error: `Что ты тут забыл? Ты еще прошлый контент не закончил`, status: 400 })
-            const playerEffectStates = await GameEffectState.findAll({
+            const effect35 = await GameEffectStateWithEffectWithPlayer.findOne({
                 where: {
                     gameId: game.id,
                     playerId: player.id,
                     isEnded: false
                 },
-                include: [Effect, Player]
-            }) as GameEffectStateWithEffectWithPlayer[]
-            const effect35 = playerEffectStates.find(x => x.effect.lid == 35)
+                include: [{
+                    model: Effect,
+                    required: true,
+                    where: {
+                        lid: 35
+                    }
+                }, Player]
+            })
             if (effect35)
                 return res.status(400).json({ error: `Я тебе запрещаю это крутить`, status: 400 })
-                
+
             const wheel = await Wheel.findOne({ where: { id: body.wheelId } })
             if (!wheel) return res.status(400).json({ error: `Invalid wheelId`, status: 400 })
 
@@ -59,6 +64,8 @@ export default router
             const activeItems = wheelItems.filter(x => !playerGameTasks.find(y => y.wheelItemId === x.id))
             if (activeItems.length == 0) return res.status(400).json({ error: `Empty wheel`, status: 400 })
 
+            if (!_.isEqual(activeItems.map(x => x.id).sort(), body.activeWheelItemIds.sort()))
+                return res.status(400).json({ error: `Твое содержимое колеса не совпадает с сервером. Обнови страницу и попробуй еще раз.`, status: 400 })
             const resultItem = activeItems[Math.floor(activeItems.length * Math.random())] as WheelItem
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
             const task = GameTask.build({

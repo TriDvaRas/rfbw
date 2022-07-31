@@ -60,6 +60,8 @@ Rules.init({
     sequelize,
     modelName: 'rules',
 })
+User.hasMany(Rules, { foreignKey: 'savedById' });
+Rules.belongsTo(User, { foreignKey: 'savedById' });
 
 
 
@@ -91,6 +93,8 @@ Image.init({
     sequelize,
     modelName: 'images',
 })
+User.hasMany(Image, { foreignKey: 'addedById' });
+Image.belongsTo(User, { foreignKey: 'addedById' });
 
 
 
@@ -133,10 +137,12 @@ Player.init({
     sequelize,
     modelName: 'players',
 })
+User.hasOne(Player, { foreignKey: 'id' });
+Player.belongsTo(User, { foreignKey: 'id' });
+
 
 
 type WheelItemAudioType = 'wheel' | 'wheelitem' | 'other';
-
 export class Audio extends Model {
     declare id: string
     declare addedById: string
@@ -165,6 +171,10 @@ Audio.init({
     sequelize,
     modelName: 'audios',
 })
+User.hasMany(Audio, { foreignKey: 'addedById' });
+Audio.belongsTo(User, { foreignKey: 'addedById' });
+
+
 
 export class Wheel extends Model {
     declare id: string
@@ -228,12 +238,13 @@ Wheel.init({
     sequelize,
     modelName: 'wheels',
 })
+Player.hasMany(Wheel, { foreignKey: 'ownedById' });
+Wheel.belongsTo(Player, { foreignKey: 'ownedById' });
+
 
 
 export type WheelItemType = 'game' | 'movie' | 'anime' | 'series';
-
 export type WheelItemImageMode = 'height' | 'width';
-
 export class WheelItem extends Model {
     declare id: string
     declare wheelId: string
@@ -258,8 +269,6 @@ export class WheelItem extends Model {
     declare createdAt: string
     declare updatedAt: string
 }
-
-
 WheelItem.init({
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
     wheelId: {
@@ -268,7 +277,6 @@ WheelItem.init({
         references: {
             model: Wheel,
             key: 'id',
-
         },
         onDelete: 'cascade'
     },
@@ -314,6 +322,11 @@ WheelItem.init({
     sequelize,
     modelName: 'wheelitems',
 })
+Wheel.hasMany(WheelItem);
+WheelItem.belongsTo(Wheel);
+Player.hasMany(WheelItem, { foreignKey: 'ownedById' });
+WheelItem.belongsTo(Player, { foreignKey: 'ownedById' });
+
 
 
 export class Game extends Model {
@@ -348,6 +361,10 @@ Game.init({
     sequelize,
     modelName: 'games',
 })
+User.hasMany(WheelItem, { foreignKey: 'addedById' });
+WheelItem.belongsTo(User, { foreignKey: 'addedById' });
+
+
 
 export class GamePlayer extends Model {
     declare gameId: string
@@ -397,6 +414,14 @@ GamePlayer.init({
     sequelize,
     modelName: 'gameplayers',
 })
+export class GamePlayerWithPlayer extends GamePlayer {
+    declare player: Player
+}
+Player.hasMany(GamePlayer, { foreignKey: 'playerId' });
+GamePlayer.belongsTo(Player, { foreignKey: 'playerId' });
+Game.hasMany(GamePlayer, { foreignKey: 'gameId' });
+GamePlayer.belongsTo(Game, { foreignKey: 'gameId' });
+
 
 
 export class GamePoints extends Model {
@@ -428,6 +453,9 @@ GamePoints.init({
     sequelize,
     modelName: 'gamepoints',
 })
+Game.hasMany(GamePoints, { foreignKey: 'gameId' });
+GamePoints.belongsTo(Game, { foreignKey: 'gameId' });
+
 
 
 export class GameWheel extends Model {
@@ -469,10 +497,14 @@ GameWheel.init({
     sequelize,
     modelName: 'gamewheels',
 })
+Wheel.hasMany(GameWheel, { foreignKey: 'wheelId' });
+GameWheel.belongsTo(Wheel, { foreignKey: 'wheelId' });
+Game.hasMany(GameWheel, { foreignKey: 'gameId' });
+GameWheel.belongsTo(Game, { foreignKey: 'gameId' });
+
 
 
 export type GameTaskResult = 'drop' | 'finish' | 'skip' | 'reroll' | 'leftCoop';
-
 export class GameTask extends Model {
     declare id: string
     declare gameId: string
@@ -537,13 +569,23 @@ GameTask.init({
         }
     ],
 })
+Game.hasMany(GameWheel, { foreignKey: 'gameId' });
+GameWheel.belongsTo(Game, { foreignKey: 'gameId' });
+WheelItem.hasMany(GameTask, { foreignKey: 'wheelItemId' });
+GameTask.belongsTo(WheelItem, { foreignKey: 'wheelItemId' });
+Player.hasMany(GameTask, { foreignKey: 'playerId' });
+GameTask.belongsTo(Player, { foreignKey: 'playerId' });
+export class GameTaskWithWheelItem extends GameTask {
+    declare wheelitem: WheelItem
+}
+
+
 
 export type GameEventContentType = 'contentEnd' | 'contentDrop' | 'contentSkip' | 'contentRoll'
     | 'contentJoinCoop' | 'contentEndCoop' | 'contentLeaveCoop';
 export type GameEventEffectType = 'effectGained' | 'effectLost' | 'effectPointsAdd' | 'effectPointsRemove';
 export type GameEventAdminType = 'adminPointsAdd' | 'adminPointsRemove';
-export type GameEventType = GameEventContentType | GameEventEffectType | GameEventEffectType
-
+export type GameEventType = GameEventContentType | GameEventEffectType | GameEventEffectType | 'customMessage'
 export class GameEvent extends Model {
     declare id: string
     declare gameId: string
@@ -554,6 +596,7 @@ export class GameEvent extends Model {
     declare imageId?: string
     declare taskId?: string
     declare effectId?: string
+    declare vars?: { [key: string]: any }
 
     declare createdAt: string
     declare updatedAt: string
@@ -582,11 +625,18 @@ GameEvent.init({
     imageId: { type: DataTypes.UUID, allowNull: true },
     taskId: { type: DataTypes.UUID, allowNull: true },
     effectId: { type: DataTypes.UUID, allowNull: true },
+    vars: { type: DataTypes.JSON, allowNull: true },
 }, {
     sequelize,
     modelName: 'gameevents',
 })
+Game.hasMany(GameEvent, { foreignKey: 'gameId' });
+GameEvent.belongsTo(Game, { foreignKey: 'gameId' });
+Player.hasMany(GameEvent, { foreignKey: 'playerId' });
+GameEvent.belongsTo(Player, { foreignKey: 'playerId' });
 export type EffectType = 'card' | 'secret' | 'positive' | 'neutral' | 'negative' | 'system';
+
+
 
 export class Effect extends Model {
     declare id: string
@@ -664,24 +714,24 @@ GameEffect.init({
 })
 Effect.hasMany(GameEffect);
 GameEffect.belongsTo(Effect);
-export interface GameEffectWithEffect extends GameEffect {
-    effect: Effect
+export class GameEffectWithEffect extends GameEffect {
+    declare effect: Effect
 }
 
 
-export class GameEffectState<T = { [key: string]: any }> extends Model {
+
+export class GameEffectState<T = { [key: string]: any } | undefined> extends Model {
     declare id: string
     declare gameId: string
     declare effectId: string
     declare playerId: string
     declare isEnded: boolean
-    declare vars?: T
+    declare vars: T
 
 
     declare createdAt: string
     declare updatedAt: string
 }
-
 GameEffectState.init({
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
     gameId: {
@@ -718,10 +768,12 @@ Effect.hasMany(GameEffectState);
 GameEffectState.belongsTo(Effect);
 Player.hasMany(GameEffectState);
 GameEffectState.belongsTo(Player);
-export interface GameEffectStateWithEffectWithPlayer extends GameEffectState {
-    effect: Effect
-    player: Player
+export class GameEffectStateWithEffectWithPlayer<T = { [key: string]: any }> extends GameEffectState<T> {
+    declare effect: Effect
+    declare player: Player
 }
+
+
 
 //TODO remove
 export function syncTables() {
@@ -739,7 +791,7 @@ export function syncTables() {
             // GamePoints.sync({ force: true }),
             // GameWheel.sync({ force: true }),
             // GameTask.sync({ force: true }),
-            GameEvent.sync({ force: true }),
+            GameEvent.sync({ alter: true }),
             // Effect.sync({ alter: true }),
             // GameEffect.sync({ alter: true }),
             // GameEffectState.sync({ alter: true }),

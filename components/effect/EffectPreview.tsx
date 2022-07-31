@@ -32,7 +32,7 @@ export default function EffectPreview(props: Props) {
                 borderRadius: '16px',
                 overflow: 'hidden',
                 cursor: onClick ? 'pointer' : undefined,
-                textShadow: '#0008 0 0 7px',
+                textShadow: '#0008 0 0 5px',
                 boxShadow: shadow ? ' #0007 0 0 15px' : undefined,
             }}>
 

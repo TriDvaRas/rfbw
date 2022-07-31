@@ -25,6 +25,9 @@ import { parseApiError } from '../../../util/error';
 import { formatPointsString } from '../../../util/lines';
 import PHCard from '../../../util/PHCard';
 import { NextPageWithLayout } from "../../_app";
+import { GameEffectState, GameEffectStateWithEffectWithPlayer } from '../../../database/db';
+import { EffectStateQuestionVars } from '../../../types/effectStateVars';
+import QuestionModal from '../../../components/game/QuestionModal';
 
 const GameHome: NextPageWithLayout = () => {
     const session = useSession()
@@ -47,6 +50,12 @@ const GameHome: NextPageWithLayout = () => {
     const [showSkipModal, setShowSkipModal] = useState(false)
 
     //#region handlers
+    function revalidateAll() {
+        playerTasks.mutate(undefined)
+        gamePlayers.mutate(undefined)
+        events.mutate(undefined)
+        playerEffects.mutate(undefined)
+    }
     function handleEnd(type: 'end' | 'drop' | 'skip') {
         if (!activeTask || !session.data)
             return
@@ -61,10 +70,7 @@ const GameHome: NextPageWithLayout = () => {
                 setShowDropModal(false)
                 setShowSkipModal(false)
                 setIsLoading(false)
-                playerTasks.mutate(undefined)
-                gamePlayers.mutate(undefined)
-                events.mutate(undefined)
-                playerEffects.mutate(undefined)
+                revalidateAll()
             },
                 (err) => {
                     setError(parseApiError(err))
@@ -81,6 +87,7 @@ const GameHome: NextPageWithLayout = () => {
         return <LoadingDots />
     const gamePLayer = gamePlayers.players.find(x => session.data && x.playerId == session.data.user.id)
     const canRollEffect = playerEffects.states?.find(x => x.effectId == '7c44ff0a-517c-49c2-be93-afb97b559a52')
+    const question = playerEffects.states?.find(x => x.vars?.question) as GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars> | undefined
     return <>
         <Head>
             <title>{game.game?.name || 'Игра'}</title>
@@ -115,16 +122,16 @@ const GameHome: NextPageWithLayout = () => {
                     {/* effects */}
                     {gamePLayer && <Col xl={6} className='mb-3'>
                         <h1 className='ms-3 mb-3'>Эффекты</h1>
-                        <div className='px-3 d-flex'>
+                        <div className='px-3 d-flex flex-wrap'>
                             {playerEffects.states?.length === 0}
-                            {!playerEffects.states ? <LoadingDots /> : playerEffects.states?.map(x => <EffectStatePreview key={x.id} className='mb-3' effectState={x} />)}
+                            {!playerEffects.states ? <LoadingDots /> : playerEffects.states?.map(x => <EffectStatePreview key={x.id} className='mb-3 me-2' effectState={x} />)}
                         </div>
                     </Col>}
                     {/* coop */}
                     {gamePLayer && <Collapse in={activeTaskItem.item && (activeTaskItem.item.hasCoop && activeTaskItem.item.maxCoopPlayers > 1 || activeTaskItem.item.type !== 'game')}>
                         <Col xl={12} className='mb-3'>
                             <PHCard height={150} >
-                                <div>Кооп тоже</div>
+                                <div>Кооп?</div>
                                 <i className="fs-1 bi bi-emoji-smile"></i>
                             </PHCard>
                         </Col>
@@ -177,7 +184,7 @@ const GameHome: NextPageWithLayout = () => {
                         <Modal.Header className='bg-dark-750 text-light border-dark'><h3>Реролл контента</h3></Modal.Header>
                         {
                             activeTaskItem.item && <Modal.Body className='bg-dark text-light border-dark'>
-                                За реролл ты не потеряешь очков, но ты должен будешь доказать что уже играл/смотрел данный контент (если кто то доебется).
+                                За реролл ты не потеряешь очков, но должен будешь доказать что уже играл/смотрел данный контент (если кто то доебется).
                                 После реролла нельзя сменить колесо игрока для следующего прокрута.
                                 При обнружении абуза ты потеряешь  <b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
                             </Modal.Body>
@@ -187,6 +194,13 @@ const GameHome: NextPageWithLayout = () => {
                             <Button variant='danger' disabled={isLoading} className='float-right' onClick={() => handleEnd('skip')}>Завершить</Button>
                             <Button variant='secondary' disabled={isLoading} className='float-right mx-3' onClick={() => setShowSkipModal(false)}>Отмена</Button>
                         </Modal.Footer>
+                    </Modal>
+                    {/* question */}
+                    <Modal contentClassName='bg-dark' show={!!question} animation={true} centered>
+                        {question && <QuestionModal onOk={(e) => {
+                            playerEffects.mutate(playerEffects.states?.filter(x => x.id !== e.id))
+                            revalidateAll()
+                        }} effectState={question} />}
                     </Modal>
                 </Row>
         }

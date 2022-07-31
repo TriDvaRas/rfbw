@@ -9,8 +9,9 @@ import { ApiError } from '../../../../../types/common-api'
 import { authOptions } from "../../../auth/[...nextauth]"
 import { Op } from 'sequelize';
 import { GameSpinResult, GameSpinEffectResult } from '../../../../../types/game';
-import _, { result } from 'lodash';
+import _, { includes, result } from 'lodash';
 import { effectsConfig } from '../../../../../config';
+import afterSpecialEffectsMap from '../../../../../util/game/afterSpecialEffectsMap';
 
 
 
@@ -66,15 +67,22 @@ export default router
                 },
                 include: Effect
             }) as GameEffectWithEffect[]
+            if (!_.isEqual(effectsWheelItems.map(x => x.id).sort(), body.activeWheelItemIds.sort()))
+                return res.status(400).json({ error: `Твое содержимое колеса не совпадает с сервером. Обнови страницу и попробуй еще раз.`, status: 400 })
             const activeItems = effectsWheelItems.filter(x => x.cooldown == 0)
-            const resultItem = activeItems[Math.floor(activeItems.length * Math.random())] as GameEffectWithEffect
+            if (activeItems.length === 0)
+                return res.status(400).json({ error: `Колесо пустое... А какого хуя собственно?)`, status: 400 })
+            let cheat: number | undefined
+            //!! --------------------------------------------
+            cheat = 12
+            //!! --------------------------------------------
+            const resultItem = cheat && activeItems.find(x => x.effect.lid === cheat) || activeItems[Math.floor(activeItems.length * Math.random())] as GameEffectWithEffect
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
             effect35.isEnded = true
             effect35.save()
             res.json({
                 extraSpin,
                 resultItemId: resultItem.id,
-
                 playerId: user.id,
                 gameId: req.query.gameIds as string,
             })
@@ -85,7 +93,29 @@ export default router
                 effectId: resultItem.effect.id,
                 type: 'effectGained',
             })
-            setTimeout(() => {
+            for (const lid of effectsConfig.afterSpinClears) {
+                const st = await GameEffectStateWithEffectWithPlayer.findOne({
+                    where: {
+                        playerId: player.id,
+                        isEnded: false,
+                    },
+                    include: [{
+                        model: Effect,
+                        required: true,
+                        where: { lid }
+                    }, Player]
+                })
+                if (st) {
+                    st.isEnded = true
+                    st.save()
+                }
+            }
+            setTimeout(async () => {
+                //TODO shuffle
+                const fn = afterSpecialEffectsMap.get(resultItem.effect.lid)
+                if (fn) {
+                    const newEffect = await fn(game.id, player.id)
+                }
                 event.save()
             }, (effectsConfig.spinDur) * 1000 - 200)
         } catch (error: any) {

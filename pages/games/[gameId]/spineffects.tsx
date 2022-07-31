@@ -132,7 +132,21 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
                                 <div className='d-flex mw-100 px-5 flex-column align-items-center justify-content-center'>
                                     {result && <Card bg='dark'>
                                         <Card.Body>
-                                            <Button variant='warning' onClick={() => router.push(`/games/${gameId}`)} className=''>Продолжить</Button>
+                                            <Button variant='warning' onClick={() => {
+                                                if (result.effect.lid == 11) {
+                                                    setResult(undefined)
+                                                    setIsPrespinning(false)
+                                                    setSpinPressed(false)
+                                                    setExtraspin(0)
+                                                    setSelectItemId(undefined)
+                                                    setFullSpins(undefined)
+                                                    setSpinDuration(undefined)
+                                                    setIsPrespinning(false, 10)
+                                                    setIsSpinning(false, 20)
+                                                    setShowResult(false)
+                                                } else
+                                                    router.push(`/games/${gameId}`)
+                                            }} className=''>Продолжить</Button>
                                         </Card.Body>
                                     </Card>}
                                 </div>
