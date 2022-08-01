@@ -10,6 +10,7 @@ import { authOptions } from "../../auth/[...nextauth]"
 import { Op } from 'sequelize';
 import { GameSpinResult } from '../../../../types/game';
 import _, { result } from 'lodash';
+import { filterWheelsWithEffects } from '../../../../util/game/wheelFilters';
 
 
 
@@ -39,7 +40,7 @@ export default router
                 order: [['fromCoop', 'DESC']]
             })
             if (playerActiveTask) return res.status(400).json({ error: `Что ты тут забыл? Ты еще прошлый контент не закончил`, status: 400 })
-            const effect35 = await GameEffectStateWithEffectWithPlayer.findOne({
+            const states = await GameEffectStateWithEffectWithPlayer<any>.findAll({
                 where: {
                     gameId: game.id,
                     playerId: player.id,
@@ -47,17 +48,17 @@ export default router
                 },
                 include: [{
                     model: Effect,
-                    required: true,
-                    where: {
-                        lid: 35
-                    }
                 }, Player]
             })
+            const effect35 = states.find(x => x.effect.lid === 35)
             if (effect35)
                 return res.status(400).json({ error: `Я тебе запрещаю это крутить`, status: 400 })
 
             const wheel = await Wheel.findOne({ where: { id: body.wheelId } })
             if (!wheel) return res.status(400).json({ error: `Invalid wheelId`, status: 400 })
+            const allowedWheels = filterWheelsWithEffects([wheel], states)
+            if (allowedWheels.length !== 1)
+                return res.status(400).json({ error: `Я тебе запрещаю это крутить (читай правила)`, status: 400 })
 
             const wheelItems = await WheelItem.findAll({ where: { wheelId: wheel.id }, })
             const playerGameTasks = await GameTask.findAll({ where: { gameId: game.id, playerId: player.id } })

@@ -40,7 +40,6 @@ const GameHome: NextPageWithLayout = () => {
     const activeTaskItem = useWheelItem(activeTask?.wheelItemId)
     const gamePlayers = useGamePlayers(gameId)
     const events = useGameEvents(gameId)
-
     const playerEffects = usePlayerEffectStates(gameId, session.data?.user.id)
 
     const [error, setError] = useState<ApiError | undefined>(undefined)
