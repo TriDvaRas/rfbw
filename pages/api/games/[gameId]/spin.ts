@@ -11,6 +11,7 @@ import { Op } from 'sequelize';
 import { GameSpinResult } from '../../../../types/game';
 import _, { result } from 'lodash';
 import { filterWheelsWithEffects } from '../../../../util/game/wheelFilters';
+import { effectsConfig } from '../../../../config';
 
 
 
@@ -83,6 +84,23 @@ export default router
                 gameId: req.query.gameIds as string,
                 wheelId: wheel.id,
             })
+            for (const lid of effectsConfig.afterSpinClears) {
+                const st = await GameEffectStateWithEffectWithPlayer.findOne({
+                    where: {
+                        playerId: player.id,
+                        isEnded: false,
+                    },
+                    include: [{
+                        model: Effect,
+                        required: true,
+                        where: { lid }
+                    }, Player]
+                })
+                if (st) {
+                    st.isEnded = true
+                    st.save()
+                }
+            }
             const event = GameEvent.build({
                 gameId: game.id,
                 playerId: player.id,

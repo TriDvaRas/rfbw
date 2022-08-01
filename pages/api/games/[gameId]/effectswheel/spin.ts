@@ -74,7 +74,7 @@ export default router
                 return res.status(400).json({ error: `Колесо пустое... А какого хуя собственно?)`, status: 400 })
             let cheat: number | undefined
             //!! --------------------------------------------
-            cheat = 3
+            // cheat = 3
             //!! --------------------------------------------
             const resultItem = cheat && activeItems.find(x => x.effect.lid === cheat) || activeItems[Math.floor(activeItems.length * Math.random())] as GameEffectWithEffect
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
@@ -93,23 +93,23 @@ export default router
                 effectId: resultItem.effect.id,
                 type: 'effectGained',
             })
-            for (const lid of effectsConfig.afterSpinClears) {
-                const st = await GameEffectStateWithEffectWithPlayer.findOne({
-                    where: {
-                        playerId: player.id,
-                        isEnded: false,
-                    },
-                    include: [{
-                        model: Effect,
-                        required: true,
-                        where: { lid }
-                    }, Player]
-                })
-                if (st) {
-                    st.isEnded = true
-                    st.save()
-                }
-            }
+            // for (const lid of effectsConfig.afterSpinClears) {
+            //     const st = await GameEffectStateWithEffectWithPlayer.findOne({
+            //         where: {
+            //             playerId: player.id,
+            //             isEnded: false,
+            //         },
+            //         include: [{
+            //             model: Effect,
+            //             required: true,
+            //             where: { lid }
+            //         }, Player]
+            //     })
+            //     if (st) {
+            //         st.isEnded = true
+            //         st.save()
+            //     }
+            // }
             setTimeout(async () => {
                 //TODO shuffle
                 const fn = afterSpecialEffectsMap.get(resultItem.effect.lid)
