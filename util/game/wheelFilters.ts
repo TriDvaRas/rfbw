@@ -24,6 +24,9 @@ export function filterGameWheelsWithEffects(wheels: GameWheel[], effectStates: G
             case 3:
                 _wheels = wheels.filter(x => x.wheelId === state.vars.wheelId)
                 break;
+            case 31:
+                _wheels = wheels.filter(x => x.wheelId === state.vars.wheelId)
+                break;
             default:
                 break;
         }

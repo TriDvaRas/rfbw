@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Effect, GameEffectStateWithEffectWithPlayer, GameEffectWithEffect, GamePlayer, Player, GameEffectState, WheelItem, GameTaskWithWheelItem } from '../../database/db';
+import { Effect, GameEffectStateWithEffectWithPlayer, GameEffectWithEffect, GamePlayer, Player, GameEffectState, WheelItem, GameTaskWithWheelItem, GameWheel, GameWheelWithWheel, Wheel } from '../../database/db';
 import { EffectStateQuestionVars } from '../../types/effectStateVars';
 
 const afterSpecialEffectsMap = new Map<number, (gameId: string, playerId: string) => Promise<GameEffectStateWithEffectWithPlayer | undefined>>()
@@ -185,16 +185,36 @@ afterSpecialEffectsMap.set(7, async (gameId, playerId) => {
 //         return await db.newEffectState(playerId, 9)
 // })
 // //!10
-// afterSpecialEffectsMap.set(10, async (gameId, playerId) => {
-//     const players = (await db.getPlayers())
-//     const otherPlayers = players.filter(x => x.id !== playerId)
-//     const player = otherPlayers[Math.floor(Math.random() * otherPlayers.length)]
-//     return await db.newEffectState(playerId, 40, {
-//         question: `Выбери чье колесо в следующий раз будет крутить %PLAYERNAME%`,
-//         player,
-//         players: players.filter(x => x.id !== player.id)
-//     })
-// })
+afterSpecialEffectsMap.set(10, async (gameId, playerId) => {
+    const otherPlayers = await GamePlayer.findAll({
+        where: {
+            gameId,
+            playerId: { [Op.ne]: playerId }
+        },
+        include: Player
+    })
+    const player = otherPlayers[Math.floor(Math.random() * otherPlayers.length)]
+    const wheels = await GameWheelWithWheel.findAll({
+        where: {
+            gameId,
+        },
+        include: [{
+            model: Wheel,
+            required: true,
+            where: { ownedById: { [Op.ne]: player.playerId } }
+        }]
+    })
+    return await GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>.create({
+        playerId,
+        gameId,
+        effectId: '8b27c779-d364-493c-a01a-529ecdbee017',//40
+        vars: {
+            question: 'Выбери чье колесо в следующий раз будет крутить %PLAYERNAME%',
+            gamePlayer: player,
+            wheels
+        } as EffectStateQuestionVars
+    }, { include: [Effect, Player] })
+})
 // //!11
 afterSpecialEffectsMap.set(11, async (gameId, playerId) => {
     return await GameEffectStateWithEffectWithPlayer<any>.create({

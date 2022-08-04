@@ -1,4 +1,4 @@
-import { GameEffectWithEffect, GamePlayerWithPlayer, Player, WheelItem } from '../database/db';
+import { GameEffectWithEffect, GamePlayerWithPlayer, Player, WheelItem, GamePlayer, GameWheelWithWheel } from '../database/db';
 
 export interface EffectStateQuestionVars {
     question: string,
@@ -7,6 +7,7 @@ export interface EffectStateQuestionVars {
     // types?: Array<CustomType>
     // scores?: Array<CustomType>
     player?: Player;
+    gamePlayer?: GamePlayerWithPlayer;
     content?: WheelItem
     // is21?: boolean;
     // is22?: boolean;
@@ -14,6 +15,6 @@ export interface EffectStateQuestionVars {
     // guess?: number[];
     // message?: string;
     // rejected?: boolean;
-    // wheels?: IWheel[];
+    wheels?: GameWheelWithWheel[];
     // withItems?: boolean;
 }

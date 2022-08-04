@@ -503,7 +503,9 @@ Wheel.hasMany(GameWheel, { foreignKey: 'wheelId' });
 GameWheel.belongsTo(Wheel, { foreignKey: 'wheelId' });
 Game.hasMany(GameWheel, { foreignKey: 'gameId' });
 GameWheel.belongsTo(Game, { foreignKey: 'gameId' });
-
+export class GameWheelWithWheel extends GameWheel {
+    declare wheel: Wheel
+}
 
 
 export type GameTaskResult = 'drop' | 'finish' | 'skip' | 'reroll' | 'leftCoop';

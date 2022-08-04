@@ -212,9 +212,13 @@ export default function QuestionModal(props: Props) {
     // }
     //#endregion
     function formatQuestion() {
+        console.log(effectVars);
+
         let line = effectVars.question
         if (effectVars.player)
             line = line.replace(`%PLAYERNAME%`, effectVars.player.name)
+        if (effectVars.gamePlayer)
+            line = line.replace(`%PLAYERNAME%`, effectVars.gamePlayer.player.name)
         if (effectVars.content)
             line = line.replace(`%CONTENTNAME%`, effectVars.content.title)
         return line
@@ -444,22 +448,23 @@ export default function QuestionModal(props: Props) {
                 }
                 {/* WHEELS */}
                 {
-                    // effectVars.wheels &&
-                    // <Badge bg={selectedWheel ? 'success' : "danger"} className='fs-2 text-center w-100 my-2'>{selectedWheel?.ownerName || 'Колесо не выбрано'}</Badge>
+                    effectVars.wheels &&
+                    <Badge bg={selectedWheel ? 'success' : "danger"} className='fs-2 text-center w-100 my-2'>{selectedWheel?.ownerName || 'Колесо не выбрано'}</Badge>
                 }
+
                 {
-                    // effectVars.wheels &&
-                    // <Collapse appear in={!selectedWheel}>
-                    //     <Row >
-                    //         {effectVars.wheels?.map(wheel =>
-                    //             <Col key={wheel.id} sm={12} md={6} lg={6}>
-                    //                 <Button variant='secondary' onClick={() => onWheelSelect(wheel)} className='my-1 w-100'>
-                    //                     {wheel.ownerName}
-                    //                 </Button>
-                    //             </Col>
-                    //         )}
-                    //     </Row>
-                    // </Collapse>
+                    effectVars.wheels &&
+                    <Collapse appear in={!selectedWheel}>
+                        <Row >
+                            {effectVars.wheels?.map(wheel =>
+                                <Col key={wheel.wheelId} sm={12} md={6} lg={6}>
+                                    <Button variant='secondary' onClick={() => onWheelSelect(wheel.wheel)} className='my-1 w-100'>
+                                        {wheel.wheel.title}
+                                    </Button>
+                                </Col>
+                            )}
+                        </Row>
+                    </Collapse>
                 }
                 {/* WHEELITEMS */}
                 {
