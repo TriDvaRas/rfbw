@@ -12,6 +12,7 @@ import { GameSpinResult } from '../../../../types/game';
 import _, { result } from 'lodash';
 import { filterWheelsWithEffects } from '../../../../util/game/wheelFilters';
 import { effectsConfig } from '../../../../config';
+import { filterWheelItemsWithEffects } from '../../../../util/game/wheelItemFilters';
 
 
 
@@ -63,7 +64,7 @@ export default router
 
             const wheelItems = await WheelItem.findAll({ where: { wheelId: wheel.id }, })
             const playerGameTasks = await GameTask.findAll({ where: { gameId: game.id, playerId: player.id } })
-            const activeItems = wheelItems.filter(x => !playerGameTasks.find(y => y.wheelItemId === x.id))
+            const activeItems = filterWheelItemsWithEffects(wheelItems, states).filter(x => !playerGameTasks.find(y => y.wheelItemId === x.id))
             if (activeItems.length == 0) return res.status(400).json({ error: `Empty wheel`, status: 400 })
 
             if (!_.isEqual(activeItems.map(x => x.id).sort(), body.activeWheelItemIds.sort()))
@@ -84,23 +85,7 @@ export default router
                 gameId: req.query.gameIds as string,
                 wheelId: wheel.id,
             })
-            for (const lid of effectsConfig.afterSpinClears) {
-                const st = await GameEffectStateWithEffectWithPlayer.findOne({
-                    where: {
-                        playerId: player.id,
-                        isEnded: false,
-                    },
-                    include: [{
-                        model: Effect,
-                        required: true,
-                        where: { lid }
-                    }, Player]
-                })
-                if (st) {
-                    st.isEnded = true
-                    st.save()
-                }
-            }
+
             const event = GameEvent.build({
                 gameId: game.id,
                 playerId: player.id,
@@ -108,7 +93,24 @@ export default router
                 taskId: task.id,
                 type: 'contentRoll',
             })
-            setTimeout(() => {
+            setTimeout(async () => {
+                for (const lid of effectsConfig.afterSpinClears) {
+                    const st = await GameEffectStateWithEffectWithPlayer.findOne({
+                        where: {
+                            playerId: player.id,
+                            isEnded: false,
+                        },
+                        include: [{
+                            model: Effect,
+                            required: true,
+                            where: { lid }
+                        }, Player]
+                    })
+                    if (st) {
+                        st.isEnded = true
+                        st.save()
+                    }
+                }
                 task.save()
                 event.save()
             }, (wheel.prespinDuration) * 1000 + (wheel.spinDuration) * 1000)

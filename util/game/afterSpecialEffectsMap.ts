@@ -78,11 +78,10 @@ afterSpecialEffectsMap.set(3, async (gameId, playerId) => {
             playerId: playerId,
             fromCoop: false
         },
-        order: [['createdAt', 'DESC']], 
+        order: [['createdAt', 'DESC']],
         include: WheelItem
     })
-    console.log(lastTask);
-    
+
     if (lastTask) {
         return await GameEffectStateWithEffectWithPlayer<any>.create({
             playerId,
@@ -114,17 +113,29 @@ afterSpecialEffectsMap.set(3, async (gameId, playerId) => {
 //     return effect
 // })
 // //!5
-// afterSpecialEffectsMap.set(5, async (gameId, playerId) => {
-//     return await db.newEffectState(playerId, 5)
-// })
+afterSpecialEffectsMap.set(5, async (gameId, playerId) => {
+    return await GameEffectStateWithEffectWithPlayer<any>.create({
+        playerId,
+        gameId,
+        effectId: '7da49e4b-7430-420c-bfb2-557437e17904',//5
+    }, { include: [Effect, Player] })
+})
 // //!6
-// afterSpecialEffectsMap.set(6, async (gameId, playerId) => {
-//     return await db.newEffectState(playerId, 6)
-// })
+afterSpecialEffectsMap.set(6, async (gameId, playerId) => {
+    return await GameEffectStateWithEffectWithPlayer<any>.create({
+        playerId,
+        gameId,
+        effectId: '5a61a31c-088a-4a07-a4b4-f7039d9be23c',//6
+    }, { include: [Effect, Player] })
+})
 // //!7
-// afterSpecialEffectsMap.set(7, async (gameId, playerId) => {
-//     return await db.newEffectState(playerId, 7)
-// })
+afterSpecialEffectsMap.set(7, async (gameId, playerId) => {
+    return await GameEffectStateWithEffectWithPlayer<any>.create({
+        playerId,
+        gameId,
+        effectId: 'bc3186d6-0d24-41e0-a81c-934cc765feba',//7
+    }, { include: [Effect, Player] })
+})
 // //!8
 // afterSpecialEffectsMap.set(8, async (gameId, playerId) => {
 //     const playerEffects = await db.getPlayerEffects(playerId)

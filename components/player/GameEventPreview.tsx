@@ -41,8 +41,6 @@ export default function GameEventPreview(props: Props) {
     const imagePreview = useImage(gameEvent?.imageId, true)
     const image = useImage(undefined)
     const size = props.height || 102
-    console.log(player);
-    console.log(effect);
     
     const [left, right] = getBlocks(gameEvent, player, playerTask, wheelItem, effect)
 

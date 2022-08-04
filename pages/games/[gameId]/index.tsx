@@ -103,7 +103,7 @@ const GameHome: NextPageWithLayout = () => {
                         <h1 className='ms-3 mb-3'>Контент</h1>
                         {
                             playerTasks.loading ? <PHCard loading height={250} /> :
-                                activeTaskItem.item && <TaskWheelItemPreview className='m-0 p-0' height={200} item={activeTaskItem.item} />
+                                activeTaskItem.item && <TaskWheelItemPreview showComments className='m-0 p-0' height={200} item={activeTaskItem.item} />
                         }
                         {
                             activeTasks && !activeTask && (canRollEffect ?

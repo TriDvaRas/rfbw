@@ -74,7 +74,7 @@ export default router
                 return res.status(400).json({ error: `Колесо пустое... А какого хуя собственно?)`, status: 400 })
             let cheat: number | undefined
             //!! --------------------------------------------
-            // cheat = 3
+            // cheat = 7
             //!! --------------------------------------------
             const resultItem = cheat && activeItems.find(x => x.effect.lid === cheat) || activeItems[Math.floor(activeItems.length * Math.random())] as GameEffectWithEffect
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99

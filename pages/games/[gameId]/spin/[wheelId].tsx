@@ -24,6 +24,8 @@ import useDelayedState from 'use-delayed-state';
 import { ApiError } from '../../../../types/common-api';
 import { parseApiError } from '../../../../util/error';
 import TaskWheelItemPreview from '../../../../components/wheelItem/TaskWheelItemPreview';
+import { filterWheelItemsWithEffects } from '../../../../util/game/wheelItemFilters';
+import usePlayerEffectStates from '../../../../data/usePlayerEffects';
 
 interface Props {
 
@@ -36,6 +38,7 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
     const wheel = useWheel(wheelId)
     const wheelItems = useWheelItems(wheelId)
     const playerTasks = usePlayerTasks(gameId, session.data?.user.id)
+    const playerEffects = usePlayerEffectStates(gameId, session.data?.user.id)
 
     const { height } = useWindowSize()
     const [wheelContainerRef, { width, }] = useElementSize()
@@ -58,11 +61,11 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
     const [showResult, setShowResult] = useState<boolean>(false)
     const [extraSpin, setExtraspin] = useState<number>(0)
     const [result, setResult] = useState<WheelItem>()
-
-    const disabledWheelItemIds = wheelItems.wheelItems?.filter(i => playerTasks.tasks?.find(t => t.wheelItemId == i.id)).map(i => i.id)
+    const filteredWheelItems = wheelItems.wheelItems && playerEffects.states && filterWheelItemsWithEffects(wheelItems.wheelItems, playerEffects.states)
+    const disabledWheelItemIds = wheelItems.wheelItems?.filter(i => playerTasks.tasks?.find(t => t.wheelItemId == i.id) || !filteredWheelItems?.find(x => x.id === i.id)).map(i => i.id)
 
     function handleSpin() {
-        if (!wheel.wheel || !wheelItems.wheelItems || !playerTasks.tasks)
+        if (!wheel.wheel || !filteredWheelItems || !playerTasks.tasks)
             return
         setIsPrespinning(true)
         setSpinPressed(true)
@@ -72,7 +75,7 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
             sae.volume = 0
             sae.play()
         }
-        const activeWheelItemIds = wheelItems.wheelItems.filter(i => !(playerTasks.tasks as GameTask[]).find(t => i.id == t.wheelItemId)).map(i => i.id)
+        const activeWheelItemIds = filteredWheelItems.filter(i => !(playerTasks.tasks as GameTask[]).find(t => i.id == t.wheelItemId)).map(i => i.id)
 
         axios.post<GameSpinResult>(`/api/games/${gameId}/spin`, {
             wheelId: wheel.wheel.id,
