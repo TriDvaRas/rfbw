@@ -261,6 +261,7 @@ export class WheelItem extends Model {
     declare imageId?: string
     declare imageMode: WheelItemImageMode
     declare type: WheelItemType
+    declare endCondition: string
     declare comments: string
     declare hasCoop: boolean
     declare maxCoopPlayers: number
@@ -311,6 +312,7 @@ WheelItem.init({
     imageMode: { type: DataTypes.STRING(10), allowNull: false, defaultValue: 'width' },
     type: { type: DataTypes.STRING(10), allowNull: false, defaultValue: 'game' },
     comments: { type: DataTypes.TEXT, allowNull: false, defaultValue: '' },
+    endCondition: { type: DataTypes.TEXT, allowNull: false, defaultValue: '' },
     hasCoop: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     maxCoopPlayers: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
     hasDifficulty: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
@@ -791,7 +793,7 @@ export function syncTables() {
             // GamePoints.sync({ force: true }),
             // GameWheel.sync({ force: true }),
             // GameTask.sync({ force: true }),
-            GameEvent.sync({ alter: true }),
+            // GameEvent.sync({ alter: true }),
             // Effect.sync({ alter: true }),
             // GameEffect.sync({ alter: true }),
             // GameEffectState.sync({ alter: true }),

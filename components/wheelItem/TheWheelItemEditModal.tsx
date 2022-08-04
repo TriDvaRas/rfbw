@@ -43,7 +43,7 @@ export default function WheelItemEditModal(props: Props) {
     const [isSaving, setIsSaving] = useState(false)
     const breakpoint = useBreakpoint()
     const [isAudioUploading, setIsAudioUploading] = useState(false)
-    
+
     const altColor = hexRgb(selectedItem.altColor || `#fff`)
     const fontColor = hexRgb(selectedItem.fontColor || `#fff`)
     const formRef = useRef<HTMLFormElement>()
@@ -221,6 +221,13 @@ export default function WheelItemEditModal(props: Props) {
                                     />
                                 </Form.Group>
                             </Row> */}
+                            <Form.Group className='mb-3'>
+                                <Form.Label>Условие завершения<Badge className='ms-1'>New</Badge></Form.Label>
+                                <Form.Control required as={TextareaAutosize} style={{ resize: 'none' }} disabled={isImageUploading || isSaving} defaultValue={selectedItem.endCondition} onChange={e => handleChange({ endCondition: e.target.value })} />
+                                <Form.Text className="text-dark-200">
+                                    Без спойлеров. Без намеков на спойлеры. Сломаю ебало за спойлеры. 
+                                </Form.Text>
+                            </Form.Group>
                             <Form.Group className='mb-3'>
                                 <Form.Label>Комментарии</Form.Label>
                                 <Form.Control as={TextareaAutosize} style={{ resize: 'none' }} disabled={isImageUploading || isSaving} defaultValue={selectedItem.comments} onChange={e => handleChange({ comments: e.target.value })} />

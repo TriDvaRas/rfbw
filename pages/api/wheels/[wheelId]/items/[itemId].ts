@@ -38,6 +38,7 @@ export default router
             wheelItem.imageMode = req.body.imageMode === undefined ? wheelItem.imageMode : req.body.imageMode
             wheelItem.type = req.body.type === undefined ? wheelItem.type : req.body.type
             wheelItem.comments = req.body.comments === undefined ? wheelItem.comments : req.body.comments
+            wheelItem.endCondition = req.body.endCondition === undefined ? wheelItem.endCondition : req.body.endCondition
             wheelItem.hasCoop = req.body.hasCoop === undefined ? wheelItem.hasCoop : req.body.hasCoop
             wheelItem.maxCoopPlayers = req.body.maxCoopPlayers === undefined ? wheelItem.maxCoopPlayers : req.body.maxCoopPlayers
             wheelItem.hasDifficulty = req.body.hasDifficulty === undefined ? wheelItem.hasDifficulty : req.body.hasDifficulty
