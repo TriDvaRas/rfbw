@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
 import { createRouter } from 'next-connect'
-import { Game, Wheel, GamePlayer, GameWheel } from '../../../../database/db';
+import { Game, Wheel, GamePlayer, GameWheel, GameWheelWithWheel } from '../../../../database/db';
 import adminOnly from '../../../../middleware/adminOnly';
 import commonErrorHandlers from '../../../../middleware/commonErrorHandlers'
 import requireApiSession from '../../../../middleware/requireApiSession'
@@ -16,10 +16,11 @@ const router = createRouter<NextApiRequest, NextApiResponse>();
 export default router
     .get(async (req, res: NextApiResponse<GameWheel[] | ApiError | null>) => {
         try {
-            const gameWheels = await GameWheel.findAll({
+            const gameWheels = await GameWheelWithWheel.findAll({
                 where: {
                     gameId: req.query.gameId
-                }
+                },
+                include: Wheel
             })
             if (gameWheels)
                 res.json(gameWheels)

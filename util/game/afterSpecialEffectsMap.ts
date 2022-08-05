@@ -209,7 +209,7 @@ afterSpecialEffectsMap.set(10, async (gameId, playerId) => {
         gameId,
         effectId: '8b27c779-d364-493c-a01a-529ecdbee017',//40
         vars: {
-            question: 'Выбери чье колесо в следующий раз будет крутить %PLAYERNAME%',
+            question: 'Выбери какое колесо в следующий раз будет крутить %PLAYERNAME%',
             gamePlayer: player,
             wheels
         } as EffectStateQuestionVars
@@ -227,29 +227,44 @@ afterSpecialEffectsMap.set(12, async (gameId, playerId) => {
     return undefined
 })
 // //!13
-// afterSpecialEffectsMap.set(13, async (gameId, playerId) => {
-//     return await db.newEffectState(playerId, 41, {
-//         question: `Выбери кто будет крутить твое колесо в следующем ролле`,
-//         players: (await db.getPlayers()).filter(x => x.id !== playerId)
-//     })
-// })
+afterSpecialEffectsMap.set(13, async (gameId, playerId) => {
+    return await GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>.create({
+        playerId,
+        gameId,
+        effectId: '35d6674a-1117-4bdb-a763-7ee152a61632',//41
+        vars: {
+            question: `Выбери кто будет крутить твое колесо в следующем ролле`,
+            players: await GamePlayer.findAll({
+                where: {
+                    gameId,
+                    playerId: { [Op.ne]: playerId }
+                },
+                include: Player
+            }),
+        } as EffectStateQuestionVars
+    }, { include: [Effect, Player] })
+})
 // //!14
-// afterSpecialEffectsMap.set(14, async (gameId, playerId) => {
-//     const wheels = applyDisabled(await db.getWheels(), await db.getPlayerTasksIds(playerId))
-//     const availableWheels = wheels.filter(w => w.ownerId !== playerId && w.items?.find(x => !x.disabled))
-//     const selectedWheel = availableWheels[Math.floor(Math.random() * availableWheels.length)]
-//     broadcastEvent(`post:new`, {
-//         post: await db.newPost('effectcustom', {
-//             pattern: `Следующий ролл {player} будет на колесе {owner} по причине {effect}`,
-//             variables: {
-//                 playerId,
-//                 ownerId: selectedWheel.ownerId,
-//                 effectId: 14
-//             },
-//         } as IPostCustom['variables'])
-//     })
-//     return await db.newEffectState(playerId, 32, { wheelId: selectedWheel.id })
-// })
+afterSpecialEffectsMap.set(14, async (gameId, playerId) => {
+    const wheels: GameWheelWithWheel[] = await GameWheelWithWheel.findAll({
+        where: {
+            gameId,
+        },
+        include: [{
+            model: Wheel,
+            required: true,
+            where: { ownedById: { [Op.ne]: playerId } }
+        }]
+    })
+    const selectedWheel = wheels[Math.floor(Math.random() * wheels.length)]
+
+    return await GameEffectStateWithEffectWithPlayer<any>.create({
+        playerId,
+        gameId,
+        effectId: '203e0f75-7766-4aae-9693-a38bf58ac5a3',//32
+        vars: { wheelId: selectedWheel.wheelId }
+    }, { include: [Effect, Player] })
+})
 // //!15
 // afterSpecialEffectsMap.set(15, async (gameId, playerId) => {
 //     const secretState = await db.newSecretState(playerId, 15)
@@ -291,14 +306,13 @@ afterSpecialEffectsMap.set(18, async (gameId, playerId) => {
     return undefined
 })
 // //!19
-// afterSpecialEffectsMap.set(19, async (playerId: number) => {
-//     const cardState = await db.newCardState(playerId, 19)
-//     broadcastEvent('card:new', {
-//         idPlayer: playerId,
-//         card: cardState
-//     })
-//     return undefined
-// })
+afterSpecialEffectsMap.set(19, async (gameId, playerId) => {
+    return await GameEffectStateWithEffectWithPlayer<any>.create({
+        playerId,
+        gameId,
+        effectId: 'c14bf560-b1b8-4172-8827-538dd0c75605',//19
+    }, { include: [Effect, Player] })
+})
 // //!20
 // afterSpecialEffectsMap.set(20, async (playerId: number) => {
 //     const effect = await db.newEffectState(playerId, 47)

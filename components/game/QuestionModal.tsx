@@ -449,9 +449,8 @@ export default function QuestionModal(props: Props) {
                 {/* WHEELS */}
                 {
                     effectVars.wheels &&
-                    <Badge bg={selectedWheel ? 'success' : "danger"} className='fs-2 text-center w-100 my-2'>{selectedWheel?.ownerName || 'Колесо не выбрано'}</Badge>
+                    <Badge bg={selectedWheel ? 'success' : "danger"} className='fs-2 text-center w-100 my-2'>{selectedWheel?.title || 'Колесо не выбрано'}</Badge>
                 }
-
                 {
                     effectVars.wheels &&
                     <Collapse appear in={!selectedWheel}>
@@ -499,27 +498,27 @@ export default function QuestionModal(props: Props) {
                         // && (!!selectedWheel || !effectVars.wheels)
                         // && (!!selectedWheelItem || !effectVars.withItems)
                     }>
-                        <div className='mt-3'>
-                            <Button disabled={isSaving} variant='primary' className='float-right' onClick={onContinue}>Продолжить</Button>
+                        <div className='mt-3 d-flex'>
                             {/*  */}
                             {/* {effectVars.scores &&
-                                <Button disabled={isSaving} variant='secondary' className='float-right mr-2' onClick={() => setSelectedScore(null)}>Изменить оценку</Button>
+                                <Button disabled={isSaving} variant='secondary' className=' me-2' onClick={() => setSelectedScore(null)}>Изменить оценку</Button>
                             }
                             {effectVars.types &&
-                                <Button disabled={isSaving} variant='secondary' className='float-right mr-2' onClick={() => setSelectedType(null)}>Изменить тип</Button>
+                                <Button disabled={isSaving} variant='secondary' className=' me-2' onClick={() => setSelectedType(null)}>Изменить тип</Button>
                             } */}
                             {effectVars.effects &&
-                                <Button disabled={isSaving} variant='secondary' className='float-right mr-2' onClick={() => setSelectedEffect(undefined)}>Изменить эффект</Button>
+                                <Button disabled={isSaving} variant='secondary' className='ms-auto me-2' onClick={() => setSelectedEffect(undefined)}>Изменить эффект</Button>
                             }
                             {effectVars.players &&
-                                <Button disabled={isSaving} variant='secondary' className='float-right mr-2' onClick={() => setSelectedPlayer(undefined)}>Изменить игрока</Button>
+                                <Button disabled={isSaving} variant='secondary' className=' me-2' onClick={() => setSelectedPlayer(undefined)}>Изменить игрока</Button>
                             }
                             {/* {effectVars.withItems &&
-                                <Button disabled={isSaving} variant='secondary' className='float-right mr-2' onClick={() => setSelectedWheelItem(null)}>Изменить контент</Button>
+                                <Button disabled={isSaving} variant='secondary' className=' me-2' onClick={() => setSelectedWheelItem(null)}>Изменить контент</Button>
                             }
                             {effectVars.wheels &&
-                                <Button disabled={isSaving} variant='secondary' className='float-right mr-2' onClick={() => { setSelectedWheel(null); setSelectedWheelItem(null) }}>Изменить колесо</Button>
+                                <Button disabled={isSaving} variant='secondary' className=' me-2' onClick={() => { setSelectedWheel(null); setSelectedWheelItem(null) }}>Изменить колесо</Button>
                             } */}
+                            <Button disabled={isSaving} variant='primary' className='' onClick={onContinue}>Продолжить</Button>
                         </div>
                     </Collapse>
                 }

@@ -86,7 +86,7 @@ const GameHome: NextPageWithLayout = () => {
         return <LoadingDots />
     const gamePLayer = gamePlayers.players.find(x => session.data && x.playerId == session.data.user.id)
     const canRollEffect = playerEffects.states?.find(x => x.effectId == '7c44ff0a-517c-49c2-be93-afb97b559a52')
-    const question = playerEffects.states?.find(x => x.vars?.question) as GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars> | undefined
+    const question = playerEffects.states?.sort((a, b) => new Date(b.createdAt) > new Date(a.createdAt) ? -1 : 0).find(x => x.vars?.question) as GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars> | undefined
     return <>
         <Head>
             <title>{game.game?.name || 'Игра'}</title>

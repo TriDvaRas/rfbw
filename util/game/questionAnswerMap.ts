@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { GameQuestionAnswerBody } from '../../pages/api/games/[gameId]/players/[playerId]/effects/answer/[effectStateId]';
-import { GameEffectStateWithEffectWithPlayer, Effect, GameTask, Player, GameTaskWithWheelItem, WheelItem, Wheel, GameWheel, GamePlayer } from '../../database/db';
+import { GameEffectStateWithEffectWithPlayer, Effect, GameTask, Player, GameTaskWithWheelItem, WheelItem, Wheel, GameWheel, GamePlayer, GameWheelWithWheel } from '../../database/db';
 import { EffectStateQuestionVars } from "../../types/effectStateVars";
 import { Op } from 'sequelize';
 
@@ -114,7 +114,7 @@ questionAnswerMap.set(36, async (effectState, answerData) => {
             break;
         case 14:
             //apply effect 32 with random wheel
-            const gameWheels = await GameWheel.findAll({
+            const gameWheels = await GameWheelWithWheel.findAll({
                 where: {
                     gameId: effectState.gameId
                 },
@@ -369,7 +369,34 @@ questionAnswerMap.set(37, async (effectState, answerData) => {
             break;
         case 10:
             //apply effect 40 with random player
-            throw new Error("Not implemented");
+            const otherPlayers = await GamePlayer.findAll({
+                where: {
+                    gameId: effectState.gameId,
+                    playerId: { [Op.ne]: targetId }
+                },
+                include: Player
+            })
+            const player = otherPlayers[Math.floor(Math.random() * otherPlayers.length)]
+            const wheels = await GameWheelWithWheel.findAll({
+                where: {
+                    gameId: effectState.gameId,
+                },
+                include: [{
+                    model: Wheel,
+                    required: true,
+                    where: { ownedById: { [Op.ne]: player.playerId } }
+                }]
+            })
+            return await GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>.create({
+                playerId: targetId,
+                gameId: effectState.gameId,
+                effectId: '8b27c779-d364-493c-a01a-529ecdbee017',//40
+                vars: {
+                    question: 'Выбери какое колесо в следующий раз будет крутить %PLAYERNAME%',
+                    gamePlayer: player,
+                    wheels
+                } as EffectStateQuestionVars
+            }, { include: [Effect, Player] })
 
             // const players = (await db.getPlayers())
             // const otherPlayers = players.filter(x => x.id !== targetId)
@@ -512,7 +539,7 @@ questionAnswerMap.set(40, async (effectState, answerData) => {
     //         },
     //     } as IPostCustom['variables'])
     // })
-    
+
     return await GameEffectStateWithEffectWithPlayer<any>.create({
         playerId: effectState.vars.gamePlayer?.playerId,
         gameId: effectState.gameId,
@@ -520,35 +547,39 @@ questionAnswerMap.set(40, async (effectState, answerData) => {
         vars: { wheelId }
     }, { include: [Effect, Player] })
 })
-// questionAnswerMap.set(41, async (effectState: IEffectState, answerData: AnswerData) => {
-//     if (!answerData.selectedPlayerId)
-//         throw new Error(`Не выбран игрок`)
-//     //apply 31 
-//     const wheelId = await db.getPlayerWheelId(effectState.player.id)
-//     broadcastEvent(`post:new`, {
-//         post: await db.newPost('effectcustom', {
-//             pattern: `{player} применяет {effect} на {target} `,
-//             variables: {
-//                 playerId: effectState.player.id,
-//                 targetId: answerData.selectedPlayerId,
-//                 effectId: 13,
-//             },
-//         } as IPostCustom['variables'])
-//     })
-//     broadcastEvent(`post:new`, {
-//         post: await db.newPost('effectcustom', {
-//             pattern: `Следующий ролл {target} будет на колесе {owner} по причине {effect}`,
-//             variables: {
-//                 targetId: answerData.selectedPlayerId,
-//                 ownerId: effectState.player.id,
-//                 effectId: 13
-//             },
-//         } as IPostCustom['variables'])
-//     })
-//     if (!wheelId)
-//         throw new Error(`Инвалид игрок (игрок инвалид(как))`)
-//     return await db.newEffectState(answerData.selectedPlayerId, 30, { wheelId })
-// })
+questionAnswerMap.set(41, async (effectState, answerData) => {
+    if (!answerData.selectedPlayerId)
+        throw new Error(`Не выбран игрок`)
+    //apply 31 
+    // broadcastEvent(`post:new`, {
+    //     post: await db.newPost('effectcustom', {
+    //         pattern: `{player} применяет {effect} на {target} `,
+    //         variables: {
+    //             playerId: effectState.player.id,
+    //             targetId: answerData.selectedPlayerId,
+    //             effectId: 13,
+    //         },
+    //     } as IPostCustom['variables'])
+    // })
+    // broadcastEvent(`post:new`, {
+    //     post: await db.newPost('effectcustom', {
+    //         pattern: `Следующий ролл {target} будет на колесе {owner} по причине {effect}`,
+    //         variables: {
+    //             targetId: answerData.selectedPlayerId,
+    //             ownerId: effectState.player.id,
+    //             effectId: 13
+    //         },
+    //     } as IPostCustom['variables'])
+    // })
+    console.log(effectState.vars);
+
+    return await GameEffectStateWithEffectWithPlayer<any>.create({
+        playerId: answerData.selectedPlayerId,
+        gameId: effectState.gameId,
+        effectId: '53feafb2-7177-41cb-b256-96c8e93627ba',//30
+        vars: { wheelOwnerId: effectState.playerId }
+    }, { include: [Effect, Player] })
+})
 // questionAnswerMap.set(42, async (effectState: IEffectState, answerData: AnswerData) => {
 //     return undefined
 // })
