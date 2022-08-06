@@ -157,22 +157,31 @@ export default function WheelItemEditModal(props: Props) {
                                 appear
                                 in={selectedItem.type === 'game'}
                             >
-                                <Row>
-                                    <Form.Group as={Col} xl={6} lg={6} sm={6} xs={6} className='mb-3'>
-                                        <Form.Label>Макс игроков</Form.Label>
-                                        <Form.Control type={'number'} disabled={isImageUploading || isSaving} defaultValue={selectedItem.maxCoopPlayers} min={1} step={1}
-                                            onChange={e => handleChange({ hasCoop: +e.target.value !== 1, maxCoopPlayers: +e.target.value })}
-                                        />
+                                <div>
+                                    <Row>
+                                        <Form.Group as={Col} xl={6} lg={6} sm={6} xs={6} className='mb-3'>
+                                            <Form.Label>Макс игроков</Form.Label>
+                                            <Form.Control type={'number'} disabled={isImageUploading || isSaving} defaultValue={selectedItem.maxCoopPlayers} min={1} step={1}
+                                                onChange={e => handleChange({ hasCoop: +e.target.value !== 1, maxCoopPlayers: +e.target.value })}
+                                            />
+                                        </Form.Group>
+                                        <Form.Group as={Col} xl={6} lg={6} sm={6} xs={6} className='mb-3'>
+                                            <Form.Label>С выбором сложности</Form.Label>
+                                            <Form.Control isValid={validated ? selectedItem.endCondition.length > 0 || selectedItem.type !== 'game' : undefined} as="select" disabled={isImageUploading || isSaving} defaultValue={`${selectedItem.hasDifficulty}`} onChange={e => handleChange({ hasDifficulty: !!e.target.value })}>
+                                                <option value="true">Да</option>
+                                                <option value="false">Нет</option>
+                                                <option value="null" hidden >Блять</option>
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </Row>
+                                    <Form.Group className='mb-3'>
+                                        <Form.Label>Условие завершения<Badge className='ms-1'>New</Badge></Form.Label>
+                                        <Form.Control required as={TextareaAutosize} style={{ resize: 'none' }} disabled={isImageUploading || isSaving} defaultValue={selectedItem.endCondition} onChange={e => handleChange({ endCondition: e.target.value })} />
+                                        <Form.Text className="text-dark-200">
+                                            Без спойлеров. Без намеков на спойлеры. Сломаю ебало за спойлеры.
+                                        </Form.Text>
                                     </Form.Group>
-                                    <Form.Group as={Col} xl={6} lg={6} sm={6} xs={6} className='mb-3'>
-                                        <Form.Label>С выбором сложности</Form.Label>
-                                        <Form.Control as="select" disabled={isImageUploading || isSaving} defaultValue={`${selectedItem.hasDifficulty}`} onChange={e => handleChange({ hasDifficulty: !!e.target.value })}>
-                                            <option value="true">Да</option>
-                                            <option value="false">Нет</option>
-                                            <option value="null" hidden >Блять</option>
-                                        </Form.Control>
-                                    </Form.Group>
-                                </Row>
+                                </div>
                             </Collapse>
                             <Row>
                                 <Col xs={8} className='mb-3'>
@@ -221,13 +230,7 @@ export default function WheelItemEditModal(props: Props) {
                                     />
                                 </Form.Group>
                             </Row> */}
-                            <Form.Group className='mb-3'>
-                                <Form.Label>Условие завершения<Badge className='ms-1'>New</Badge></Form.Label>
-                                <Form.Control required as={TextareaAutosize} style={{ resize: 'none' }} disabled={isImageUploading || isSaving} defaultValue={selectedItem.endCondition} onChange={e => handleChange({ endCondition: e.target.value })} />
-                                <Form.Text className="text-dark-200">
-                                    Без спойлеров. Без намеков на спойлеры. Сломаю ебало за спойлеры. 
-                                </Form.Text>
-                            </Form.Group>
+
                             <Form.Group className='mb-3'>
                                 <Form.Label>Комментарии</Form.Label>
                                 <Form.Control as={TextareaAutosize} style={{ resize: 'none' }} disabled={isImageUploading || isSaving} defaultValue={selectedItem.comments} onChange={e => handleChange({ comments: e.target.value })} />

@@ -95,11 +95,11 @@ export default function TaskWheelItemPreview(props: Props) {
                 {item.comments && <div className='p-2 px-3'>
                     <b className='ms-1'>Комментарий:</b>
                     <div className=''>{item.comments}</div>
-                    </div>}
-                {item.endCondition && <div className='p-2 px-3'>
+                </div>}
+                {item.endCondition && item.type == 'game' && <div className='p-2 px-3'>
                     <b className='ms-1'>Условие завершения:</b>
                     <div className=''>{item.endCondition}</div>
-                    </div>}
+                </div>}
             </div>}
         </div>
     )
