@@ -1,20 +1,17 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { unstable_getServerSession } from 'next-auth/next'
-import { createRouter } from 'next-connect'
-import { Game, Wheel, GamePlayer, GameWheel, GameWheelWithWheel } from '../../../../database/db';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { createRouter } from 'next-connect';
+import { GameWheelWithWheel, Wheel } from '../../../../database/db';
 import adminOnly from '../../../../middleware/adminOnly';
-import commonErrorHandlers from '../../../../middleware/commonErrorHandlers'
-import requireApiSession from '../../../../middleware/requireApiSession'
-import requirePlayer from '../../../../middleware/requirePlayer'
-import { ApiError } from '../../../../types/common-api'
-import { authOptions } from "../../auth/[...nextauth]"
+import commonErrorHandlers from '../../../../middleware/commonErrorHandlers';
+import requireApiSession from '../../../../middleware/requireApiSession';
+import { ApiError } from '../../../../types/common-api';
 
 
 
 const router = createRouter<NextApiRequest, NextApiResponse>();
 
 export default router
-    .get(async (req, res: NextApiResponse<GameWheel[] | ApiError | null>) => {
+    .get(async (req, res: NextApiResponse<GameWheelWithWheel[] | ApiError | null>) => {
         try {
             const gameWheels = await GameWheelWithWheel.findAll({
                 where: {
@@ -32,17 +29,17 @@ export default router
     })
     .use(requireApiSession)
     .use(adminOnly)
-    .post(async (req, res: NextApiResponse<GameWheel | ApiError | null>) => {
+    .post(async (req, res: NextApiResponse<GameWheelWithWheel | ApiError | null>) => {
         try {
             const body: {
                 gameId: string
                 wheelId: string
             } = req.body
-            const gameWheel = await GameWheel.create({
+            const gameWheel = await GameWheelWithWheel.create({
                 gameId: body.gameId,
                 wheelId: body.wheelId,
                 addedById: req.session.user.id
-            })
+            }, { include: Wheel })
             res.json(gameWheel)
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })

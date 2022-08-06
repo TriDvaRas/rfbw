@@ -4,7 +4,7 @@ import {
     Button, Card, Col, Form, Modal, Row, Table
 } from 'react-bootstrap';
 import useGames from '../../data/useGames';
-import { Game, GamePlayer, GameWheel, GameEffect } from '../../database/db';
+import { Game, GamePlayer, GameWheel, GameEffect, GameWheelWithWheel } from '../../database/db';
 import GamePreview from '../game/GamePreview';
 import LoadingDots from '../LoadingDots';
 import axios, { AxiosError } from 'axios';
@@ -255,7 +255,7 @@ export default function AdminGames(props: Props) {
                                         return
                                     setError(undefined)
                                     setIsSaving(true)
-                                    axios.post<GameWheel>(`/api/games/${editGame.id}/wheels`, {
+                                    axios.post<GameWheelWithWheel>(`/api/games/${editGame.id}/wheels`, {
                                         wheelId: newWheelId,
                                         gameId: editGame.id
                                     }).then((data) => {

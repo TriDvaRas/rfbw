@@ -26,7 +26,7 @@ export function filterWheelsWithEffects(wheels: Wheel[], effectStates: GameEffec
     }
     return wheels
 }
-export function filterGameWheelsWithEffects(wheels: GameWheelWithWheel[], effectStates: GameEffectStateWithEffectWithPlayer[]): GameWheel[] {
+export function filterGameWheelsWithEffects(wheels: GameWheelWithWheel[], effectStates: GameEffectStateWithEffectWithPlayer[]): GameWheelWithWheel[] {
     for (const state of effectStates) {
         let _wheels: GameWheelWithWheel[] = []
         switch (state.effect.lid) {
