@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
 import { createRouter } from 'next-connect'
-import { Game, Wheel, GamePlayer, GameTask, WheelItem, GameEvent, GameEffectState } from '../../../../../../../database/db';
+import { Game, Wheel, GamePlayer, GameTask, WheelItem, GameEvent, GameEffectState, GameEffectStateWithEffectWithPlayer, Effect, Player } from '../../../../../../../database/db';
 import adminOnly from '../../../../../../../middleware/adminOnly';
 import commonErrorHandlers from '../../../../../../../middleware/commonErrorHandlers'
 import requireApiSession from '../../../../../../../middleware/requireApiSession'

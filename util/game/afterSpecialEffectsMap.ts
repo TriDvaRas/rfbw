@@ -324,21 +324,29 @@ afterSpecialEffectsMap.set(19, async (gameId, playerId) => {
 //     return effect
 // })
 // //!21
-// afterSpecialEffectsMap.set(21, async (playerId: number) => {
-//     const newEffects = await db.newEffectState(playerId, 42, {
-//         question: `Выбери 1-3 чисел, если не зассал`,
-//         is21: true,
-//     })
-//     return newEffects
-// })
+afterSpecialEffectsMap.set(21, async (gameId, playerId) => {
+    return await GameEffectStateWithEffectWithPlayer<any>.create({
+        playerId,
+        gameId,
+        effectId: '91c8d041-6db9-4c8a-a33a-f9c6cdc56bc0', //42
+        vars: {
+            question: `Выбери 1-3 чисел, если не зассал`,
+            is21: true,
+        }
+    }, { include: [Effect, Player] })
+})
 // //!22
-// afterSpecialEffectsMap.set(22, async (playerId: number) => {
-//     const newEffects = await db.newEffectState(playerId, 43, {
-//         question: `СТРЕЛЯЕМ?? `,
-//         is22: true,
-//     })
-//     return newEffects
-// })
+afterSpecialEffectsMap.set(22, async (gameId, playerId) => {
+    return await GameEffectStateWithEffectWithPlayer<any>.create({
+        playerId,
+        gameId,
+        effectId: '92c25276-8fd4-4888-999e-e8c0e958f21f', //43
+        vars: {
+            question: `СТРЕЛЯЕМ??`,
+            is21: true,
+        }
+    }, { include: [Effect, Player] })
+})
 // //!23
 // afterSpecialEffectsMap.set(23, async (playerId: number) => {
 //     const players = (await db.getPlayers()).filter(x => x.id != playerId)

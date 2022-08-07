@@ -122,15 +122,17 @@ questionAnswerMap.set(36, async (effectState, answerData) => {
                     model: Wheel,
                     required: true,
                     where: {
-                        ownerId: { [Op.ne]: targetId, }
+                        ownedById: { [Op.ne]: targetId, }
                     },
                     include: [
                         WheelItem
                     ]
                 }
-            }) as (GameWheel & { wheel: Wheel & { wheelItems: WheelItem[] } })[]
+            }) as (GameWheel & { wheel: Wheel & { wheelitems: WheelItem[] } })[]
+            console.log(gameWheels.map(x => x.toJSON()));
+
             const playerGameTasks = await GameTask.findAll({ where: { gameId: effectState.gameId, playerId: targetId } })
-            const availableWheels = gameWheels.filter(w => w.wheel.wheelItems.filter(x => !playerGameTasks.find(y => y.wheelItemId === x.id)))
+            const availableWheels = gameWheels.filter(w => w.wheel.wheelitems.filter(x => !playerGameTasks.find(y => y.wheelItemId === x.id)))
             if (availableWheels.length == 0)
                 throw new Error('Игрок завершил все колеса. Выбери другого')
             const selectedWheel = availableWheels[Math.floor(Math.random() * availableWheels.length)]
@@ -580,12 +582,12 @@ questionAnswerMap.set(41, async (effectState, answerData) => {
         vars: { wheelOwnerId: effectState.playerId }
     }, { include: [Effect, Player] })
 })
-// questionAnswerMap.set(42, async (effectState: IEffectState, answerData: AnswerData) => {
-//     return undefined
-// })
-// questionAnswerMap.set(43, async (effectState: IEffectState, answerData: AnswerData) => {
-//     return undefined
-// })
+questionAnswerMap.set(42, async (effectState, answerData) => {
+    return undefined
+})
+questionAnswerMap.set(43, async (effectState, answerData) => {
+    return undefined
+})
 // questionAnswerMap.set(44, async (effectState: IEffectState, answerData: AnswerData) => {
 //     if (!answerData.selectedTypeId)
 //         throw new Error(`Не выбран тип`)

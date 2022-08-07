@@ -41,7 +41,7 @@ export default function GameEventPreview(props: Props) {
     const imagePreview = useImage(gameEvent?.imageId, true)
     const image = useImage(undefined)
     const size = props.height || 102
-    
+
     const [left, right] = getBlocks(gameEvent, player, playerTask, wheelItem, effect)
 
     return player && left && right ?
@@ -121,7 +121,7 @@ function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: Wh
             return player && item && [
                 <div key={1} className='ms-3 flex-grow-1 my-auto d-flex flex-column '>
                     <h5 key={1} className=''>
-                        {player.name} <span style={{ fontSize: '80%' }}>получил контент</span> {item.label}
+                        {player.name} <span style={{ fontSize: '80%' }}>получает контент</span> {item.label}
                     </h5>
                     <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
                 </div>,
@@ -131,14 +131,40 @@ function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: Wh
             return player && effect && [
                 <div key={1} className='ms-3 flex-grow-1 my-auto d-flex flex-column '>
                     <h5 key={1} className=''>
-                        {player.name} <span style={{ fontSize: '80%' }}>получил событие</span> {effect.title}
+                        {player.name} <span style={{ fontSize: '80%' }}>попадает на событие</span> {effect.title}
                     </h5>
                     <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
                 </div>,
                 <></>
             ] || []
+        case 'effectPointsAdd':
+            return player && effect && [
+                <div key={1} className='ms-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 key={1} className=''>
+                        {player.name} <span style={{ fontSize: '80%' }}>получает очки за эффект</span> {effect.title}
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                <div key={2} className='mx-3 d-flex my-auto flex-row'>
+                    <h3 className='ms-1 my-auto'>{event.pointsDelta ? '+' : ''}</h3>
+                    <h2 className='mb-0 mt-auto'>{event.pointsDelta || ''}</h2>
+                </div>
+            ] || []
+        case 'effectPointsRemove':
+            return player && effect && [
+                <div key={1} className='ms-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 key={1} className=''>
+                        {player.name} <span style={{ fontSize: '80%' }}>теряет очки за эффект</span> {effect.title}
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                <div key={2} className='mx-3 d-flex my-auto flex-row'>
+                    <h3 className='ms-1 my-auto'>{event.pointsDelta ? '+' : ''}</h3>
+                    <h2 className='mb-0 mt-auto'>{event.pointsDelta || ''}</h2>
+                </div>
+            ] || []
         default:
-            return [<>invalid eventType {event.type}</>, <></>]
+            return [<>invalid eventType {event.type}</>, <>Sex Jopa</>]
     }
 }
 function getBorder(eventType: GameEvent['type']) {

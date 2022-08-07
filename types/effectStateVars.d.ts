@@ -9,12 +9,12 @@ export interface EffectStateQuestionVars {
     player?: Player;
     gamePlayer?: GamePlayerWithPlayer;
     content?: WheelItem
-    // is21?: boolean;
-    // is22?: boolean;
-    // result?: number;
-    // guess?: number[];
-    // message?: string;
-    // rejected?: boolean;
+    is21?: boolean;
+    is22?: boolean;
+    result?: number;
+    guess?: number[];
+    message?: string;
+    rejected?: boolean;
     wheels?: GameWheelWithWheel[];
     // withItems?: boolean;
 }

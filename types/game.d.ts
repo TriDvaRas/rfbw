@@ -11,6 +11,14 @@ export interface GameSpinEffectResult {
     resultItemId: string
     extraSpin: number
 }
+export interface GameRollDiceResult {
+    message: string,
+    result?: number
+}
+export interface GameShootResult {
+    message: string,
+    result?: number
+}
 export interface GameTaskEndResult {
     success: boolean
 }

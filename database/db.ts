@@ -587,7 +587,7 @@ export class GameTaskWithWheelItem extends GameTask {
 
 export type GameEventContentType = 'contentEnd' | 'contentDrop' | 'contentSkip' | 'contentRoll'
     | 'contentJoinCoop' | 'contentEndCoop' | 'contentLeaveCoop';
-export type GameEventEffectType = 'effectGained' | 'effectLost' | 'effectPointsAdd' | 'effectPointsRemove';
+export type GameEventEffectType = 'effectGained' | 'effectLost' | 'effectPointsAdd' | 'effectPointsRemove' | 'shootSuccess' | 'shootDeath';
 export type GameEventAdminType = 'adminPointsAdd' | 'adminPointsRemove';
 export type GameEventType = GameEventContentType | GameEventEffectType | GameEventEffectType | 'customMessage'
 export class GameEvent extends Model {

@@ -92,13 +92,13 @@ export default function TaskWheelItemPreview(props: Props) {
                     marginLeft: '16px',
                     marginRight: '16px',
                 }}>
-                {item.comments && <div className='p-2 px-3'>
+                {item.comments && <div className='pt-2 pb-2 px-3'>
                     <b className='ms-1'>Комментарий:</b>
-                    <div className=''>{item.comments}</div>
+                    <div className='mb-1'>{item.comments}</div>
                 </div>}
                 {item.endCondition && item.type == 'game' && <div className='p-2 px-3'>
                     <b className='ms-1'>Условие завершения:</b>
-                    <div className=''>{item.endCondition}</div>
+                    <div className='mb-1'>{item.endCondition}</div>
                 </div>}
             </div>}
         </div>

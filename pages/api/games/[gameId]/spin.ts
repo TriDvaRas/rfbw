@@ -13,8 +13,20 @@ import _, { result } from 'lodash';
 import { filterWheelsWithEffects } from '../../../../util/game/wheelFilters';
 import { effectsConfig } from '../../../../config';
 import { filterWheelItemsWithEffects } from '../../../../util/game/wheelItemFilters';
+import { schedule } from 'node-cron';
 
-
+schedule(`0 0 * * *`, async () => {
+    const effects = await GameEffectState<any>.findAll({
+        where: {
+            effectId: `385f9834-6205-4f38-a2bc-28f142a9b2b1`,
+            isEnded: false
+        }
+    })
+    effects.forEach(e => {
+        e.isEnded = true
+        e.save()
+    })
+})
 
 const router = createRouter<NextApiRequest, NextApiResponse<GameSpinResult | ApiError | null>>();
 
@@ -55,7 +67,9 @@ export default router
             const effect35 = states.find(x => x.effect.lid === 35)
             if (effect35)
                 return res.status(400).json({ error: `Я тебе запрещаю это крутить`, status: 400 })
-
+            const effect48 = states.find(x => x.effect.lid === 48)
+            if (effect48)
+                return res.status(400).json({ error: `Сегодня ты трогаешь траву. Возвращайся завтра`, status: 400 })
             const wheel = await Wheel.findOne({ where: { id: body.wheelId } })
             if (!wheel) return res.status(400).json({ error: `Invalid wheelId`, status: 400 })
             const allowedWheels = filterWheelsWithEffects([wheel], states)

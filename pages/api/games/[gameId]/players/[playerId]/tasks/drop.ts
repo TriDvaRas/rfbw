@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
 import { createRouter } from 'next-connect'
-import { Game, Wheel, GamePlayer, GameTask, WheelItem, GameEvent } from '../../../../../../../database/db';
+import { Game, Wheel, GamePlayer, GameTask, WheelItem, GameEvent, Effect, GameEffectStateWithEffectWithPlayer, Player } from '../../../../../../../database/db';
 import adminOnly from '../../../../../../../middleware/adminOnly';
 import commonErrorHandlers from '../../../../../../../middleware/commonErrorHandlers'
 import requireApiSession from '../../../../../../../middleware/requireApiSession'
@@ -45,13 +45,26 @@ export default router
             const item = await WheelItem.findOne({ where: { id: playerActiveTask.wheelItemId } })
             if (!item)
                 return res.status(404).json({ error: 'А где WheelItem', status: 404 })
+            const playerEffectStates = await GameEffectStateWithEffectWithPlayer.findAll({
+                where: {
+                    gameId: req.query.gameId,
+                    playerId: req.query.playerId,
+                    isEnded: false
+                },
+                include: [Effect, Player]
+            })
+            const free = playerEffectStates.find(x => x.effect.lid === 19)
             gamePlayer.dropped += 1
-            gamePlayer.points -= item.hours * 5
+            gamePlayer.points -= free ? 0 : item.hours * 5
             playerActiveTask.result = 'drop'
-            playerActiveTask.points = -item.hours * 5
+            playerActiveTask.points = free ? 0 : -item.hours * 5
             playerActiveTask.endedAt = new Date().toISOString()
             playerActiveTask.save()
             gamePlayer.save()
+            if (free) {
+                free.isEnded = true
+                await free.save()
+            }
             await GameEvent.create({
                 gameId: gamePlayer.gameId,
                 playerId: gamePlayer.playerId,

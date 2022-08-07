@@ -160,22 +160,27 @@ const GameHome: NextPageWithLayout = () => {
                         }
 
                         <Modal.Footer className='bg-dark-750 text-light border-dark'>
-                            <Button variant='primary' disabled={isLoading} className='float-right' onClick={() => handleEnd('end')}>Завершить</Button>
                             <Button variant='secondary' disabled={isLoading} className='float-right mx-3' onClick={() => setShowEndModal(false)}>Отмена</Button>
+                            <Button variant='primary' disabled={isLoading} className='float-right' onClick={() => handleEnd('end')}>Завершить</Button>
                         </Modal.Footer>
                     </Modal>
                     {/* drop */}
                     <Modal contentClassName='border-dark shadow' show={!!showDropModal && !!activeTaskItem} animation={true} centered >
                         <Modal.Header className='bg-dark-750 text-light border-dark'><h3>Дроп контента</h3></Modal.Header>
                         {
-                            activeTaskItem.item && <Modal.Body className='bg-dark text-light border-dark'>
-                                За дроп ты потеряешь <b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 5)}</b>.
-                            </Modal.Body>
+                            activeTaskItem.item &&
+                               ( playerEffects.states?.find(x => x.effect.lid == 19) ?
+                                <Modal.Body className='bg-dark text-light border-dark'>
+                                    За дроп ты потеряешь <b className='text-warning'>0 очков</b> и эффект <b className='text-success'>Подкуп судьи</b>.
+                                </Modal.Body> :
+                                <Modal.Body className='bg-dark text-light border-dark'>
+                                    За дроп ты потеряешь <b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 5)}</b>.
+                                </Modal.Body>)
                         }
 
                         <Modal.Footer className='bg-dark-750 text-light border-dark'>
-                            <Button variant='danger' disabled={isLoading} className='float-right' onClick={() => handleEnd('drop')}>Завершить</Button>
                             <Button variant='secondary' disabled={isLoading} className='float-right mx-3' onClick={() => setShowDropModal(false)}>Отмена</Button>
+                            <Button variant='danger' disabled={isLoading} className='float-right' onClick={() => handleEnd('drop')}>Завершить</Button>
                         </Modal.Footer>
                     </Modal>
                     {/* skip */}
@@ -190,8 +195,8 @@ const GameHome: NextPageWithLayout = () => {
                         }
 
                         <Modal.Footer className='bg-dark-750 text-light border-dark'>
-                            <Button variant='danger' disabled={isLoading} className='float-right' onClick={() => handleEnd('skip')}>Завершить</Button>
                             <Button variant='secondary' disabled={isLoading} className='float-right mx-3' onClick={() => setShowSkipModal(false)}>Отмена</Button>
+                            <Button variant='danger' disabled={isLoading} className='float-right' onClick={() => handleEnd('skip')}>Завершить</Button>
                         </Modal.Footer>
                     </Modal>
                     {/* question */}

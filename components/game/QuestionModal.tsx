@@ -39,18 +39,19 @@ export default function QuestionModal(props: Props) {
     const [lockCubes, setLockCubes] = useState(false)
 
     useEffect(() => {
+        setError(undefined)
         setSelectedPlayer(undefined)
         setSelectedEffect(undefined)
         setSelectedType(undefined)
-        // setSelectedCubes(effectVars.guess || [])
+        setSelectedCubes(effectVars.guess || [])
         setIsSaving(false)
-        // setIsFinished(!!effectVars.message)
-        // setIsRefused(!!effectVars.rejected)
-        // setShowResult(!!effectVars.message)
-        // setResultCube(effectVars.result || null)
-        // setLockCubes(!!effectVars.message)
-        // setResultMessage(effectVars.message)
-    }, [effectState.id])
+        setIsFinished(!!effectVars.message)
+        setIsRefused(!!effectVars.rejected)
+        setShowResult(!!effectVars.message)
+        setResultCube(effectVars.result)
+        setLockCubes(!!effectVars.message)
+        setResultMessage(effectVars.message)
+    }, [effectState.id, effectVars.guess, effectVars.message, effectVars.rejected, effectVars.result])
 
 
     function onPlayerSelect(player: Player) {
@@ -82,6 +83,7 @@ export default function QuestionModal(props: Props) {
     }
     function onContinue() {
         setIsSaving(true)
+        setError(undefined)
         axios.post<GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>>(`/api/games/${effectState.gameId}/players/${effectState.playerId}/effects/answer/${effectState.id}`, {
             effectState: effectState,
             selectedPlayerId: selectedPlayer?.id,
@@ -105,115 +107,93 @@ export default function QuestionModal(props: Props) {
                 setError(parseApiError(err))
             })
     }
-    //#region 
-    // function onThrow() {
-    //     setIsSaving(true)
-    //     setShowResult(true)
-    //     setLockCubes(true)
-    //     axios.post(`/api/game/rolldice`, {
-    //         effectState: effectState,
-    //         selectedCubes
-    //     })
-    //         .then(
-    //             (res) => {
+    function onThrow() {
+        setIsSaving(true)
+        setShowResult(true)
+        setLockCubes(true)
+        setError(undefined)
+        axios.post(`/api/games/${effectState.gameId}/rolldice`, {
+            effectState: effectState,
+            selectedCubes
+        })
+            .then(
+                (res) => {
 
-    //                 setResultMessage(res.data.message)
-    //                 setResultCube(res.data.result)
-    //                 setIsFinished(true)
-    //                 setIsSaving(false)
-    //             },
-    //             (err) => {
-    //                 setIsSaving(false)
-    //                 setShowResult(false)
-    //                 setLockCubes(false)
-    //                 dispatch(newToast({
-    //                     id: Math.random(),
-    //                     date: `${Date.now()}`,
-    //                     type: 'error',
-    //                     title: 'Ошибка',
-    //                     text: err.response.data,
-    //                 }))
-    //             })
-    // }
-    // function onCancelThrow() {
-    //     setIsSaving(true)
-    //     axios.post(`/api/game/rolldice`, {
-    //         effectState: effectState,
-    //         reject: true
-    //     })
-    //         .then(
-    //             (res) => {
-    //                 setResultMessage(res.data.message)
-    //                 setIsFinished(true)
-    //                 setIsRefused(true)
-    //                 setIsSaving(false)
-    //             },
-    //             (err) => {
-    //                 setIsSaving(false)
-    //                 dispatch(newToast({
-    //                     id: Math.random(),
-    //                     date: `${Date.now()}`,
-    //                     type: 'error',
-    //                     title: 'Ошибка',
-    //                     text: err.response.data,
-    //                 }))
-    //             })
-    // }
-    // function onShoot() {
-    //     setIsSaving(true)
-    //     setShowResult(true)
-    //     setLockCubes(true)
-    //     axios.post(`/api/game/shoot`, {
-    //         effectState: effectState
-    //     })
-    //         .then(
-    //             (res) => {
-    //                 setResultMessage(res.data.message)
-    //                 setShowResult(true)
-    //                 setIsFinished(true)
-    //                 setIsSaving(false)
-    //             },
-    //             (err) => {
-    //                 setIsSaving(false)
-    //                 setShowResult(false)
-    //                 dispatch(newToast({
-    //                     id: Math.random(),
-    //                     date: `${Date.now()}`,
-    //                     type: 'error',
-    //                     title: 'Ошибка',
-    //                     text: err.response.data,
-    //                 }))
-    //             })
-    // }
-    // function onCancelShoot() {
-    //     setIsSaving(true)
-    //     axios.post(`/api/game/shoot`, {
-    //         effectState: effectState,
-    //         reject: true
-    //     })
-    //         .then(
-    //             (res) => {
-    //                 setResultMessage(res.data.message)
-    //                 setIsFinished(true)
-    //                 setIsRefused(true)
-    //                 setShowResult(true)
-    //                 setIsSaving(false)
-    //             },
-    //             (err) => {
-    //                 setIsSaving(false)
-    //                 dispatch(newToast({
-    //                     id: Math.random(),
-    //                     date: `${Date.now()}`,
-    //                     type: 'error',
-    //                     title: 'Ошибка',
-    //                     text: err.response.data,
-    //                 }))
-    //             })
-    // }
+                    setResultMessage(res.data.message)
+                    setResultCube(res.data.result)
+                    setIsFinished(true)
+                    setIsSaving(false)
+                })
+            .catch((err: AxiosError<ApiError>) => {
+                setIsSaving(false)
+                setShowResult(false)
+                setLockCubes(false)
+                setError(parseApiError(err))
+            })
+    }
+    function onCancelThrow() {
+        setIsSaving(true)
+        setError(undefined)
+        axios.post(`/api/games/${effectState.gameId}/rolldice`, {
+            effectState: effectState,
+            reject: true
+        })
+            .then(
+                (res) => {
+                    setResultMessage(res.data.message)
+                    setIsFinished(true)
+                    setIsRefused(true)
+                    setIsSaving(false)
+                })
+            .catch((err: AxiosError<ApiError>) => {
+                setIsSaving(false)
+                setError(parseApiError(err))
+            })
+    }
+    //#region 
+    function onShoot() {
+        setError(undefined)
+        setIsSaving(true)
+        setShowResult(true)
+        setLockCubes(true)
+        axios.post(`/api/games/${effectState.gameId}/shoot`, {
+            effectState: effectState
+        })
+            .then(
+                (res) => {
+                    setResultMessage(res.data.message)
+                    setShowResult(true)
+                    setIsFinished(true)
+                    setIsSaving(false)
+                })
+            .catch((err: AxiosError<ApiError>) => {
+                setIsSaving(false)
+                setShowResult(false)
+                setError(parseApiError(err))
+            })
+    }
+    function onCancelShoot() {
+        setError(undefined)
+        setIsSaving(true)
+        axios.post(`/api/games/${effectState.gameId}/shoot`, {
+            effectState: effectState,
+            reject: true
+        })
+            .then(
+                (res) => {
+                    setResultMessage(res.data.message)
+                    setIsFinished(true)
+                    setIsRefused(true)
+                    setShowResult(true)
+                    setIsSaving(false)
+                })
+            .catch((err: AxiosError<ApiError>) => {
+                setIsSaving(false)
+                setError(parseApiError(err))
+            })
+    }
     //#endregion
     function formatQuestion() {
-        console.log(effectVars);
-
         let line = effectVars.question
         if (effectVars.player)
             line = line.replace(`%PLAYERNAME%`, effectVars.player.name)
@@ -223,23 +203,24 @@ export default function QuestionModal(props: Props) {
             line = line.replace(`%CONTENTNAME%`, effectVars.content.title)
         return line
     }
-    if (effectState.effect.lid == 21)
+
+    if (effectState.effect.lid == 42)
         return < Card className='bg-dark text-light' >
             <Card.Header >
-                <h3>Встал вопрос</h3>
+                <h3>Внимание! Рулетка 3000см</h3>
             </Card.Header>
             <Card.Body>
                 <Card.Title>{formatQuestion()}</Card.Title>
 
                 <Row className='text-center fs-2 mx-1'>
                     {
-                        // [1, 2, 3, 4, 5, 6].map(cube =>
-                        //     <Col sm={2}>
-                        //         <i
-                        //             className={`bi bi-dice-${cube}-fill ${selectedCubes.includes(cube) ? `opacity-die-selected` : `opacity-die`}`}
-                        //             onClick={() => onCubeSelect(cube)}
-                        //         ></i>
-                        //     </Col>)
+                        [1, 2, 3, 4, 5, 6].map(cube =>
+                            <Col key={cube} sm={2}>
+                                <i
+                                    className={`bi bi-dice-${cube}-fill ${selectedCubes.includes(cube) ? `opacity-die-selected` : `opacity-die`}`}
+                                    onClick={() => onCubeSelect(cube)}
+                                ></i>
+                            </Col>)
                     }
                 </Row>
                 <Collapse appear in={selectedCubes && selectedCubes.length > 0}>
@@ -295,22 +276,27 @@ export default function QuestionModal(props: Props) {
                         </Row>
                     </div>
                 </Collapse>
+                {
+                    error && <Alert className='mb-0 my-2' variant={'danger'}>
+                        {error.error}
+                    </Alert>
+                }
                 {/* BUTTONS */}
                 {
-                    <div className='mt-3'>
+                    <div className='mt-3 d-flex align-items-end justify-content-end'>
                         {
-                            // isFinished ?
-                            //     <Button disabled={isSaving} variant='primary' className='float-right' onClick={onContinue}>Продолжить</Button> :
-                            //     <div>
-                            //         <Button disabled={isSaving || selectedCubes.length === 0} variant='primary' className='float-right' onClick={onThrow}>Кинуть куб</Button>
-                            //         <Button disabled={isSaving} variant='outline-secondary' className='float-right mr-3 text-light' onClick={onCancelThrow}>Отказаться</Button>
-                            //     </div>
+                            isFinished ?
+                                <Button disabled={isSaving} variant='primary' className='float-right' onClick={onContinue}>Продолжить</Button> :
+                                <div className='d-flex align-items-end justify-content-end'>
+                                    <Button disabled={isSaving} variant='outline-secondary' className='float-right me-3 text-light' onClick={onCancelThrow}>Отказаться</Button>
+                                    <Button disabled={isSaving || selectedCubes.length === 0} variant='warning' className='float-right' onClick={onThrow}>Кинуть куб</Button>
+                                </div>
                         }
                     </div>
                 }
             </Card.Body>
         </Card >
-    if (effectState.effect.lid == 22)
+    if (effectState.effect.lid == 43)
         return <Card className='bg-dark text-light'>
             <Card.Header >
                 <h3>Встал вопрос</h3>
@@ -328,17 +314,22 @@ export default function QuestionModal(props: Props) {
                         </Row>
                     </div>
                 </Collapse>
+                {
+                    error && <Alert className='mb-0 my-2' variant={'danger'}>
+                        {error.error}
+                    </Alert>
+                }
                 {/* BUTTONS */}
                 {
 
-                    <div className='mt-3'>
+                    <div className='mt-3 d-flex align-items-end justify-content-end'>
                         {
-                            // isFinished ?
-                            //     <Button disabled={isSaving} variant='primary' className='float-right' onClick={onContinue}>Продолжить</Button> :
-                            //     <div>
-                            //         <Button disabled={isSaving} variant='primary' className='float-right' onClick={onShoot}>СТРЕЛЯЙ!!!</Button>
-                            //         <Button disabled={isSaving} variant='outline-secondary' className='float-right mr-3 text-light' onClick={onCancelShoot}>Отказаться</Button>
-                            //     </div>
+                            isFinished ?
+                                <Button disabled={isSaving} variant='primary' className='float-right' onClick={onContinue}>Продолжить</Button> :
+                                <div className='d-flex align-items-end justify-content-end'> 
+                                    <Button disabled={isSaving} variant='outline-secondary' className='float-right me-3 text-light' onClick={onCancelShoot}>Отказаться</Button>
+                                    <Button disabled={isSaving} variant='primary' className='float-right' onClick={onShoot}>СТРЕЛЯЙ!!!</Button>
+                                </div>
                         }
                     </div>
                 }
