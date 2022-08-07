@@ -176,7 +176,7 @@ export default function WheelItemEditModal(props: Props) {
                                     </Row>
                                     <Form.Group className='mb-3'>
                                         <Form.Label>Условие завершения<Badge className='ms-1'>New</Badge></Form.Label>
-                                        <Form.Control isValid={validated ? selectedItem.endCondition.length > 0 || selectedItem.type !== 'game' : undefined} required as={TextareaAutosize} style={{ resize: 'none' }} disabled={isImageUploading || isSaving} defaultValue={selectedItem.endCondition} onChange={e => handleChange({ endCondition: e.target.value })} />
+                                        <Form.Control isValid={validated ? selectedItem.endCondition.length > 0 || selectedItem.type !== 'game' : undefined} required={selectedItem.type === 'game'} as={TextareaAutosize} style={{ resize: 'none' }} disabled={isImageUploading || isSaving} defaultValue={selectedItem.endCondition} onChange={e => handleChange({ endCondition: e.target.value })} />
                                         <Form.Text className="text-dark-200">
                                             Без спойлеров. Без намеков на спойлеры. Сломаю ебало за спойлеры.
                                         </Form.Text>
