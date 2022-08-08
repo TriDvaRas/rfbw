@@ -38,10 +38,15 @@ export default router
             })
             if (!wheel)
                 return res.status(404).json({ error: 'А где', status: 404 })
+            const items = await WheelItem.findAll({
+                where: {
+                    wheelId: wheel.id
+                }
+            })
             const wheelItem = await WheelItem.create({
                 addedById: req.session.user.id,
                 ownedById: req.session.user.id,
-                position: wheel.size,
+                position: items.length,
                 wheelId: wheel.id
             })
             wheel.size++
