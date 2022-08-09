@@ -40,7 +40,7 @@ export default function GetSocketLayout(page: ReactElement) {
             </Head>
             <Navbar />
 
-            <Button onClick={() => console.log(Array.from((cache as Map<string, any>).keys()).filter(x => x.startsWith(`/api`)).sort().join('\n'))} />
+            {/* <Button onClick={() => console.log(Array.from((cache as Map<string, any>).keys()).filter(x => x.startsWith(`/api`)).sort().join('\n'))} /> */}
             <Container className="h-100 bg-dark-900">
                 {page}
             </Container>

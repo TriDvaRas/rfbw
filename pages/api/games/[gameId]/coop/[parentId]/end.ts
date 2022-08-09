@@ -106,11 +106,11 @@ export default router
                 success: true
             })
             res.socket.server.io?.emit('mutate', [
-                `^\\/api\\/.*${gamePlayer.gameId}.*`,
-                `^\\/api\\/tasks\\/.*`,
-                `^\\/api\\/effects\\/.*`,
-                `^\\/api\\/players\\/.*`,
-                // `^/api/games/${req.query.gameId}/events`,
+                `^/api/games/${gamePlayer.gameId}.*`,
+                `^/api/tasks/.*`,
+                `^/api/effects/.*`,
+                `^/api/players/.*`,
+                `/api//games/${gamePlayer.gameId}/events\?page`,
             ])
 
         } catch (error: any) {
