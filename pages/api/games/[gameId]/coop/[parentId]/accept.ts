@@ -60,7 +60,7 @@ export default router
             })
             res.json(task)
             res.socket.server.io?.emit('mutate', [
-                `^/api/games/${req.query.gameId}/coops/${parentTask.id}`,
+                `^/api/games/${req.query.gameId}/coop/${parentTask.id}`,
                 `^/api/games/${req.query.gameId}/events`,
                 `^/api/tasks/${parentTask.id}`,
                 `^/api/players/${req.session.user.id}`,

@@ -116,7 +116,7 @@ export default router
                 if (fn) {
                     const newEffect = await fn(game.id, player.id)
                 }
-                event.save()
+                await event.save()
                 res.socket.server.io?.emit('mutate', [
                     `^/api/games/${req.query.gameId}/events`,
                 ])

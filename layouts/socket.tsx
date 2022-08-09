@@ -21,8 +21,12 @@ export default function GetSocketLayout(page: ReactElement) {
                     setConnected(true);
                 })
                 .on('mutate', (matchers: string[]) => {
+                    console.log(matchers);
+
                     for (const [key, value] of Array.from(cache as Map<string, any>)) {
-                        if (matchers.find(matcher => new RegExp(matcher).test(key))) {
+                        const m = matchers.find(matcher => new RegExp(matcher).test(key))
+                        if (m) {
+                            console.log(`${(m)} => ${key}`);
                             mutate(key)
                         }
                     }
