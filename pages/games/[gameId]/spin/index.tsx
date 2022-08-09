@@ -1,19 +1,16 @@
 import { useSession } from 'next-auth/react';
 import Head from "next/head";
 import { useRouter } from 'next/router';
-import { Alert, Col, Collapse, Row } from 'react-bootstrap';
-import GamePreview from "../../../../components/game/GamePreview";
+import { Alert, Col, Row } from 'react-bootstrap';
 import LoadingDots from "../../../../components/LoadingDots";
 import { NotAPlayerCard } from "../../../../components/NotAPlayerCard";
-import useGame from '../../../../data/useGame';
-import GetGameLayout from "../../../../layouts/game";
-import { NextPageWithLayout } from "../../../_app";
-import PHCard from '../../../../util/PHCard';
-import useGameWheels from '../../../../data/useGameWheels';
 import GameWheelPreview from '../../../../components/wheel/GameWheelPreview';
-import GetThinLayout from '../../../../layouts/thin';
+import useGame from '../../../../data/useGame';
+import useGameWheels from '../../../../data/useGameWheels';
 import usePlayerEffectStates from '../../../../data/usePlayerEffects';
-import { filterWheelsWithEffects, filterGameWheelsWithEffects } from '../../../../util/game/wheelFilters';
+import GetThinLayout from '../../../../layouts/thin';
+import { filterGameWheelsWithEffects } from '../../../../util/game/wheelFilters';
+import { NextPageWithLayout } from "../../../_app";
 
 const GameHome: NextPageWithLayout = () => {
     const session = useSession()

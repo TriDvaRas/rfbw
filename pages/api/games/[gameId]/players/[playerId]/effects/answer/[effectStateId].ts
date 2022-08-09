@@ -53,7 +53,10 @@ export default router
                         effectState.isEnded = true
                         await effectState.save()
                         res.json(effectState)
-
+                        res.socket.server.io?.emit('mutate', [
+                            `^/api/games/${req.query.gameId}/events`,
+                            `^/api/games/${req.query.gameId}/players`,
+                        ])
                     } catch (error: any) {
                         console.error(error);
 

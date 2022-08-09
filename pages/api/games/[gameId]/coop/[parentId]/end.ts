@@ -105,7 +105,13 @@ export default router
             res.send({
                 success: true
             })
-
+            res.socket.server.io?.emit('mutate', [
+                `^\\/api\\/.*${gamePlayer.gameId}.*`,
+                `^\\/api\\/tasks\\/.*`,
+                `^\\/api\\/effects\\/.*`,
+                `^\\/api\\/players\\/.*`,
+                // `^/api/games/${req.query.gameId}/events`,
+            ])
 
         } catch (error: any) {
             console.error(error);

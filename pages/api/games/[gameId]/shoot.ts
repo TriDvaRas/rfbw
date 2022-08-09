@@ -30,35 +30,28 @@ export default router
             include: [Effect, Player]
         })
 
-        console.log(1);
 
         if (!effectState)
             return res.status(404).json({ error: `У тебя нету эффекта Револьверчик`, status: 404 })
-        console.log(2);
         if (!_.isEqual(
             { id: effectState.id, variables: effectState.vars },
             { id: req.body.effectState.id, variables: req.body.effectState.vars }
         ))
             return res.status(400).json({ error: `Твое содержимое вопроса не совпадает с сервером. Обнови страницу и попробуй еще раз.`, status: 400 })
-        console.log(3);
         try {
             if (effectState.vars?.result)
                 return res.status(400).json({ error: `Ты уже выстрелил. Иди нахуй`, status: 400 })
-            console.log(4);
             if (req.body.reject) {
-                console.log(5);
                 effectState.vars = {
                     ...(effectState.vars || {}),
                     message: `Ссыкло...`,
                     rejected: true
                 }
                 await effectState.save()
-                console.log(6);
                 res.send({
                     message: `Ссыкло...`,
                 })
             } else {
-                console.log(7);
                 // const result = Math.ceil(Math.random() * 6)
                 const result = 6
                 effectState.vars = {
@@ -66,14 +59,12 @@ export default router
                     result,
                     message: result !== 6 ? `Повезло повезло` : `Ты сдох...`
                 }
-                console.log(8);
                 const gamePlayer = await GamePlayer.findOne({
                     where: {
                         gameId: req.query.gameId,
                         playerId: player.id,
                     }
                 }) as GamePlayer
-                console.log(9);
                 if (result !== 6)
                     gamePlayer.points += 30
                 else
@@ -84,9 +75,6 @@ export default router
                     })
                 effectState.save()
                 gamePlayer.save()
-                console.log(10);
-                console.log(player);
-                console.log(effectState);
 
                 const event = GameEvent.create({
                     gameId: req.query.gameId,
@@ -99,7 +87,6 @@ export default router
                     message: result !== 6 ? `Повезло повезло` : `Ты сдох...`,
                     result
                 })
-                console.log(11);
             }
         } catch (error: any) {
             console.error(error);

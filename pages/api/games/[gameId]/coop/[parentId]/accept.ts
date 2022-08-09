@@ -32,7 +32,7 @@ export default router
                 return res.status(400).json({ error: `Invalid EffectState`, status: 400 })
             if (effectState.vars.task?.id !== req.query.parentId)
                 return res.status(400).json({ error: `Invalid ParentId`, status: 400 })
-            
+
             const parentTask = await GameTaskWithWheelItem.findOne({
                 where: {
                     id: req.query.parentId
@@ -59,6 +59,10 @@ export default router
                 type: 'contentJoinCoop',
             })
             res.json(task)
+            res.socket.server.io?.emit('mutate', [
+                `^/api/games/${req.query.gameId}/coops/${parentTask.id}`,
+                `^/api/games/${req.query.gameId}/events`,
+            ])
         } catch (error: any) {
             console.error(error)
             res.status(500).json({ error: error.message, status: 500 })

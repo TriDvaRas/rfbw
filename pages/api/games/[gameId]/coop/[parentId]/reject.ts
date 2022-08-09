@@ -43,6 +43,10 @@ export default router
             effectState.vars = { ...effectState.vars, rejected: true }
             await effectState.save()
             res.json({ success: true })
+            res.socket.server.io?.emit('mutate', [
+                `^/api/games/${req.query.gameId}/coops/${parentTask.id}`,
+                `^/api/games/${req.query.gameId}/events`,
+            ])
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })
         }

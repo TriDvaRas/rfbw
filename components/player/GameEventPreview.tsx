@@ -249,7 +249,7 @@ function getBorder(eventType: GameEvent['type']) {
         case 'effectLost':
             return '1px solid #00FF7299'
         case 'contentJoinCoop':
-            return '1px solid #A8FF3899'
+            return '1px solid #b8dFf899'
         case 'contentLeaveCoop':
             return '1px solid #FF38AD99'
         case 'shootDeath':

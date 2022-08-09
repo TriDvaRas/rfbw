@@ -131,7 +131,6 @@ questionAnswerMap.set(36, async (effectState, answerData) => {
                     ]
                 }
             }) as (GameWheel & { wheel: Wheel & { wheelitems: WheelItem[] } })[]
-            console.log(gameWheels.map(x => x.toJSON()));
 
             const playerGameTasks = await GameTask.findAll({ where: { gameId: effectState.gameId, playerId: targetId } })
             const availableWheels = gameWheels.filter(w => w.wheel.wheelitems.filter(x => !playerGameTasks.find(y => y.wheelItemId === x.id)))

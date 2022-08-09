@@ -85,7 +85,10 @@ export default router
             res.send({
                 success: true
             })
-
+            res.socket.server.io?.emit('mutate', [
+                `^/api/games/${req.query.gameId}/events`,
+                `^/api/games/${req.query.gameId}/players`,
+            ])
 
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })

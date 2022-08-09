@@ -117,6 +117,9 @@ export default router
                     const newEffect = await fn(game.id, player.id)
                 }
                 event.save()
+                res.socket.server.io?.emit('mutate', [
+                    `^/api/games/${req.query.gameId}/events`,
+                ])
             }, (effectsConfig.spinDur) * 1000 - 200)
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })

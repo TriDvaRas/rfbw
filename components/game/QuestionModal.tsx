@@ -238,7 +238,6 @@ export default function QuestionModal(props: Props) {
             line = line.replace(`%CONTENTNAME%`, effectVars.content.title)
         return line
     }
-    console.log(effectVars.task);
 
     if (effectState.effect.lid == 42)
         return < Card className='bg-dark text-light' >
@@ -379,7 +378,7 @@ export default function QuestionModal(props: Props) {
             <Card.Body>
                 {effectVars.task && <StatsWheelItemPreview item={effectVars.task.wheelitem as WheelItem} />}
                 <Card.Subtitle className='mt-3 mb-1'>Завершить кооп может только основатель. </Card.Subtitle>
-                <Card.Text className='mb-3'>Участники могут выйти из коопа в любой момент. При выходе вы потеряете контент коопа и больше не сможете вернуться в покинутый кооп. Далее этот контент можно будет получить из других источников по обычным правилам.</Card.Text>
+                <Card.Text className='mb-3'>Участники могут выйти из коопа в любой момент. При выходе вы потеряете контент коопа и больше не сможете вернуться в покинутый кооп. Далее этот контент можно будет снова получить из других источников по обычным правилам.</Card.Text>
                 {
                     error && <Alert className='mb-0 my-2' variant={'danger'}>
                         {error.error}

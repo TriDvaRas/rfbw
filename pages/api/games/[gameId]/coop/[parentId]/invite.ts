@@ -93,6 +93,11 @@ export default router
             }, { include: [Effect, Player] })
 
             res.json(targetPlayer)
+            res.socket.server.io?.emit('mutate', [
+                `^/api/games/${req.query.gameId}/players/${targetPlayer.playerId}/tasks`,
+                `^/api/games/${req.query.gameId}/players/${targetPlayer.playerId}/effects`,
+                `^/api/games/${req.query.gameId}/events`,
+            ])
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })
         }

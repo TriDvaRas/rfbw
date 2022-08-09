@@ -30,6 +30,7 @@ import { EffectStateQuestionVars } from '../../../types/effectStateVars';
 import QuestionModal from '../../../components/game/QuestionModal';
 import CoopCard from '../../../components/game/CoopCard';
 import useGameCoopTasks from '../../../data/useGameCoopTasks';
+import GetSocketLayout from '../../../layouts/socket';
 
 const GameHome: NextPageWithLayout = () => {
     const session = useSession()
@@ -66,7 +67,6 @@ const GameHome: NextPageWithLayout = () => {
 
         setError(undefined)
         setIsLoading(true)
-        console.log('asdasd');
         if (activeTask.fromCoop)
             axios.post<GameTaskEndResult>(`/api/games/${gameId}/coop/${activeTask.coopParentId}/leave`, {
                 wheelItemId: activeTask.wheelItemId,
@@ -335,5 +335,5 @@ const GameHome: NextPageWithLayout = () => {
         }
     </>
 }
-GameHome.getLayout = GetThinLayout
+GameHome.getLayout = GetSocketLayout
 export default GameHome
