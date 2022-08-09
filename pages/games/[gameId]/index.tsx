@@ -198,6 +198,10 @@ const GameHome: NextPageWithLayout = () => {
                     <Col xl={3} className='mt-5  mb-3'>
                         <h1 className='ms-3 mb-3'>История</h1>
                         {events.events?.map(x => <GameEventPreview key={x.id} className='mb-3' gameEvent={x} />)}
+                        {events.events ? <Button variant='outline-secondary' disabled={events.isLoading || events.isLoadingMore} className='text-light w-100' onClick={() => {
+
+                            events.loadMore()
+                        }}>{events.isLoadingMore ? <LoadingDots size='sm' /> : 'Еще'}</Button> : null}
                     </Col>
 
 

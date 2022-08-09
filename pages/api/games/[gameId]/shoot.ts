@@ -48,9 +48,21 @@ export default router
                     rejected: true
                 }
                 await effectState.save()
+                await GameEvent.create({
+                    gameId: req.query.gameId,
+                    playerId: player.id,
+                    effectId: effectState.effect.id,
+                    imageId: effectState.effect.imageId,
+                    type: 'shootSkip',
+                })
                 res.send({
                     message: `Ссыкло...`,
                 })
+                res.socket.server.io?.emit('mutate', [
+                    `^/api/games/${req.query.gameId}/events`,
+                    `^/api/games/${req.query.gameId}/players`,
+                    `^/api/players/${player.id}`,
+                ])
             } else {
                 // const result = Math.ceil(Math.random() * 6)
                 const result = 6
@@ -76,17 +88,23 @@ export default router
                 effectState.save()
                 gamePlayer.save()
 
-                const event = GameEvent.create({
+                await GameEvent.create({
                     gameId: req.query.gameId,
                     playerId: player.id,
                     effectId: effectState.effect.id,
                     imageId: effectState.effect.imageId,
                     type: result !== 6 ? 'shootSuccess' : 'shootDeath',
+                    pointsDelta: result !== 6 ? 30 : null,
                 })
                 res.send({
                     message: result !== 6 ? `Повезло повезло` : `Ты сдох...`,
                     result
                 })
+                res.socket.server.io?.emit('mutate', [
+                    `^/api/games/${req.query.gameId}/events`,
+                    `^/api/games/${req.query.gameId}/players`,
+                    `^/api/players/${gamePlayer.playerId}`,
+                ])
             }
         } catch (error: any) {
             console.error(error);

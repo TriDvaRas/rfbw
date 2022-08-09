@@ -32,6 +32,7 @@ export default function GetSocketLayout(page: ReactElement) {
                     }
                 })
         })()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return (
         <div className="h-100 bg-dark-900">

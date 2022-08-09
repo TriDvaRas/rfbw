@@ -24,12 +24,7 @@ questionAnswerMap.set(36, async (effectState, answerData) => {
         throw new Error(`Не выбран эффект`)
     const agressorId = effectState.player.id
     let targetId = answerData.selectedPlayerId
-    //APPLY SECRET
-    // const secretFn = secretCheckMap.get(15)
-    // const hasSecret = secretFn && await secretFn(agressorId, targetId)
-    // if (hasSecret)
-    //     targetId = agressorId
-    //
+
     const newEffects: GameEffectStateWithEffectWithPlayer[] = []
     const selectedEffect = await Effect.findOne({
         where: { id: answerData.selectedEffectId }
@@ -55,64 +50,19 @@ questionAnswerMap.set(36, async (effectState, answerData) => {
                     }
                 }, { include: [Effect, Player] })
                 newEffects.push(state)
-
+                await GameEvent.create({
+                    gameId: effectState.gameId,
+                    playerId: targetId,
+                    effectId: `efd1f7ba-df8a-4617-ab70-c63a39a6b077`,
+                    imageId: effectState.effect.imageId,
+                    type: 'effectAppliedBad',
+                    vars: {
+                        agressorId
+                    }
+                })
             }
             else
                 throw new Error(`Этот игрок еще не крутил ни одного колеса. Нечего повторять... Выбери другого игрока или эффект`)
-            break;
-        case 8:
-            // broadcastEvent(`post:new`, {
-            //     post: await db.newPost('effectcustom', {
-            //         pattern: `{player} применяет {effect} на {target} с помощью {effect1}`,
-            //         variables: {
-            //             playerId: agressorId,
-            //             targetId,
-            //             effectId: answerData.selectedEffectId,
-            //             effectId1: 1,
-            //         },
-            //     } as IPostCustom['variables'])
-            // })
-            //apply effect
-            const effect8 = await GameEffectStateWithEffectWithPlayer<any>.create({
-                playerId: targetId,
-                gameId: effectState.gameId,
-                effectId: '53005511-48b6-43bf-b118-f702ecc0f4d2',//8
-            }, { include: [Effect, Player] })
-            const effect9 = await GameEffectStateWithEffectWithPlayer.findOne({
-                where: {
-                    playerId: targetId,
-                    isEnded: false,
-                },
-                include: [{
-                    model: Effect,
-                    required: true,
-                    where: { lid: 9 }
-                }, Player]
-            })
-            if (effect9) {
-                effect8.isEnded = true
-                await effect8.save()
-                effect9.isEnded = true
-                await effect9.save()
-                // broadcastEvent(`effect:end`, {
-                //     idPlayer: targetId,
-                //     effectId: 9
-                // })
-                // broadcastEvent(`post:new`, {
-                //     post: await db.newPost('effectcustom', {
-                //         pattern: `{target} теряет эффекты {effect} и {effect1} по причине {reason}`,
-                //         variables: {
-                //             targetId,
-                //             effectId: 9,
-                //             effectId1: 8,
-                //             reason: `Леха укусил Крысу`
-                //         },
-                //     } as IPostCustom['variables'])
-                // })
-            }
-            else
-                newEffects.push(effect8)
-
             break;
         case 14:
             //apply effect 32 with random wheel
@@ -144,41 +94,19 @@ questionAnswerMap.set(36, async (effectState, answerData) => {
                 effectId: '203e0f75-7766-4aae-9693-a38bf58ac5a3',//32
                 vars: { wheelId: selectedWheel.wheel.id }
             }, { include: [Effect, Player] }))
-            // broadcastEvent(`post:new`, {
-            //     post: await db.newPost('effectcustom', {
-            //         pattern: `{player} применяет {effect} на {target} с помощью {effect1}`,
-            //         variables: {
-            //             playerId: agressorId,
-            //             targetId,
-            //             effectId: answerData.selectedEffectId,
-            //             effectId1: 1,
-            //         },
-            //     } as IPostCustom['variables'])
-            // })
-            // broadcastEvent(`post:new`, {
-            //     post: await db.newPost('effectcustom', {
-            //         pattern: `Следующий ролл {target} будет на колесе {owner} по причине {effect}`,
-            //         variables: {
-            //             targetId,
-            //             ownerId: selectedWheel.ownerId,
-            //             effectId: 14
-            //         },
-            //     } as IPostCustom['variables'])
-            // })
+            await GameEvent.create({
+                gameId: effectState.gameId,
+                playerId: targetId,
+                effectId: `b09a0b27-c856-4450-932e-8f254636978b`,
+                imageId: selectedEffect.imageId,
+                type: 'effectAppliedBad',
+                vars: {
+                    agressorId
+                }
+            })
             break;
         case 18:
             //subtract points 
-            // broadcastEvent(`post:new`, {
-            //     post: await db.newPost('effectcustom', {
-            //         pattern: `{player} применяет {effect} на {target} с помощью {effect1}`,
-            //         variables: {
-            //             playerId: agressorId,
-            //             targetId,
-            //             effectId: answerData.selectedEffectId,
-            //             effectId1: 1,
-            //         },
-            //     } as IPostCustom['variables'])
-            // })
             const targetPlayer = await GamePlayer.findOne({
                 where: { gameId: effectState.gameId, playerId: targetId }
             })
@@ -186,98 +114,41 @@ questionAnswerMap.set(36, async (effectState, answerData) => {
                 throw new Error(`Игрок не найден? Схуяли?`)
             targetPlayer.points -= 15
             await targetPlayer.save()
+            await GameEvent.create({
+                gameId: effectState.gameId,
+                playerId: targetId,
+                effectId: `d5907cf0-5aa3-4686-9115-56a2ab0ef8be`,
+                imageId: selectedEffect.imageId,
+                type: 'effectAppliedBad',
+                pointsDelta: -15,
+                vars: {
+                    agressorId
+                }
+            })
             break;
-        case 23:
-            //apply effect 44
-            const players = await GamePlayer.findAll({
-                where: {
-                    gameId: effectState.gameId,
-                    playerId: { [Op.ne]: targetId }
-                },
-                include: Player
-            }) as (GamePlayer & { player: Player })[]
-            const player = players[Math.floor(Math.random() * players.length)]
-            newEffects.push(await GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>.create({
+        case 57:
+            const state = await GameEffectStateWithEffectWithPlayer<any>.create({
                 playerId: targetId,
                 gameId: effectState.gameId,
-                effectId: 'a6a4cb24-81b5-4a47-9a2f-9e8987f29be1',//44
+                effectId: '167b9522-e824-4a7a-8a48-fbc917ccf852',//58
+                vars: { wheelId: '40e070f0-2254-4099-af87-33a4bc2cdaed' }
+            }, { include: [Effect, Player] })
+            newEffects.push(state)
+            await GameEvent.create({
+                gameId: effectState.gameId,
+                playerId: targetId,
+                effectId: `16ab26b5-fa78-44f5-bde4-2187012bcac4`,
+                imageId: selectedEffect.imageId,
+                type: 'effectAppliedBad',
                 vars: {
-                    question: `Тебе необходимо стать каблуком игрока %PLAYERNAME%... Каблук должен играть на его колесе или может откупиться за 20 очков`,
-                    player: player.player,
-                    types: [{ id: 2, title: 'Буду играть на его колесе' }, { id: 1, title: 'Отдам ему 20 очков' }, { id: 3, title: 'Отсосу', meme: true }]
-                } as EffectStateQuestionVars
-            }, { include: [Effect, Player] }))
-            break;
-        case 26:
-            throw new Error("Not implemented");
-
-            // const cards = await db.getPlayerCards(targetId)
-            // if (cards.length > 0) {
-            //     // broadcastEvent(`post:new`, {
-            //     //     post: await db.newPost('effectcustom', {
-            //     //         pattern: `{player} применяет {effect} на {target} с помощью {effect1}`,
-            //     //         variables: {
-            //     //             playerId: agressorId,
-            //     //             targetId,
-            //     //             effectId: answerData.selectedEffectId,
-            //     //             effectId1: 1,
-            //     //         },
-            //     //     } as IPostCustom['variables'])
-            //     // })
-            //     const card = cards[_.random(0, cards.length - 1)]
-            //     await db.endCardId(card.id)
-            //     broadcastEvent(`post:new`, {
-            //         post: await db.newPost('effectcustom', {
-            //             pattern: `{target} теряет карточку {effect} по причине {effect1}`,
-            //             variables: {
-            //                 targetId,
-            //                 effectId: card.effect.id,
-            //                 effectId1: 26,
-            //             },
-            //         } as IPostCustom['variables'])
-            //     })
-            //     broadcastEvent('card:end', {
-            //         idPlayer: targetId,
-            //         cardStateId: card.id
-            //     })
-            // }
-            // else
-            //     throw new Error(`У этого игрока нет карточек`)
+                    agressorId
+                }
+            })
             break;
         default:
             throw new Error(`Что ты выбрал, клоун?`)
     }
-    if (![3, 8, 14, 18, 26].includes(selectedEffect?.lid))
-        await GameEvent.create({
-            gameId: effectState.gameId,
-            playerId: targetId,
-            effectId: selectedEffect.id,
-            imageId: selectedEffect.imageId,
-            type: 'effectAppliedBad',
-            vars: {
-                agressorId
-            }
-        })
-    // 
-    //     broadcastEvent(`post:new`, {
-    //         post: await db.newPost('effectcustom', {
-    //             pattern: `{player} применяет {effect} на {target} с помощью {effect1}`,
-    //             variables: {
-    //                 playerId: agressorId,
-    //                 targetId,
-    //                 effectId: answerData.selectedEffectId,
-    //                 effectId1: 1,
-    //             },
-    //         } as IPostCustom['variables'])
-    //     })
-    //TODO await rotateEffects(await db.getPlayableEffects(), await db.getEffect(answerData.selectedEffectId), targetId)
-    //clear secret
-    // if (hasSecret) {
-    //     const fn = secretClearMap.get(15)
-    //     if (fn)
-    //         newEffects.push(await fn(answerData.selectedPlayerId, targetId))
 
-    // }
     return newEffects.length === 1 ? newEffects[0] : newEffects
 })
 questionAnswerMap.set(37, async (effectState, answerData) => {
@@ -288,99 +159,11 @@ questionAnswerMap.set(37, async (effectState, answerData) => {
     const agressorId = effectState.player.id
     let targetId = answerData.selectedPlayerId
     const newEffects: GameEffectStateWithEffectWithPlayer[] = []
-    //APPLY SECRET
-    // const secretFn = secretCheckMap.get(15)
-    // const hasSecret = secretFn && await secretFn(agressorId, targetId)
 
-    // if (hasSecret) {
-    //     targetId = agressorId
-    //     newEffects.push(await db.newEffectState(agressorId, 49, {
-    //         question: `Сегодня твой день! Сработал секрет 'No U' и выбранный эффект применился к тебе`,
-    //     }))
-    // }
-    //
     const selectedEffect = await Effect.findOne({
         where: { id: answerData.selectedEffectId }
     })
     switch (selectedEffect?.lid) {
-        case 9:
-            // broadcastEvent(`post:new`, {
-            //     post: await db.newPost('effectcustom', {
-            //         pattern: `{player} применяет {effect} на {target} с помощью {effect1}`,
-            //         variables: {
-            //             playerId: agressorId,
-            //             targetId,
-            //             effectId: answerData.selectedEffectId,
-            //             effectId1: 2,
-            //         },
-            //     } as IPostCustom['variables'])
-            // })
-            //apply effect
-            const effect9 = await GameEffectStateWithEffectWithPlayer<any>.create({
-                playerId: targetId,
-                gameId: effectState.gameId,
-                effectId: '5676d81c-c0e2-4434-a01c-4649c99594b2',//9
-            }, { include: [Effect, Player] })
-            const effect8 = await GameEffectStateWithEffectWithPlayer.findOne({
-                where: {
-                    playerId: targetId,
-                    isEnded: false,
-                },
-                include: [{
-                    model: Effect,
-                    required: true,
-                    where: { lid: 8 }
-                }, Player]
-            })
-            if (effect8) {
-                effect9.isEnded = true
-                await effect9.save()
-                effect8.isEnded = true
-                await effect8.save()
-                // broadcastEvent(`effect:end`, {
-                //     idPlayer: targetId,
-                //     effectId: 9
-                // })
-                // broadcastEvent(`post:new`, {
-                //     post: await db.newPost('effectcustom', {
-                //         pattern: `{target} теряет эффекты {effect} и {effect1} по причине {reason}`,
-                //         variables: {
-                //             targetId,
-                //             effectId: 9,
-                //             effectId1: 8,
-                //             reason: `Леха укусил Крысу`
-                //         },
-                //     } as IPostCustom['variables'])
-                // })
-            }
-            else
-                newEffects.push(effect9)
-            // const effect8 = await GameEffectStateWithEffectWithPlayer<any>.create({
-            //     playerId: targetId,
-            //     gameId: effectState.gameId,
-            //     effectId: '53005511-48b6-43bf-b118-f702ecc0f4d2',//8
-            // }, { include: [Effect, Player] })
-            // if (playerEffects.find(x => x.effect.id === 8)) {
-            //     await db.endEffectState(targetId, 9)
-            //     broadcastEvent(`effect:end`, {
-            //         idPlayer: targetId,
-            //         effectId: 8
-            //     })
-            //     broadcastEvent(`post:new`, {
-            //         post: await db.newPost('effectcustom', {
-            //             pattern: `{target} теряет эффекты {effect} и {effect1} по причине {reason}`,
-            //             variables: {
-            //                 targetId,
-            //                 effectId: 8,
-            //                 effectId1: 9,
-            //                 reason: `Крыса укусила Ляху`
-            //             },
-            //         } as IPostCustom['variables'])
-            //     })
-            // }
-            // else
-            //     newEffects.push(await db.newEffectState(targetId, 9))
-            break;
         case 10:
             //apply effect 40 with random player
             const otherPlayers = await GamePlayer.findAll({
@@ -401,7 +184,7 @@ questionAnswerMap.set(37, async (effectState, answerData) => {
                     where: { ownedById: { [Op.ne]: player.playerId } }
                 }]
             })
-            return await GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>.create({
+            await GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>.create({
                 playerId: targetId,
                 gameId: effectState.gameId,
                 effectId: '8b27c779-d364-493c-a01a-529ecdbee017',//40
@@ -411,15 +194,16 @@ questionAnswerMap.set(37, async (effectState, answerData) => {
                     wheels
                 } as EffectStateQuestionVars
             }, { include: [Effect, Player] })
-
-            // const players = (await db.getPlayers())
-            // const otherPlayers = players.filter(x => x.id !== targetId)
-            // const player = otherPlayers[Math.floor(Math.random() * otherPlayers.length)]
-            // newEffects.push(await db.newEffectState(targetId, 40, {
-            //     question: `Выбери чье колесо в следующий раз будет крутить %PLAYERNAME%`,
-            //     player,
-            //     players: players.filter(x => x.id !== player.id)
-            // }))
+            await GameEvent.create({
+                gameId: effectState.gameId,
+                playerId: targetId,
+                effectId: `9d11e934-e2e3-4878-8d68-91f473e473ad`,
+                imageId: selectedEffect.imageId,
+                type: 'effectAppliedGood',
+                vars: {
+                    agressorId
+                }
+            })
             break;
         case 13:
             //apply effect 41 
@@ -438,7 +222,20 @@ questionAnswerMap.set(37, async (effectState, answerData) => {
                     question: `Выбери кто будет крутить твое колесо в следующем ролле`,
                     players: players.map(x => x.player)
                 }
-            }, { include: [Effect, Player] }))
+            },
+                { include: [Effect, Player] }
+            ))
+            await GameEvent.create({
+                gameId: effectState.gameId,
+                playerId: targetId,
+                effectId: `63e8d70d-194d-44ad-b5a4-436ceafb5c07`,
+                imageId: selectedEffect.imageId,
+                type: 'effectAppliedGood',
+                vars: {
+                    agressorId
+                }
+            })
+            break;
         case 17:
             //subtract points 
             const targetPlayer = await GamePlayer.findOne({
@@ -448,40 +245,42 @@ questionAnswerMap.set(37, async (effectState, answerData) => {
                 throw new Error(`Игрок не найден? Схуяли?`)
             targetPlayer.points += 15
             await targetPlayer.save()
+            await GameEvent.create({
+                gameId: effectState.gameId,
+                playerId: targetId,
+                effectId: `450c5c15-1698-48a1-8192-2234166e8da8`,
+                imageId: selectedEffect.imageId,
+                type: 'effectAppliedGood',
+                pointsDelta: 15,
+                vars: {
+                    agressorId
+                }
+            })
+            break;
+        case 19:
+            //subtract points 
+            const state = await GameEffectStateWithEffectWithPlayer<any>.create({
+                playerId: targetId,
+                gameId: effectState.gameId,
+                effectId: 'c14bf560-b1b8-4172-8827-538dd0c75605',//58
+            }, { include: [Effect, Player] })
+            newEffects.push(state)
+            await GameEvent.create({
+                gameId: effectState.gameId,
+                playerId: targetId,
+                effectId: `c14bf560-b1b8-4172-8827-538dd0c75605`,
+                imageId: selectedEffect.imageId,
+                type: 'effectAppliedGood',
+                vars: {
+                    agressorId
+                }
+            })
             break;
         default:
             throw new Error(`Что ты выбрал, клоун?`)
     }
-    if (![9, 10, 13, 17].includes(selectedEffect?.lid))
-        await GameEvent.create({
-            gameId: effectState.gameId,
-            playerId: targetId,
-            effectId: selectedEffect.id,
-            imageId: selectedEffect.imageId,
-            type: 'effectAppliedGood',
-            vars: {
-                agressorId
-            }
-        })
-    // if (![9, 17].includes(answerData.selectedEffectId))
-    //     broadcastEvent(`post:new`, {
-    //         post: await db.newPost('effectcustom', {
-    //             pattern: `{player} применяет {effect} на {target} с помощью {effect1}`,
-    //             variables: {
-    //                 playerId: agressorId,
-    //                 targetId,
-    //                 effectId: answerData.selectedEffectId,
-    //                 effectId1: 2,
-    //             },
-    //         } as IPostCustom['variables'])
-    //     })
-    // await rotateEffects(await db.getPlayableEffects(), await db.getEffect(answerData.selectedEffectId), targetId)
-    //clear secret
-    // if (hasSecret) {
-    //     const fn = secretClearMap.get(15)
-    //     if (fn)
-    //         newEffects.push(await fn(answerData.selectedPlayerId, targetId, true))
-    // }
+
+
     return newEffects.length === 1 ? newEffects[0] : newEffects
 })
 // questionAnswerMap.set(38, async (effectState: IEffectState, answerData: AnswerData) => {
@@ -545,66 +344,46 @@ questionAnswerMap.set(40, async (effectState, answerData) => {
         throw new Error(`Не выбрано колесо`)
     //apply 31 
     const wheelId = answerData.selectedWheelId
-    // broadcastEvent(`post:new`, {
-    //     post: await db.newPost('effectcustom', {
-    //         pattern: `{player} применяет {effect} на {target} выбрав колесо {owner}`,
-    //         variables: {
-    //             playerId: effectState.player.id,
-    //             ownerId: answerData.selectedPlayerId,
-    //             targetId: effectState.variables.player.id,
-    //             effectId: 10,
-    //         },
-    //     } as IPostCustom['variables'])
-    // })
-    // broadcastEvent(`post:new`, {
-    //     post: await db.newPost('effectcustom', {
-    //         pattern: `Следующий ролл {target} будет на колесе {owner} по причине {effect}`,
-    //         variables: {
-    //             targetId: effectState.variables.player.id,
-    //             ownerId: answerData.selectedPlayerId,
-    //             effectId: 10
-    //         },
-    //     } as IPostCustom['variables'])
-    // })
-
-    return await GameEffectStateWithEffectWithPlayer<any>.create({
+    const selectedEffect = await Effect.findOne({ where: { lid: 40 } }) as Effect
+    const state = await GameEffectStateWithEffectWithPlayer<any>.create({
         playerId: effectState.vars.gamePlayer?.playerId,
         gameId: effectState.gameId,
         effectId: '1316f200-4c50-4387-9f2d-407eaa732f16',//31
         vars: { wheelId }
     }, { include: [Effect, Player] })
+    await GameEvent.create({
+        gameId: effectState.gameId,
+        playerId: effectState.vars.gamePlayer?.playerId,
+        effectId: `1316f200-4c50-4387-9f2d-407eaa732f16`,
+        imageId: selectedEffect.imageId,
+        type: 'effectApplied',
+        vars: {
+            agressorId: effectState.playerId
+        }
+    })
+    return state
 })
 questionAnswerMap.set(41, async (effectState, answerData) => {
     if (!answerData.selectedPlayerId)
         throw new Error(`Не выбран игрок`)
-    //apply 31 
-    // broadcastEvent(`post:new`, {
-    //     post: await db.newPost('effectcustom', {
-    //         pattern: `{player} применяет {effect} на {target} `,
-    //         variables: {
-    //             playerId: effectState.player.id,
-    //             targetId: answerData.selectedPlayerId,
-    //             effectId: 13,
-    //         },
-    //     } as IPostCustom['variables'])
-    // })
-    // broadcastEvent(`post:new`, {
-    //     post: await db.newPost('effectcustom', {
-    //         pattern: `Следующий ролл {target} будет на колесе {owner} по причине {effect}`,
-    //         variables: {
-    //             targetId: answerData.selectedPlayerId,
-    //             ownerId: effectState.player.id,
-    //             effectId: 13
-    //         },
-    //     } as IPostCustom['variables'])
-    // })
-
-    return await GameEffectStateWithEffectWithPlayer<any>.create({
+    const selectedEffect = await Effect.findOne({ where: { lid: 41 } }) as Effect
+    const state = await GameEffectStateWithEffectWithPlayer<any>.create({
         playerId: answerData.selectedPlayerId,
         gameId: effectState.gameId,
         effectId: '53feafb2-7177-41cb-b256-96c8e93627ba',//30
         vars: { wheelOwnerId: effectState.playerId }
     }, { include: [Effect, Player] })
+    await GameEvent.create({
+        gameId: effectState.gameId,
+        playerId: answerData.selectedPlayerId,
+        effectId: `53feafb2-7177-41cb-b256-96c8e93627ba`,
+        imageId: selectedEffect.imageId,
+        type: 'effectApplied',
+        vars: {
+            agressorId: effectState.playerId
+        }
+    })
+    return state
 })
 questionAnswerMap.set(42, async (effectState, answerData) => {
     return undefined

@@ -31,17 +31,19 @@ export default function GameEventPreview(props: Props) {
     const { gameEvent, withTask, onClick } = props
     const [squareRef, { width, height }] = useElementSize()
     const _player = usePlayer(gameEvent.playerId)
+    const _agressorPlayer = usePlayer(gameEvent.vars?.agressorId)
     const _playerTask = useGameTask(gameEvent.taskId)
     const _playerEffect = useTheEffect(gameEvent.effectId)
     const _playerTaskWheelItem = useWheelItem(_playerTask.task?.wheelItemId)
     const player = _player.player
+    const agressor = _agressorPlayer.player
     const playerTask = _playerTask.task
     const effect = _playerEffect.effect
     const wheelItem = _playerTaskWheelItem.item
     const imagePreview = useImage(gameEvent?.imageId, true)
     const image = useImage(undefined)
 
-    const [left, right] = getBlocks(gameEvent, player, playerTask, wheelItem, effect)
+    const [left, right] = getBlocks(gameEvent, player, playerTask, wheelItem, effect, agressor)
 
     return player && left && right ?
         <div
@@ -55,7 +57,7 @@ export default function GameEventPreview(props: Props) {
                 overflow: 'hidden',
                 cursor: onClick ? 'pointer' : undefined,
                 textShadow: '#0008 0 0 7px',
-                border: getBorder(gameEvent.type)
+                border: getBorder(gameEvent, effect)
             }}>
             <div className={`my-2 w-100`}>
                 {left}
@@ -80,7 +82,7 @@ export default function GameEventPreview(props: Props) {
         : <LoadingDots />
 }
 
-function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: WheelItem, effect?: Effect) {
+function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: WheelItem, effect?: Effect, agressor?: Player) {
     switch (event.type) {
         case 'contentEnd':
             return player && item && [
@@ -99,7 +101,7 @@ function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: Wh
             return player && item && [
                 <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
                     <h5 className=''>
-                        {player.name} <span style={{ fontSize: '80%' }}>завершил кооп контент</span> {item.label} 
+                        {player.name} <span style={{ fontSize: '80%' }}>завершил кооп контент</span> {item.label}
                     </h5>
                     <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
                 </div>,
@@ -149,7 +151,10 @@ function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: Wh
                     </h5>
                     <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
                 </div>,
-                <></>
+                event.pointsDelta ? <div key={2} className=' d-flex my-auto flex-row'>
+                    <h3 className='ms-1 my-auto'>{event.pointsDelta > 0 ? '+' : '-'}</h3>
+                    <h2 className='mb-0 mt-auto'>{Math.abs(event.pointsDelta) || ''}</h2>
+                </div> : <></>
             ] || []
         case 'effectLost':
             return player && effect && [
@@ -216,6 +221,32 @@ function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: Wh
                     <h2 className='mb-0 mt-auto'>{event.pointsDelta ? Math.abs(event.pointsDelta) : ''} </h2>
                 </div>
             ] || []
+        case 'shootSuccess':
+            return player && [
+                <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 className=''>
+                        {player.name} <span style={{ fontSize: '80%' }}><s>продал револьвер</s>😳 нажимает на курок, но ничего не происходит</span>
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                <div key={2} className='me-3 d-flex my-auto flex-row'>
+                    <h3 className='ms-1 my-auto'>{event.pointsDelta ? '+' : ''}</h3>
+                    <h2 className='mb-0 mt-auto'>{event.pointsDelta ? Math.abs(event.pointsDelta) : ''} </h2>
+                </div>
+            ] || []
+        case 'shootSkip':
+            return player && [
+                <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 className=''>
+                        {player.name} <span style={{ fontSize: '80%' }}>зассал и не выстрелил</span>
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                <div key={2} className='me-3 d-flex my-auto flex-row'>
+                    <h3 className='ms-1 my-auto'>{event.pointsDelta ? '+' : ''}</h3>
+                    <h2 className='mb-0 mt-auto'>{event.pointsDelta ? Math.abs(event.pointsDelta) : ''} </h2>
+                </div>
+            ] || []
         case 'shootDeath':
             return player && [
                 <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
@@ -225,16 +256,78 @@ function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: Wh
                     <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
                 </div>,
                 <div key={2} className='me-3 d-flex my-auto flex-row'>
-                    <h3 className='ms-1 my-auto'>{event.pointsDelta ? '-' : ''}</h3>
-                    <h2 className='mb-0 mt-auto'>{event.pointsDelta ? Math.abs(event.pointsDelta) : ''} </h2>
+
                 </div>
+            ] || []
+        case 'effectApplied':
+            return player && effect && agressor && [
+                <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 className=''>
+                        {agressor.name} <span style={{ fontSize: '80%' }}>применяет эффект</span> {effect.title} <span style={{ fontSize: '80%' }}>на игрока</span> {player.name}
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                event.pointsDelta ? <div key={2} className=' d-flex my-auto flex-row'>
+                    <h3 className='ms-1 my-auto'>{event.pointsDelta > 0 ? '+' : '-'}</h3>
+                    <h2 className='mb-0 mt-auto'>{Math.abs(event.pointsDelta) || ''}</h2>
+                </div> : <></>
+            ] || []
+        case 'effectAppliedGood':
+        case 'effectAppliedBad':
+            return player && effect && agressor && [
+                <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 className=''>
+                        {player.name} <span style={{ fontSize: '80%' }}>получает событие</span> {effect.title} <span style={{ fontSize: '80%' }}>от игрока</span> {agressor.name}
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                event.pointsDelta ? <div key={2} className=' d-flex my-auto flex-row'>
+                    <h3 className='ms-1 my-auto'>{event.pointsDelta > 0 ? '+' : '-'}</h3>
+                    <h2 className='mb-0 mt-auto'>{Math.abs(event.pointsDelta) || ''}</h2>
+                </div> : <></>
+            ] || []
+        case 'rollDiceSuccess':
+            return player && effect && agressor && [
+                <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 className=''>
+                        {player.name} <span style={{ fontSize: '80%' }}>ставит на {event.vars?.guess.lenght == 1 ? `число` : `числа`} </span> {event.vars?.guess.join(', ')} <span style={{ fontSize: '80%' }}>и выпадает</span> {event.vars?.result}
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                event.pointsDelta ? <div key={2} className=' d-flex my-auto flex-row'>
+                    <h3 className='ms-1 my-auto'>{event.pointsDelta > 0 ? '+' : '-'}</h3>
+                    <h2 className='mb-0 mt-auto'>{Math.abs(event.pointsDelta) || ''}</h2>
+                </div> : <></>
+            ] || []
+        case 'rollDiceFail':
+            return player && effect && agressor && [
+                <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 className=''>
+                        {player.name} <span style={{ fontSize: '80%' }}>ставит на {event.vars?.guess.lenght == 1 ? `число` : `числа`} </span> {event.vars?.guess.join(', ')} <span style={{ fontSize: '80%' }}>но выпадает</span> {event.vars?.result}
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                event.pointsDelta ? <div key={2} className=' d-flex my-auto flex-row'>
+                    <h3 className='ms-1 my-auto'>{event.pointsDelta > 0 ? '+' : '-'}</h3>
+                    <h2 className='mb-0 mt-auto'>{Math.abs(event.pointsDelta) || ''}</h2>
+                </div> : <></>
+            ] || []
+        case 'rollDiceSkip':
+            return player && effect && agressor && [
+                <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 className=''>
+                        {player.name} <span style={{ fontSize: '80%' }}>зассал и не учавствует в рулетке </span>
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                <></>
             ] || []
         default:
             return [<>invalid eventType {event.type}</>, <>Sex Jopa</>]
     }
 }
-function getBorder(eventType: GameEvent['type']) {
-    switch (eventType) {
+function getBorder(event: GameEvent, effect?: Effect) {
+    switch (event.type) {
         case 'contentEnd':
         case 'contentEndCoop':
             return '1px solid #99ff0099'
@@ -245,14 +338,54 @@ function getBorder(eventType: GameEvent['type']) {
         case 'contentDrop':
             return '1px solid #ff000099'
         case 'effectGained':
-            return '1px solid #38E1FF99'
+            if (!event.pointsDelta) {
+                if (!effect)
+                    return '1px solid #38E1FF99'
+                if (effect.type == 'positive')
+                    return '1px solid #99ff0099'
+                else if (effect.type == 'negative')
+                    return '1px solid #ff000099'
+                else
+                    return '1px solid #DE7D1699'
+            }
+            if (event.pointsDelta > 0)
+                return '1px solid #99ff0099'
+            else
+                return '1px solid #ff000099'
+        case 'rollDiceSuccess':
+        case 'rollDiceFail':
+            if (!event.pointsDelta)
+                return '1px solid #38E1FF99'
+            if (event.pointsDelta > 0)
+                return '1px solid #99ff0099'
+            else
+                return '1px solid #ff000099'
+        case 'rollDiceSkip':
+            return '1px solid #FF38AD99'
         case 'effectLost':
             return '1px solid #00FF7299'
         case 'contentJoinCoop':
             return '1px solid #b8dFf899'
         case 'contentLeaveCoop':
             return '1px solid #FF38AD99'
+        case 'shootSuccess':
+            return '1px solid #00FF7299'
         case 'shootDeath':
+            return '1px solid #ff000099'
+        case 'shootSkip':
+            return '1px solid #FF38AD99'
+        case 'effectApplied':
+            if (!effect)
+                return '1px solid #38E1FF99'
+            if (effect.type == 'positive')
+                return '1px solid #99ff0099'
+            else if (effect.type == 'negative')
+                return '1px solid #ff000099'
+            else
+                return '1px solid #DE7D1699'
+        case 'effectAppliedGood':
+            return '1px solid #99ff0099'
+        case 'effectAppliedBad':
             return '1px solid #ff000099'
         default:
             return undefined

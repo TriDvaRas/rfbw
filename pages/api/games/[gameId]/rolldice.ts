@@ -46,6 +46,13 @@ export default router
                     rejected: true
                 }
                 await effectState.save()
+                await GameEvent.create({
+                    gameId: req.query.gameId,
+                    playerId: player.id,
+                    effectId: effectState.effect.id,
+                    imageId: effectState.effect.imageId,
+                    type: 'rollDiceSkip',
+                })
                 res.send({
                     message: `Ссыкло...`,
                 })
@@ -69,12 +76,13 @@ export default router
                     gamePlayer.points -= effectsConfig.diceLoss
                 effectState.save()
                 gamePlayer.save()
-                const event = GameEvent.create({
+                await GameEvent.create({
                     gameId: req.query.gameId,
                     playerId: player.id,
                     effectId: effectState.effect.id,
                     imageId: effectState.effect.imageId,
                     type: req.body.selectedCubes.includes(result) ? 'rollDiceSuccess' : 'rollDiceFail',
+                    pointsDelta: req.body.selectedCubes.includes(result) ? effectsConfig.diceWin / req.body.selectedCubes.length : -effectsConfig.diceLoss,
                     vars: {
                         guess: req.body.selectedCubes,
                         result: result
@@ -84,6 +92,11 @@ export default router
                     message: req.body.selectedCubes.includes(result) ? `Повезло` : `Не повезло`,
                     result
                 })
+                res.socket.server.io?.emit('mutate', [
+                    `^/api/games/${req.query.gameId}/events`,
+                    `^/api/games/${req.query.gameId}/players`,
+                    `^/api/players/${gamePlayer.playerId}`,
+                ])
             }
         } catch (error: any) {
             console.error(error);

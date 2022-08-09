@@ -11,9 +11,9 @@ export default function useGameEvents(gameId?: string, options?: {
   playerId?: string,
 }) {
   const isFetching = useRef(false);
-  const maxPages = useRef(1);
+  // const maxPages = useRef(1);
   const { data, mutate, size, error: _error, setSize, isValidating } = useSWRInfinite<GameEvent[], AxiosError<ApiError>>((page, previousPageData) => {
-    if (maxPages.current < page + 1) return null;
+    // if (maxPages.current < page + 1) return null;
     if (previousPageData?.length === 0) return null;
     if (isFetching.current && page) return null
     if (!gameId) return null;

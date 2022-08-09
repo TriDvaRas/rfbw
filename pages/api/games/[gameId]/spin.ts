@@ -136,9 +136,6 @@ export default router
                 }
                 await task.save()
                 await event.save()
-                res.socket.server.io?.emit('mutate', [
-                    `^/api`,
-                ])
             }, (wheel.prespinDuration) * 1000 + (wheel.spinDuration) * 1000)
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })

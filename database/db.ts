@@ -590,7 +590,7 @@ export class GameTaskWithPlayer extends GameTask {
 
 export type GameEventContentType = 'contentEnd' | 'contentDrop' | 'contentSkip' | 'contentRoll'
     | 'contentJoinCoop' | 'contentEndCoop' | 'contentLeaveCoop';
-export type GameEventEffectType = 'effectGained' | 'effectLost' | 'effectAppliedGood' | 'effectAppliedBad' | 'effectPointsAdd' | 'effectPointsRemove' | 'rollDiceSuccess' | 'rollDiceFail' | 'shootSuccess' | 'shootDeath';
+export type GameEventEffectType = 'effectGained' | 'effectLost' | 'effectApplied' | 'effectAppliedGood' | 'effectAppliedBad' | 'effectPointsAdd' | 'effectPointsRemove' | 'rollDiceSuccess' | 'rollDiceFail' | 'rollDiceSkip' | 'shootSuccess' | 'shootSkip' | 'shootDeath';
 export type GameEventAdminType = 'adminPointsAdd' | 'adminPointsRemove';
 export type GameEventType = GameEventContentType | GameEventEffectType | GameEventEffectType | 'customMessage'
 export class GameEvent extends Model {
@@ -626,7 +626,7 @@ GameEvent.init({
             key: 'id'
         }
     },
-    type: { type: DataTypes.STRING(16), allowNull: false },
+    type: { type: DataTypes.STRING(20), allowNull: false },
 
     pointsDelta: { type: DataTypes.INTEGER, allowNull: true },
     imageId: { type: DataTypes.UUID, allowNull: true },
@@ -798,7 +798,7 @@ export function syncTables() {
             // GamePoints.sync({ force: true }),
             // GameWheel.sync({ force: true }),
             // GameTask.sync({ force: true }),
-            // GameEvent.sync({ alter: true }),
+            GameEvent.sync({ alter: true }),
             // Effect.sync({ alter: true }),
             // GameEffect.sync({ alter: true }),
             // GameEffectState.sync({ alter: true }),

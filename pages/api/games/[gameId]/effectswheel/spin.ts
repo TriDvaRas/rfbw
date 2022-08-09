@@ -74,7 +74,7 @@ export default router
                 return res.status(400).json({ error: `Колесо пустое... А какого хуя собственно?)`, status: 400 })
             let cheat: number | undefined
             //!! --------------------------------------------
-            // cheat = 22
+            // cheat = 18
             //!! --------------------------------------------
             const resultItem = cheat && activeItems.find(x => x.effect.lid === cheat) || activeItems[Math.floor(activeItems.length * Math.random())] as GameEffectWithEffect
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
@@ -92,6 +92,7 @@ export default router
                 imageId: resultItem.effect.imageId,
                 effectId: resultItem.effect.id,
                 type: 'effectGained',
+                pointsDelta: resultItem.effect.lid == 17 ? 15 : resultItem.effect.lid == 18 ? -15 : null,
             })
             // for (const lid of effectsConfig.afterSpinClears) {
             //     const st = await GameEffectStateWithEffectWithPlayer.findOne({
@@ -117,9 +118,6 @@ export default router
                     const newEffect = await fn(game.id, player.id)
                 }
                 await event.save()
-                res.socket.server.io?.emit('mutate', [
-                    `^/api/games/${req.query.gameId}/events`,
-                ])
             }, (effectsConfig.spinDur) * 1000 - 200)
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })
