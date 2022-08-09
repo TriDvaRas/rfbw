@@ -79,6 +79,8 @@ export default router
             res.socket.server.io?.emit('mutate', [
                 `^/api/games/${req.query.gameId}/events`,
                 `^/api/games/${req.query.gameId}/players`,
+                `^/api/tasks/${playerActiveTask.id}`,
+                `^/api/players/${gamePlayer.playerId}`,
             ])
 
         } catch (error: any) {

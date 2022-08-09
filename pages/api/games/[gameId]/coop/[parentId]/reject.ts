@@ -46,6 +46,8 @@ export default router
             res.socket.server.io?.emit('mutate', [
                 `^/api/games/${req.query.gameId}/coops/${parentTask.id}`,
                 `^/api/games/${req.query.gameId}/events`,
+                `^/api/tasks/${parentTask.id}`,
+                `^/api/players/${req.session.user.id}`,
             ])
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })

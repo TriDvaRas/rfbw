@@ -58,6 +58,8 @@ export default router
                 `^/api/games/${req.query.gameId}/players/${gamePlayer.playerId}/tasks`,
                 `^/api/games/${req.query.gameId}/players/${gamePlayer.playerId}/effects`,
                 `^/api/games/${req.query.gameId}/events`,
+                `^/api/tasks/${parentTask.id}`,
+                `^/api/players/${gamePlayer.playerId}`,
             ])
 
         } catch (error: any) {

@@ -97,6 +97,8 @@ export default router
                 `^/api/games/${req.query.gameId}/players/${targetPlayer.playerId}/tasks`,
                 `^/api/games/${req.query.gameId}/players/${targetPlayer.playerId}/effects`,
                 `^/api/games/${req.query.gameId}/events`,
+                `^/api/tasks/${task.id}`,
+                `^/api/players/${req.session.user.id}`,
             ])
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })
