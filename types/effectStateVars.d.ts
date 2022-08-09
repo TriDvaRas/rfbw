@@ -1,4 +1,4 @@
-import { GameEffectWithEffect, GamePlayerWithPlayer, Player, WheelItem, GamePlayer, GameWheelWithWheel } from '../database/db';
+import { GameEffectWithEffect, GamePlayerWithPlayer, Player, WheelItem, GamePlayer, GameWheelWithWheel, GameTaskWithWheelItem } from '../database/db';
 
 export interface EffectStateQuestionVars {
     question: string,
@@ -17,4 +17,7 @@ export interface EffectStateQuestionVars {
     rejected?: boolean;
     wheels?: GameWheelWithWheel[];
     // withItems?: boolean;
+    inviteParentTaskId?: string
+    task?: GameTaskWithWheelItem
+    accepted?: boolean
 }

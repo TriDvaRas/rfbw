@@ -16,16 +16,24 @@ import { filterWheelItemsWithEffects } from '../../../../util/game/wheelItemFilt
 import { schedule } from 'node-cron';
 
 schedule(`0 0 * * *`, async () => {
-    const effects = await GameEffectState<any>.findAll({
+    const effects = await GameEffectStateWithEffectWithPlayer<any>.findAll({
         where: {
             effectId: `385f9834-6205-4f38-a2bc-28f142a9b2b1`,
             isEnded: false
-        }
+        },
+        include: [Player, Effect]
     })
-    effects.forEach(e => {
+    for (const e of effects) {
         e.isEnded = true
-        e.save()
-    })
+        await GameEvent.create({
+            gameId: e.gameId,
+            playerId: e.playerId,
+            effectId: e.effectId,
+            imageId: e.effect.imageId,
+            type: 'effectLost',
+        })
+        await e.save()
+    }
 })
 
 const router = createRouter<NextApiRequest, NextApiResponse<GameSpinResult | ApiError | null>>();

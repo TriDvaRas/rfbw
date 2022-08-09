@@ -59,7 +59,8 @@ export default router
                 })
             } else {
                 console.log(7);
-                const result = Math.ceil(Math.random() * 6)
+                // const result = Math.ceil(Math.random() * 6)
+                const result = 6
                 effectState.vars = {
                     ...(effectState.vars || {}),
                     result,

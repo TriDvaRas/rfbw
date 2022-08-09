@@ -582,12 +582,15 @@ GameTask.belongsTo(Player, { foreignKey: 'playerId' });
 export class GameTaskWithWheelItem extends GameTask {
     declare wheelitem: WheelItem
 }
+export class GameTaskWithPlayer extends GameTask {
+    declare player: Player
+}
 
 
 
 export type GameEventContentType = 'contentEnd' | 'contentDrop' | 'contentSkip' | 'contentRoll'
     | 'contentJoinCoop' | 'contentEndCoop' | 'contentLeaveCoop';
-export type GameEventEffectType = 'effectGained' | 'effectLost' | 'effectPointsAdd' | 'effectPointsRemove' | 'shootSuccess' | 'shootDeath';
+export type GameEventEffectType = 'effectGained' | 'effectLost' | 'effectAppliedGood' | 'effectAppliedBad' | 'effectPointsAdd' | 'effectPointsRemove' | 'rollDiceSuccess' | 'rollDiceFail' | 'shootSuccess' | 'shootDeath';
 export type GameEventAdminType = 'adminPointsAdd' | 'adminPointsRemove';
 export type GameEventType = GameEventContentType | GameEventEffectType | GameEventEffectType | 'customMessage'
 export class GameEvent extends Model {

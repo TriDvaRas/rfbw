@@ -12,12 +12,23 @@ import LoadingDots from '../LoadingDots';
 
 interface Props {
     container: 'card' | 'raw'
-    imageId: string
+    imageId?: string
+    onlyPreview?: boolean
 }
 export default function TheImage(props: Props) {
-    const { container, imageId } = props
+    const { container, imageId, onlyPreview } = props
     const image = useImage(imageId, true)
-    const imageFull = useImage(imageId)
+    const imageFull = useImage(imageId, onlyPreview)
+    if (!imageId) {
+        return (
+            <Card.Img
+                className='rect-img'
+                variant="top"
+                src={`/errorAvatar.jpg`}
+            // onError={(e: any) => { e.target.onerror = null; e.target.src = "/errorAvatar.jpg" }}
+            />
+        )
+    }
     if (imageFull.image)
         return (
             <Card.Img
@@ -38,7 +49,7 @@ export default function TheImage(props: Props) {
             />
         )
     return (
-        <LoadingDots className='rect-img'/>
+        <LoadingDots className='rect-img' />
         // <Card.Img
         //     // style={{ opacity: 0 }}
         //     className='rect-img'

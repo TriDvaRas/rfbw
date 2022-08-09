@@ -314,7 +314,7 @@ afterSpecialEffectsMap.set(19, async (gameId, playerId) => {
     }, { include: [Effect, Player] })
 })
 // //!20
-// afterSpecialEffectsMap.set(20, async (playerId: number) => {
+// afterSpecialEffectsMap.set(20, async (gameId, playerId) => {
 //     const effect = await db.newEffectState(playerId, 47)
 //     const secretState = await db.newSecretState(playerId, 20, { turnsLeft: 3, startEffectId: effect.id })
 //     broadcastEvent('secret:new', {
@@ -348,7 +348,7 @@ afterSpecialEffectsMap.set(22, async (gameId, playerId) => {
     }, { include: [Effect, Player] })
 })
 // //!23
-// afterSpecialEffectsMap.set(23, async (playerId: number) => {
+// afterSpecialEffectsMap.set(23, async (gameId, playerId) => {
 //     const players = (await db.getPlayers()).filter(x => x.id != playerId)
 //     const player = players[Math.floor(Math.random() * players.length)]
 //     const effect = await db.newEffectState(playerId, 44, {
@@ -359,7 +359,7 @@ afterSpecialEffectsMap.set(22, async (gameId, playerId) => {
 //     return effect
 // })
 // //!24
-// afterSpecialEffectsMap.set(24, async (playerId: number) => {
+// afterSpecialEffectsMap.set(24, async (gameId, playerId) => {
 //     const cardState = await db.newCardState(playerId, 24)
 //     broadcastEvent('card:new', {
 //         idPlayer: playerId,
@@ -368,7 +368,7 @@ afterSpecialEffectsMap.set(22, async (gameId, playerId) => {
 //     return undefined
 // })
 // //!25
-// afterSpecialEffectsMap.set(25, async (playerId: number) => {
+// afterSpecialEffectsMap.set(25, async (gameId, playerId) => {
 //     const cardState = await db.newCardState(playerId, 25)
 //     broadcastEvent('card:new', {
 //         idPlayer: playerId,
@@ -377,7 +377,7 @@ afterSpecialEffectsMap.set(22, async (gameId, playerId) => {
 //     return undefined
 // })
 // //!26
-// afterSpecialEffectsMap.set(26, async (playerId: number) => {
+// afterSpecialEffectsMap.set(26, async (gameId, playerId) => {
 //     const cards = await db.getPlayerCards(playerId)
 //     let card
 //     if (cards.length > 0) {
@@ -412,7 +412,7 @@ afterSpecialEffectsMap.set(22, async (gameId, playerId) => {
 // })
 // //!27
 // //!28
-// afterSpecialEffectsMap.set(28, async (playerId: number) => {
+// afterSpecialEffectsMap.set(28, async (gameId, playerId) => {
 //     const secretState = await db.newSecretState(playerId, 28, { turnsLeft: 3 })
 //     broadcastEvent('secret:new', {
 //         idPlayer: playerId,
@@ -421,7 +421,7 @@ afterSpecialEffectsMap.set(22, async (gameId, playerId) => {
 //     return await db.newEffectState(playerId, 47, { secretStateId: secretState.id })
 // })
 // //!34
-// afterSpecialEffectsMap.set(34, async (playerId: number) => {
+// afterSpecialEffectsMap.set(34, async (gameId, playerId) => {
 //     const secretState = await db.newSecretState(playerId, 34)
 //     broadcastEvent('secret:new', {
 //         idPlayer: playerId,
@@ -430,7 +430,7 @@ afterSpecialEffectsMap.set(22, async (gameId, playerId) => {
 //     return await db.newEffectState(playerId, 47, { secretStateId: secretState.id })
 // })
 // //!45
-// afterSpecialEffectsMap.set(45, async (playerId: number) => {
+// afterSpecialEffectsMap.set(45, async (gameId, playerId) => {
 //     const cardState = await db.newCardState(playerId, 45)
 //     broadcastEvent('card:new', {
 //         idPlayer: playerId,
@@ -439,7 +439,7 @@ afterSpecialEffectsMap.set(22, async (gameId, playerId) => {
 //     return undefined
 // })
 // //!46
-// afterSpecialEffectsMap.set(46, async (playerId: number) => {
+// afterSpecialEffectsMap.set(46, async (gameId, playerId) => {
 //     const cardState = await db.newCardState(playerId, 46)
 //     broadcastEvent('card:new', {
 //         idPlayer: playerId,
@@ -447,6 +447,24 @@ afterSpecialEffectsMap.set(22, async (gameId, playerId) => {
 //     })
 //     return undefined
 // })
+// //!57
+afterSpecialEffectsMap.set(57, async (gameId, playerId) => {
+    return await GameEffectStateWithEffectWithPlayer<any>.create({
+        playerId,
+        gameId,
+        effectId: '167b9522-e824-4a7a-8a48-fbc917ccf852',//58
+        vars: { wheelId: '40e070f0-2254-4099-af87-33a4bc2cdaed' }
+    }, { include: [Effect, Player] })
+})
+// //!59
+afterSpecialEffectsMap.set(59, async (gameId, playerId) => {
+    return await GameEffectStateWithEffectWithPlayer<any>.create({
+        playerId,
+        gameId,
+        effectId: '83a3eb91-4ea8-4b31-bbe4-4196a2b0446d',//60
+        vars: { wheelId: '5a698d76-5676-4f2e-934e-c98791ad58ca' }
+    }, { include: [Effect, Player] })
+})
 
 
 

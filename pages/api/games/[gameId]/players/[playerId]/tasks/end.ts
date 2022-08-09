@@ -9,6 +9,7 @@ import requirePlayer from '../../../../../../../middleware/requirePlayer'
 import { ApiError } from '../../../../../../../types/common-api'
 import { authOptions } from "../../../../../auth/[...nextauth]"
 import { GameTaskEndResult } from '../../../../../../../types/game';
+import { EffectStateQuestionVars } from '../../../../../../../types/effectStateVars';
 
 
 
@@ -65,6 +66,22 @@ export default router
                 playerId: gamePlayer.playerId,
                 effectId: '7c44ff0a-517c-49c2-be93-afb97b559a52', // (35) allow effect wheel spin
             })
+            const invites = await GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>.findAll({
+                where: {
+                    gameId: req.query.gameId,
+                },
+                include: [{
+                    model: Effect,
+                    required: true,
+                    where: {
+                        lid: 99
+                    }
+                }, Player]
+            }) as GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>[]
+            for (const inv of invites.filter(x => x.vars.inviteParentTaskId === playerActiveTask.id)) {
+                inv.isEnded = true
+                await inv.save()
+            }
             res.send({
                 success: true
             })

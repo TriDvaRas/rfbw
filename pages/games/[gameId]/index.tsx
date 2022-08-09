@@ -3,7 +3,7 @@ import { useSession } from 'next-auth/react';
 import Head from "next/head";
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { Alert, Button, Col, Collapse, Modal, Row } from 'react-bootstrap';
+import { Alert, Button, Card, Col, Collapse, Form, Modal, Row } from 'react-bootstrap';
 import EffectStatePreview from '../../../components/effect/EffectStatePreview';
 import GamePreview from "../../../components/game/GamePreview";
 import LoadingDots from "../../../components/LoadingDots";
@@ -28,6 +28,8 @@ import { NextPageWithLayout } from "../../_app";
 import { GameEffectState, GameEffectStateWithEffectWithPlayer } from '../../../database/db';
 import { EffectStateQuestionVars } from '../../../types/effectStateVars';
 import QuestionModal from '../../../components/game/QuestionModal';
+import CoopCard from '../../../components/game/CoopCard';
+import useGameCoopTasks from '../../../data/useGameCoopTasks';
 
 const GameHome: NextPageWithLayout = () => {
     const session = useSession()
@@ -41,13 +43,16 @@ const GameHome: NextPageWithLayout = () => {
     const gamePlayers = useGamePlayers(gameId)
     const events = useGameEvents(gameId)
     const playerEffects = usePlayerEffectStates(gameId, session.data?.user.id)
+    const childTasks = useGameCoopTasks(activeTask?.gameId, activeTask?.id)
 
     const [error, setError] = useState<ApiError | undefined>(undefined)
     const [isLoading, setIsLoading] = useState(false)
     const [showEndModal, setShowEndModal] = useState(false)
+    const [showEndCoopModal, setShowEndCoopModal] = useState(false)
     const [showDropModal, setShowDropModal] = useState(false)
     const [showSkipModal, setShowSkipModal] = useState(false)
-
+    const player = gamePlayers.players?.find(p => p.playerId == session.data?.user.id)
+    const [unfinishedCoopTaskIds, setUnfinishedCoopTaskIds] = useState<string[]>([])
     //#region handlers
     function revalidateAll() {
         playerTasks.mutate(undefined)
@@ -55,25 +60,57 @@ const GameHome: NextPageWithLayout = () => {
         events.mutate(undefined)
         playerEffects.mutate(undefined)
     }
-    function handleEnd(type: 'end' | 'drop' | 'skip') {
-        if (!activeTask || !session.data)
+    function handleEnd(type: 'end' | 'drop' | 'skip' | 'endCoop') {
+        if (!activeTask || !session.data || !childTasks.tasks)
             return
+
         setError(undefined)
         setIsLoading(true)
-        axios.post<GameTaskEndResult>(`/api/games/${gameId}/players/${session.data.user.id}/tasks/${type}`, {
-            wheelItemId: activeTask.wheelItemId,
-        })
-            .then(res => res.data)
-            .then((result) => {
-                setShowEndModal(false)
-                setShowDropModal(false)
-                setShowSkipModal(false)
-                setIsLoading(false)
-                revalidateAll()
-            },
-                (err) => {
-                    setError(parseApiError(err))
-                })
+        console.log('asdasd');
+        if (activeTask.fromCoop)
+            axios.post<GameTaskEndResult>(`/api/games/${gameId}/coop/${activeTask.coopParentId}/leave`, {
+                wheelItemId: activeTask.wheelItemId,
+            })
+                .then(res => res.data)
+                .then((result) => {
+                    setShowEndModal(false)
+                    setShowDropModal(false)
+                    setShowSkipModal(false)
+                    setIsLoading(false)
+                    revalidateAll()
+                },
+                    (err) => {
+                        setError(parseApiError(err))
+                    })
+        else if (type == 'endCoop')
+            axios.post<GameTaskEndResult>(`/api/games/${gameId}/coop/${activeTask.id}/end`, {
+                wheelItemId: activeTask.wheelItemId,
+                finishedChildrenIds: childTasks.tasks.filter(x => !unfinishedCoopTaskIds.includes(x.id)).map(x => x.id)
+            })
+                .then(res => res.data)
+                .then((result) => {
+                    setShowEndCoopModal(false)
+                    setIsLoading(false)
+                    revalidateAll()
+                },
+                    (err) => {
+                        setError(parseApiError(err))
+                    })
+        else
+            axios.post<GameTaskEndResult>(`/api/games/${gameId}/players/${session.data.user.id}/tasks/${type}`, {
+                wheelItemId: activeTask.wheelItemId,
+            })
+                .then(res => res.data)
+                .then((result) => {
+                    setShowEndModal(false)
+                    setShowDropModal(false)
+                    setShowSkipModal(false)
+                    setIsLoading(false)
+                    revalidateAll()
+                },
+                    (err) => {
+                        setError(parseApiError(err))
+                    })
     }
     //#endregion
     if (game.error) {
@@ -110,12 +147,28 @@ const GameHome: NextPageWithLayout = () => {
                                 <NewButton text={'Получить эффект'} className='mb-2' onClick={() => router.push(`/games/${gameId}/spineffects`)} /> :
                                 <NewButton text={'Получить контент'} className='mb-2' onClick={() => router.push(`/games/${gameId}/spin`)} />)
                         }
-                        {activeTask &&
-                            <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
-                                <Button onClick={() => setShowEndModal(true)} className='me-2'>Завершить</Button>
-                                <Button onClick={() => setShowSkipModal(true)} className='me-2' variant='warning'>Реролл</Button>
-                                <Button onClick={() => setShowDropModal(true)} className='me-2' variant='danger'>Дроп</Button>
-                            </Col>
+                        {activeTask && childTasks.tasks &&
+                            (
+                                activeTask.fromCoop ?
+                                    <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
+                                        {/* <Button disabled className='me-2' variant='secondary'>Завершить</Button> */}
+                                        {/* <Button onClick={() => setShowSkipModal(true)} className='me-2' variant='warning'>Реролл</Button> */}
+                                        <Button onClick={() => setShowDropModal(true)} className='me-2' variant='danger'>Покинуть кооп</Button>
+                                    </Col>
+                                    :
+                                    childTasks.tasks.filter(x => !x.result).length > 0 ?
+                                        <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
+                                            <Button onClick={() => setShowEndCoopModal(true)} className='me-2'>Завершить кооп</Button>
+                                            <Button disabled className='me-2' variant='secondary'>Реролл</Button>
+                                            <Button disabled className='me-2' variant='secondary'>Дроп</Button>
+                                        </Col>
+                                        :
+                                        <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
+                                            <Button onClick={() => setShowEndModal(true)} className='me-2'>Завершить</Button>
+                                            <Button onClick={() => setShowSkipModal(true)} className='me-2' variant='warning'>Реролл</Button>
+                                            <Button onClick={() => setShowDropModal(true)} className='me-2' variant='danger'>Дроп</Button>
+                                        </Col>
+                            )
                         }
                     </Col>}
                     {/* effects */}
@@ -127,12 +180,13 @@ const GameHome: NextPageWithLayout = () => {
                         </div>
                     </Col>}
                     {/* coop */}
-                    {gamePLayer && <Collapse in={activeTaskItem.item && (activeTaskItem.item.hasCoop && activeTaskItem.item.maxCoopPlayers > 1 || activeTaskItem.item.type !== 'game')}>
+                    {gamePLayer && <Collapse in={activeTaskItem.item && (
+                        (activeTaskItem.item.hasCoop && activeTaskItem.item.maxCoopPlayers > 1)
+                        || activeTaskItem.item.type !== 'game'
+                    )}>
                         <Col xl={12} className='mb-3'>
-                            <PHCard height={150} >
-                                <div>Кооп?</div>
-                                <i className="fs-1 bi bi-emoji-smile"></i>
-                            </PHCard>
+                            <h1 className='ms-3 mb-3'>Кооп</h1>
+                            {gamePlayers.players && activeTask && activeTaskItem.item && <CoopCard item={activeTaskItem.item} currentTask={activeTask} players={gamePlayers.players} />}
                         </Col>
                     </Collapse>}
                     {/* Stats */}
@@ -142,23 +196,75 @@ const GameHome: NextPageWithLayout = () => {
                     </Col>
                     {/* Events */}
                     <Col xl={3} className='mt-5  mb-3'>
-                        <h1 className='ms-3 mb-3'>События</h1>
+                        <h1 className='ms-3 mb-3'>История</h1>
                         {events.events?.map(x => <GameEventPreview key={x.id} className='mb-3' gameEvent={x} />)}
                     </Col>
 
 
 
                     {/* //!MODALS */}
+                    {/* end coop */}
+                    <Modal contentClassName='border-dark shadow' show={!!showEndCoopModal && !!activeTaskItem} animation={true} centered >
+                        <Modal.Header className='bg-dark-750 text-light border-dark'><h3>Завершение кооп контента</h3></Modal.Header>
+                        <Modal.Body className='bg-dark text-light border-dark'>
+                            <Card.Title ><b>Выбери завершивших игроков</b></Card.Title>
+                            <div className='d-flex '>
+                                <h4>{player?.player.name}</h4>
+                                <Form.Check className='ms-auto mt-1' type={'switch'} label='' disabled defaultChecked={true} />
+
+                            </div>
+                            {
+                                childTasks.tasks?.map(x => {
+                                    const gp = gamePlayers.players?.find(p => p.playerId == x.playerId)
+                                    return gp ? <div key={x.playerId} className='d-flex '>
+                                        <h4>{gp.player.name}</h4>
+                                        <Form.Check className='ms-auto mt-1' type={'switch'} label='' disabled={isLoading} defaultChecked={true} onChange={e => {
+                                            if (e.target.checked)
+                                                setUnfinishedCoopTaskIds(unfinishedCoopTaskIds.filter(id => id !== x.id))
+                                            else
+                                                setUnfinishedCoopTaskIds([...unfinishedCoopTaskIds, x.id])
+                                            // handleChange({ locked: e.target.checked })
+                                        }} />
+
+                                    </div> : <div key={x.playerId} />
+                                })
+                            }
+                            <div className='mb-1'>Для выбранных игроков контент будет считаться завершенным и они получат очки. Для остальных контент останется активным для продолжения одиночного прохождения.</div>
+                            {
+                                activeTaskItem.item && <div className='mt-1'>
+                                    Каждый завершивший игрок получит <b className='text-success'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
+                                    При обнружении абуза или наеба собутыльников ты потеряешь полученные за завершение очки (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>) и уплатишь штраф (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>)
+                                </div>
+                            }
+
+                            {
+                                error && <Alert className='mb-0 my-2' variant={'danger'}>
+                                    {error.error}
+                                </Alert>
+                            }
+                        </Modal.Body>
+                        <Modal.Footer className='bg-dark-750 text-light border-dark'>
+                            <Button variant='secondary' disabled={isLoading} className='float-right mx-3' onClick={() => setShowEndCoopModal(false)}>Отмена</Button>
+                            <Button variant='primary' disabled={isLoading} className='float-right' onClick={() => handleEnd('endCoop')}>Завершить</Button>
+                        </Modal.Footer>
+                    </Modal>
                     {/* end */}
                     <Modal contentClassName='border-dark shadow' show={!!showEndModal && !!activeTaskItem} animation={true} centered >
                         <Modal.Header className='bg-dark-750 text-light border-dark'><h3>Завершение контента</h3></Modal.Header>
-                        {
-                            activeTaskItem.item && <Modal.Body className='bg-dark text-light border-dark'>
-                                За завершение ты получишь <b className='text-success'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
-                                При обнружении абуза ты потеряешь полученные за завершение очки (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>) и уплатишь штраф (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>)
-                            </Modal.Body>
-                        }
+                        <Modal.Body className='bg-dark text-light border-dark'>
+                            {
+                                activeTaskItem.item && <div >
+                                    За завершение ты получишь <b className='text-success'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
+                                    При обнружении абуза ты потеряешь полученные за завершение очки (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>) и уплатишь штраф (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>)
+                                </div>
+                            }
 
+                            {
+                                error && <Alert className='mb-0 my-2' variant={'danger'}>
+                                    {error.error}
+                                </Alert>
+                            }
+                        </Modal.Body>
                         <Modal.Footer className='bg-dark-750 text-light border-dark'>
                             <Button variant='secondary' disabled={isLoading} className='float-right mx-3' onClick={() => setShowEndModal(false)}>Отмена</Button>
                             <Button variant='primary' disabled={isLoading} className='float-right' onClick={() => handleEnd('end')}>Завершить</Button>
@@ -167,17 +273,30 @@ const GameHome: NextPageWithLayout = () => {
                     {/* drop */}
                     <Modal contentClassName='border-dark shadow' show={!!showDropModal && !!activeTaskItem} animation={true} centered >
                         <Modal.Header className='bg-dark-750 text-light border-dark'><h3>Дроп контента</h3></Modal.Header>
-                        {
-                            activeTaskItem.item &&
-                               ( playerEffects.states?.find(x => x.effect.lid == 19) ?
-                                <Modal.Body className='bg-dark text-light border-dark'>
-                                    За дроп ты потеряешь <b className='text-warning'>0 очков</b> и эффект <b className='text-success'>Подкуп судьи</b>.
-                                </Modal.Body> :
-                                <Modal.Body className='bg-dark text-light border-dark'>
-                                    За дроп ты потеряешь <b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 5)}</b>.
-                                </Modal.Body>)
-                        }
+                        <Modal.Body className='bg-dark text-light border-dark'>
+                            {
+                                activeTaskItem.item && activeTask &&
+                                (
+                                    activeTask.fromCoop ?
+                                        <div >
+                                            После выхода из коопа текущий контент вернется на колесо. <b>Вы не сможете вернуться в кооп который вы уже покинули.</b>
+                                        </div>
+                                        :
+                                        (playerEffects.states?.find(x => x.effect.lid == 19) ?
+                                            <div >
+                                                За дроп ты потеряешь <b className='text-warning'>0 очков</b> и эффект <b className='text-success'>Подкуп судьи</b>.
+                                            </div> :
+                                            <div>За дроп ты потеряешь <b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 5)}</b>.</div>
+                                        )
+                                )
 
+                            }
+                            {
+                                error && <Alert className='mb-0 my-2' variant={'danger'}>
+                                    {error.error}
+                                </Alert>
+                            }
+                        </Modal.Body >
                         <Modal.Footer className='bg-dark-750 text-light border-dark'>
                             <Button variant='secondary' disabled={isLoading} className='float-right mx-3' onClick={() => setShowDropModal(false)}>Отмена</Button>
                             <Button variant='danger' disabled={isLoading} className='float-right' onClick={() => handleEnd('drop')}>Завершить</Button>
@@ -186,14 +305,20 @@ const GameHome: NextPageWithLayout = () => {
                     {/* skip */}
                     <Modal contentClassName='border-dark shadow' show={!!showSkipModal && !!activeTaskItem} animation={true} centered >
                         <Modal.Header className='bg-dark-750 text-light border-dark'><h3>Реролл контента</h3></Modal.Header>
-                        {
-                            activeTaskItem.item && <Modal.Body className='bg-dark text-light border-dark'>
-                                За реролл ты не потеряешь очков, но должен будешь доказать что уже играл/смотрел данный контент (если кто то доебется).
-                                После реролла нельзя сменить колесо игрока для следующего прокрута.
-                                При обнружении абуза ты потеряешь  <b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
-                            </Modal.Body>
-                        }
-
+                        <Modal.Body className='bg-dark text-light border-dark'>
+                            {
+                                activeTaskItem.item && <div className='bg-dark text-light border-dark'>
+                                    За реролл ты не потеряешь очков, но должен будешь доказать что уже играл/смотрел данный контент (если кто то доебется).
+                                    После реролла нельзя сменить колесо игрока для следующего прокрута.
+                                    При обнружении абуза ты потеряешь  <b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
+                                </div>
+                            }
+                            {
+                                error && <Alert className='mb-0 my-2' variant={'danger'}>
+                                    {error.error}
+                                </Alert>
+                            }
+                        </Modal.Body>
                         <Modal.Footer className='bg-dark-750 text-light border-dark'>
                             <Button variant='secondary' disabled={isLoading} className='float-right mx-3' onClick={() => setShowSkipModal(false)}>Отмена</Button>
                             <Button variant='danger' disabled={isLoading} className='float-right' onClick={() => handleEnd('skip')}>Завершить</Button>

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { GameQuestionAnswerBody } from '../../pages/api/games/[gameId]/players/[playerId]/effects/answer/[effectStateId]';
-import { GameEffectStateWithEffectWithPlayer, Effect, GameTask, Player, GameTaskWithWheelItem, WheelItem, Wheel, GameWheel, GamePlayer, GameWheelWithWheel } from '../../database/db';
+import { GameEffectStateWithEffectWithPlayer, Effect, GameTask, Player, GameTaskWithWheelItem, WheelItem, Wheel, GameWheel, GamePlayer, GameWheelWithWheel, GameEvent } from '../../database/db';
 import { EffectStateQuestionVars } from "../../types/effectStateVars";
 import { Op } from 'sequelize';
 
@@ -46,14 +46,16 @@ questionAnswerMap.set(36, async (effectState, answerData) => {
                 include: WheelItem
             })
             if (lastTask) {
-                newEffects.push(await GameEffectStateWithEffectWithPlayer<any>.create({
+                const state = await GameEffectStateWithEffectWithPlayer<any>.create({
                     playerId: targetId,
                     gameId: effectState.gameId,
                     effectId: 'efd1f7ba-df8a-4617-ab70-c63a39a6b077',//3
                     vars: {
                         wheelId: lastTask.wheelitem.wheelId,
                     }
-                }, { include: [Effect, Player] }))
+                }, { include: [Effect, Player] })
+                newEffects.push(state)
+
             }
             else
                 throw new Error(`Этот игрок еще не крутил ни одного колеса. Нечего повторять... Выбери другого игрока или эффект`)
@@ -246,7 +248,18 @@ questionAnswerMap.set(36, async (effectState, answerData) => {
         default:
             throw new Error(`Что ты выбрал, клоун?`)
     }
-    // if (![8, 14, 18, 26].includes(selectedEffect?.lid))
+    if (![3, 8, 14, 18, 26].includes(selectedEffect?.lid))
+        await GameEvent.create({
+            gameId: effectState.gameId,
+            playerId: targetId,
+            effectId: selectedEffect.id,
+            imageId: selectedEffect.imageId,
+            type: 'effectAppliedBad',
+            vars: {
+                agressorId
+            }
+        })
+    // 
     //     broadcastEvent(`post:new`, {
     //         post: await db.newPost('effectcustom', {
     //             pattern: `{player} применяет {effect} на {target} с помощью {effect1}`,
@@ -437,7 +450,20 @@ questionAnswerMap.set(37, async (effectState, answerData) => {
             targetPlayer.points += 15
             await targetPlayer.save()
             break;
+        default:
+            throw new Error(`Что ты выбрал, клоун?`)
     }
+    if (![9, 10, 13, 17].includes(selectedEffect?.lid))
+        await GameEvent.create({
+            gameId: effectState.gameId,
+            playerId: targetId,
+            effectId: selectedEffect.id,
+            imageId: selectedEffect.imageId,
+            type: 'effectAppliedGood',
+            vars: {
+                agressorId
+            }
+        })
     // if (![9, 17].includes(answerData.selectedEffectId))
     //     broadcastEvent(`post:new`, {
     //         post: await db.newPost('effectcustom', {
@@ -573,7 +599,6 @@ questionAnswerMap.set(41, async (effectState, answerData) => {
     //         },
     //     } as IPostCustom['variables'])
     // })
-    console.log(effectState.vars);
 
     return await GameEffectStateWithEffectWithPlayer<any>.create({
         playerId: answerData.selectedPlayerId,

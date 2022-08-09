@@ -20,9 +20,10 @@ export default router
                 where: {
                     gameId: req.query.gameId,
                     playerId: req.query.playerId
-                }
+                },
+                order: [['fromCoop', 'DESC'], ['createdAt', 'DESC']]
             })
-            
+
             if (tasks)
                 res.json(tasks)
             else

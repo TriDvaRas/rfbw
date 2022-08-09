@@ -27,10 +27,11 @@ export default function TaskWheelItemPreview(props: Props) {
         <div>
             <div
                 ref={squareRef}
-                className={`d-flex text-light bg-dark ${onClick ? `darken-bg-on-hover` : ``} ${props.className ? props.className : ''}`}
+                className={`d-flex text-light bg-dark w-100 ${onClick ? `darken-bg-on-hover` : ``} ${props.className ? props.className : ''}`}
                 onClick={onClick}
                 style={{
                     'zIndex': 3,
+                    minWidth: `100%`,
                     height: size,
                     borderRadius: '16px',
                     overflow: 'hidden',
@@ -68,8 +69,8 @@ export default function TaskWheelItemPreview(props: Props) {
                     right: 0,
                     backgroundPosition: 'center',
                     height: `${size}px`,
-                    width: `${width}px`,
-                    marginLeft: `-${width}px`,
+                    minWidth: `100%`,
+                    marginLeft: `-100%`,
                     backgroundSize: 'cover',
                     backgroundImage: item.imageId ? getImageUrl(imagePreview.image, image.image) : undefined,
                     WebkitMaskImage: '-webkit-gradient(linear, 0% top, 100% top, from(rgba(0, 0, 0, 0.1)), to(rgba(0, 0, 0, .23)))',

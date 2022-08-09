@@ -6,6 +6,7 @@ import { ApiError } from '../../types/common-api';
 import { EffectStateQuestionVars } from '../../types/effectStateVars'
 import { parseApiError } from '../../util/error';
 import EffectPreview from '../effect/EffectPreview';
+import StatsWheelItemPreview from '../wheelItem/StatsWheelItemPreview';
 
 interface CustomType {
     id: number;
@@ -150,7 +151,6 @@ export default function QuestionModal(props: Props) {
                 setError(parseApiError(err))
             })
     }
-    //#region 
     function onShoot() {
         setError(undefined)
         setIsSaving(true)
@@ -192,7 +192,42 @@ export default function QuestionModal(props: Props) {
                 setError(parseApiError(err))
             })
     }
-    //#endregion
+    function onAcceptCoop() {
+        setError(undefined)
+        setIsSaving(true)
+        setShowResult(true)
+        setLockCubes(true)
+        axios.post(`/api/games/${effectState.gameId}/coop/${effectVars.inviteParentTaskId}/accept`, {
+            effectState: effectState
+        })
+            .then(
+                (res) => {
+                    setIsSaving(false)
+                    if (onOk) onOk(res.data)
+                })
+            .catch((err: AxiosError<ApiError>) => {
+                setIsSaving(false)
+                setError(parseApiError(err))
+            })
+    }
+    function onRejectCoop() {
+        setError(undefined)
+        setIsSaving(true)
+        axios.post(`/api/games/${effectState.gameId}/coop/${effectVars.inviteParentTaskId}/reject`, {
+            effectState: effectState,
+            reject: true
+        })
+            .then(
+                (res) => {
+                    setResultMessage(res.data.message)
+                    setIsSaving(false)
+                    if (onOk) onOk(res.data)
+                })
+            .catch((err: AxiosError<ApiError>) => {
+                setIsSaving(false)
+                setError(parseApiError(err))
+            })
+    }
     function formatQuestion() {
         let line = effectVars.question
         if (effectVars.player)
@@ -203,6 +238,7 @@ export default function QuestionModal(props: Props) {
             line = line.replace(`%CONTENTNAME%`, effectVars.content.title)
         return line
     }
+    console.log(effectVars.task);
 
     if (effectState.effect.lid == 42)
         return < Card className='bg-dark text-light' >
@@ -326,10 +362,38 @@ export default function QuestionModal(props: Props) {
                         {
                             isFinished ?
                                 <Button disabled={isSaving} variant='primary' className='float-right' onClick={onContinue}>Продолжить</Button> :
-                                <div className='d-flex align-items-end justify-content-end'> 
+                                <div className='d-flex align-items-end justify-content-end'>
                                     <Button disabled={isSaving} variant='outline-secondary' className='float-right me-3 text-light' onClick={onCancelShoot}>Отказаться</Button>
                                     <Button disabled={isSaving} variant='primary' className='float-right' onClick={onShoot}>СТРЕЛЯЙ!!!</Button>
                                 </div>
+                        }
+                    </div>
+                }
+            </Card.Body>
+        </Card >
+    if (effectState.effect.lid == 99)
+        return <Card className='bg-dark text-light'>
+            <Card.Header >
+                <h3>{formatQuestion()}</h3>
+            </Card.Header>
+            <Card.Body>
+                {effectVars.task && <StatsWheelItemPreview item={effectVars.task.wheelitem as WheelItem} />}
+                <Card.Subtitle className='mt-3 mb-1'>Завершить кооп может только основатель. </Card.Subtitle>
+                <Card.Text className='mb-3'>Участники могут выйти из коопа в любой момент. При выходе вы потеряете контент коопа и больше не сможете вернуться в покинутый кооп. Далее этот контент можно будет получить из других источников по обычным правилам.</Card.Text>
+                {
+                    error && <Alert className='mb-0 my-2' variant={'danger'}>
+                        {error.error}
+                    </Alert>
+                }
+                {/* BUTTONS */}
+                {
+
+                    <div className='mt-3 d-flex align-items-end justify-content-end'>
+                        {
+                            <div className='d-flex align-items-end justify-content-end'>
+                                <Button disabled={isSaving} variant='outline-secondary' className='float-right me-3 text-light' onClick={onRejectCoop}>Отказаться</Button>
+                                <Button disabled={isSaving} variant='primary' className='float-right' onClick={onAcceptCoop}>Принять</Button>
+                            </div>
                         }
                     </div>
                 }

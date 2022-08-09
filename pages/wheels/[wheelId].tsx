@@ -48,8 +48,7 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
         router.push(`/403`)
         return <></>
     }
-    if (session.data && !session.data.user.isPlayer)
-        return <NotAPlayerCard />
+
     if (wheel.loading || wheelItems.loading)
         return <LoadingDots />
     if (wheel.error) {

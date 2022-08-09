@@ -26,7 +26,8 @@ export default router
                 effectId: `91c8d041-6db9-4c8a-a33a-f9c6cdc56bc0`,
                 playerId: player.id,
                 isEnded: false,
-            }
+            },
+            include: [Effect, Player]
         })
         if (!effectState)
             return res.status(404).json({ error: `У тебя нету эффекта Рулетка`, status: 404 })
@@ -73,7 +74,11 @@ export default router
                     playerId: player.id,
                     effectId: effectState.effect.id,
                     imageId: effectState.effect.imageId,
-                    type: req.body.selectedCubes.includes(result) ? 'effectPointsAdd' : 'effectPointsRemove',
+                    type: req.body.selectedCubes.includes(result) ? 'rollDiceSuccess' : 'rollDiceFail',
+                    vars: {
+                        guess: req.body.selectedCubes,
+                        result: result
+                    }
                 })
                 res.send({
                     message: req.body.selectedCubes.includes(result) ? `Повезло` : `Не повезло`,

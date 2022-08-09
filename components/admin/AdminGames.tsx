@@ -4,7 +4,7 @@ import {
     Button, Card, Col, Form, Modal, Row, Table
 } from 'react-bootstrap';
 import useGames from '../../data/useGames';
-import { Game, GamePlayer, GameWheel, GameEffect, GameWheelWithWheel } from '../../database/db';
+import { Game, GamePlayer, GameWheel, GameEffect, GameWheelWithWheel, GamePlayerWithPlayer } from '../../database/db';
 import GamePreview from '../game/GamePreview';
 import LoadingDots from '../LoadingDots';
 import axios, { AxiosError } from 'axios';
@@ -196,7 +196,7 @@ export default function AdminGames(props: Props) {
                                         return
                                     setError(undefined)
                                     setIsSaving(true)
-                                    axios.post<GamePlayer>(`/api/games/${editGame.id}/players`, {
+                                    axios.post<GamePlayerWithPlayer>(`/api/games/${editGame.id}/players`, {
                                         playerId: newPlayerId,
                                         gameId: editGame.id
                                     }).then((data) => {
@@ -318,7 +318,7 @@ export default function AdminGames(props: Props) {
                     onHide={() => setShowAddEffectModal(false)}
                 >
                     <Modal.Header className='bg-dark-700 text-light border-dark'>
-                        <Modal.Title>Adding wheel to {editGame.name}</Modal.Title>
+                        <Modal.Title>Adding effect to {editGame.name}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body className='bg-dark-750 text-light'>
                         <Form>
@@ -329,7 +329,7 @@ export default function AdminGames(props: Props) {
                                     effects.effects ? <Form.Select onChange={e => setNewEffectId(e.target.value)}>
                                         <option disabled selected={!newWheelId}>Select effect...</option>
                                         {_.sortBy(effects.effects, 'lid')
-                                            .filter(e => !e.isDefault)
+                                            // .filter(e => !e.isDefault)
                                             .map(e =>
                                                 <option disabled={!!gameEffects.effects?.find(x => x.effectId == e.id)} key={e.id} value={e.id}>{e.lid} {e.title}</option>
                                             )}

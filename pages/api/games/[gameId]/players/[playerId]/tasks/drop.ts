@@ -27,7 +27,7 @@ export default router
                     playerId: req.query.playerId,
                     result: null
                 },
-                order: [['fromCoop', 'DESC']]
+                order: [['fromCoop', 'DESC'], ['createdAt', 'DESC']]
             })
 
             if (!playerActiveTask)
