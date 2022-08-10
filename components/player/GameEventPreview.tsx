@@ -386,6 +386,14 @@ function getBorder(event: GameEvent, effect?: Effect) {
                 return '1px solid #99ff0099'
             else
                 return '1px solid #ff000099'
+        case 'adminPointsAdd':
+        case 'adminPointsRemove':
+            if (!event.pointsDelta)
+                return '1px solid #38E1FF99'
+            if (event.pointsDelta > 0)
+                return '1px solid #99ff0099'
+            else
+                return '1px solid #ff000099'
         case 'rollDiceSkip':
             return '1px solid #FF38AD99'
         case 'effectLost':
