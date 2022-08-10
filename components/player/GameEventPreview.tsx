@@ -182,6 +182,32 @@ function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: Wh
                     <h2 className='mb-0 mt-auto'>{event.pointsDelta || ''}</h2>
                 </div>
             ] || []
+        case 'adminPointsAdd':
+            return player && [
+                <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 key={1} className=''>
+                        <span style={{ fontSize: '80%' }}>Партия выдать</span> {player.name} <span style={{ fontSize: '80%' }}> мешок риса за </span> {event.vars?.reason}
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                <div key={2} className=' d-flex my-auto flex-row'>
+                    <h3 className='ms-1 my-auto'>{event.pointsDelta ? '+' : ''}</h3>
+                    <h2 className='mb-0 mt-auto'>{event.pointsDelta || ''}</h2>
+                </div>
+            ] || []
+        case 'adminPointsRemove':
+            return player && [
+                <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 key={1} className=''>
+                        <span style={{ fontSize: '80%' }}>Партия забрать у </span> {player.name} <span style={{ fontSize: '80%' }}> мешок риса за </span> {event.vars?.reason}
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                <div key={2} className=' d-flex my-auto flex-row'>
+                    <h3 className='ms-1 my-auto'>{event.pointsDelta ? '-' : ''}</h3>
+                    <h2 className='mb-0 mt-auto'>{event.pointsDelta ? Math.abs(event.pointsDelta) : ''}</h2>
+                </div>
+            ] || []
         case 'effectPointsRemove':
             return player && effect && [
                 <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>

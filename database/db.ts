@@ -594,7 +594,7 @@ export type GameEventContentType = 'contentEnd' | 'contentDrop' | 'contentSkip' 
     | 'contentJoinCoop' | 'contentEndCoop' | 'contentLeaveCoop';
 export type GameEventEffectType = 'effectGained' | 'effectLost' | 'effectApplied' | 'effectAppliedGood' | 'effectAppliedBad' | 'effectPointsAdd' | 'effectPointsRemove' | 'rollDiceSuccess' | 'rollDiceFail' | 'rollDiceSkip' | 'shootSuccess' | 'shootSkip' | 'shootDeath';
 export type GameEventAdminType = 'adminPointsAdd' | 'adminPointsRemove';
-export type GameEventType = GameEventContentType | GameEventEffectType | GameEventEffectType | 'customMessage'
+export type GameEventType = GameEventContentType | GameEventEffectType | GameEventEffectType | GameEventAdminType | 'customMessage'
 export class GameEvent extends Model {
     declare id: string
     declare gameId: string

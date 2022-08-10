@@ -263,7 +263,7 @@ export default function AdminGames(props: Props) {
                                 {
                                     wheels.wheels ? <Form.Select onChange={e => setNewWheelId(e.target.value)}>
                                         <option disabled selected={!newWheelId}> Select Wheel...</option>
-                                        {wheels.wheels.map(w => <option disabled={!!gameWheels.wheels?.find(x => x.wheelId == w.id)} key={w.id} value={w.id}>{w.title}</option>)}
+                                        {wheels.wheels.filter(x => x.approved && x.locked).map(w => <option disabled={!!gameWheels.wheels?.find(x => x.wheelId == w.id)} key={w.id} value={w.id}>{w.title}</option>)}
                                     </Form.Select> : <LoadingDots />
                                 }
                             </Form.Group>
