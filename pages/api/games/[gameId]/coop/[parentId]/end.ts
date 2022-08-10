@@ -2,12 +2,14 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
 import { createRouter } from 'next-connect'
 
-import { Effect, GameEffectStateWithEffectWithPlayer, GameEvent, GamePlayer, GameTask, GameTaskWithWheelItem, Player, WheelItem, GameTaskWithPlayer } from '../../../../../../database/db';
+import { Effect, GameEffectStateWithEffectWithPlayer, GameEvent, GamePlayer, GameTask, GameTaskWithWheelItem, Player, WheelItem, GameTaskWithPlayer, GameEffectState } from '../../../../../../database/db';
 import commonErrorHandlers from '../../../../../../middleware/commonErrorHandlers';
 import requireApiSession from '../../../../../../middleware/requireApiSession';
 import requirePlayer from '../../../../../../middleware/requirePlayer';
 import { ApiError } from '../../../../../../types/common-api';
+import { EffectStateQuestionVars } from '../../../../../../types/effectStateVars';
 import { GameTaskEndResult } from '../../../../../../types/game';
+import { afterAnyEndCleanup } from '../../../../../../util/dbUtil';
 
 
 
@@ -41,6 +43,7 @@ export default router
 
             const finishedChildren = childTasks.filter(x => body.finishedChildrenIds.includes(x.id))
             const unfinishedChildren = childTasks.filter(x => !body.finishedChildrenIds.includes(x.id))
+            let ptsMult = parentTask.wheelitem.wheelId === '5a698d76-5676-4f2e-934e-c98791ad58ca' ? (finishedChildren.length + 1) / parentTask.wheelitem.maxCoopPlayers : 1
             for (const child of finishedChildren) {
                 const gamePlayer = await GamePlayer.findOne({
                     where: {
@@ -54,12 +57,17 @@ export default router
                 if (!item)
                     return res.status(404).json({ error: 'А где WheelItem', status: 404 })
                 gamePlayer.ended += 1
-                gamePlayer.points += item.hours * 10
+                gamePlayer.points += Math.round(item.hours * 10 * ptsMult)
                 child.result = 'finish'
-                child.points = item.hours * 10
+                child.points = Math.round(item.hours * 10 * ptsMult)
                 child.endedAt = new Date().toISOString()
                 await child.save()
                 await gamePlayer.save()
+                await GameEffectState.create({
+                    gameId: gamePlayer.gameId,
+                    playerId: gamePlayer.playerId,
+                    effectId: '7c44ff0a-517c-49c2-be93-afb97b559a52', // (35) allow effect wheel spin
+                })
                 await GameEvent.create({
                     gameId: gamePlayer.gameId,
                     playerId: gamePlayer.playerId,
@@ -68,12 +76,17 @@ export default router
                     type: 'contentEndCoop',
                     pointsDelta: child.points,
                 })
-
+                await afterAnyEndCleanup(gamePlayer.gameId, gamePlayer.playerId)
             }
             for (const child of unfinishedChildren) {
-                child.fromCoop = false
-                child.coopParentId = undefined
-                await child.save()
+                if (parentTask.wheelitem.wheelId === '5a698d76-5676-4f2e-934e-c98791ad58ca') {
+                    await child.destroy()
+                }
+                else {
+                    child.fromCoop = false
+                    child.coopParentId = undefined
+                    await child.save()
+                }
             }
 
             const gamePlayer = await GamePlayer.findOne({
@@ -88,9 +101,9 @@ export default router
             if (!item)
                 return res.status(404).json({ error: 'А где WheelItem', status: 404 })
             gamePlayer.ended += 1
-            gamePlayer.points += item.hours * 10
+            gamePlayer.points += Math.round(item.hours * 10 * ptsMult)
             parentTask.result = 'finish'
-            parentTask.points = item.hours * 10
+            parentTask.points = Math.round(item.hours * 10 * ptsMult)
             parentTask.endedAt = new Date().toISOString()
             await parentTask.save()
             await gamePlayer.save()
@@ -102,6 +115,28 @@ export default router
                 type: 'contentEndCoop',
                 pointsDelta: parentTask.points,
             })
+            await GameEffectState.create({
+                gameId: gamePlayer.gameId,
+                playerId: gamePlayer.playerId,
+                effectId: '7c44ff0a-517c-49c2-be93-afb97b559a52', // (35) allow effect wheel spin
+            })
+            const invites = await GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>.findAll({
+                where: {
+                    gameId: req.query.gameId,
+                },
+                include: [{
+                    model: Effect,
+                    required: true,
+                    where: {
+                        lid: 99
+                    }
+                }, Player]
+            }) as GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>[]
+            for (const inv of invites.filter(x => x.vars.inviteParentTaskId === parentTask.id)) {
+                inv.isEnded = true
+                await inv.save()
+            }
+            await afterAnyEndCleanup(gamePlayer.gameId, gamePlayer.playerId)
             res.send({
                 success: true
             })

@@ -338,6 +338,7 @@ export class Game extends Model {
     declare endsAt: string
     declare name: string
     declare imageId: string
+    declare public: boolean
 
     declare createdAt: string
     declare updatedAt: string
@@ -359,6 +360,7 @@ Game.init({
         type: DataTypes.UUID,
         allowNull: true,
     },
+    public: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 }, {
     sequelize,
     modelName: 'games',
@@ -793,12 +795,12 @@ export function syncTables() {
             // Audio.sync({ alter: true }),
             // Wheel.sync({ alter: true }),
             // WheelItem.sync({ alter: true }),
-            // Game.sync({ force: true }),
+            // Game.sync({ alter: true }),
             // GamePlayer.sync({ force: true }),
             // GamePoints.sync({ force: true }),
             // GameWheel.sync({ force: true }),
             // GameTask.sync({ force: true }),
-            GameEvent.sync({ alter: true }),
+            // GameEvent.sync({ alter: true }),
             // Effect.sync({ alter: true }),
             // GameEffect.sync({ alter: true }),
             // GameEffectState.sync({ alter: true }),

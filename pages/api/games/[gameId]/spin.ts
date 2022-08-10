@@ -34,7 +34,7 @@ schedule(`0 0 * * *`, async () => {
         })
         await e.save()
     }
-    
+
 })
 
 const router = createRouter<NextApiRequest, NextApiResponse<GameSpinResult | ApiError | null>>();
@@ -136,6 +136,14 @@ export default router
                 }
                 await task.save()
                 await event.save()
+                if (wheel.id === '5a698d76-5676-4f2e-934e-c98791ad58ca') {
+                    await GameEffectState.create({
+                        gameId: game.id,
+                        playerId: player.id,
+                        effectId: '98642bc6-9262-4454-9b78-e4c06f207b30', // (61) 
+                    })
+                }
+
             }, (wheel.prespinDuration) * 1000 + (wheel.spinDuration) * 1000)
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })

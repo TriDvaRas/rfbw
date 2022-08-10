@@ -165,7 +165,7 @@ const GameHome: NextPageWithLayout = () => {
                                         :
                                         <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
                                             <Button onClick={() => setShowEndModal(true)} className='me-2'>Завершить</Button>
-                                            <Button onClick={() => setShowSkipModal(true)} className='me-2' variant='warning'>Реролл</Button>
+                                            <Button onClick={() => setShowSkipModal(true)} className='me-2' variant='warning' disabled={activeTaskItem.item?.wheelId === '5a698d76-5676-4f2e-934e-c98791ad58ca'}>Реролл</Button>
                                             <Button onClick={() => setShowDropModal(true)} className='me-2' variant='danger'>Дроп</Button>
                                         </Col>
                             )
@@ -233,12 +233,20 @@ const GameHome: NextPageWithLayout = () => {
                                     </div> : <div key={x.playerId} />
                                 })
                             }
-                            <div className='mb-1'>Для выбранных игроков контент будет считаться завершенным и они получат очки. Для остальных контент останется активным для продолжения одиночного прохождения.</div>
                             {
-                                activeTaskItem.item && <div className='mt-1'>
-                                    Каждый завершивший игрок получит <b className='text-success'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
-                                    При обнружении абуза или наеба собутыльников ты потеряешь полученные за завершение очки (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>) и уплатишь штраф (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>)
-                                </div>
+
+                            }
+                            {
+                                activeTaskItem.item && (
+                                    activeTaskItem.item.wheelId === '5a698d76-5676-4f2e-934e-c98791ad58ca' ?
+                                        <div className='mt-1'>
+                                            Каждый завершивший игрок получит <b className='text-warning'>{formatPointsString(Math.round(activeTaskItem.item.hours * 10 * ((childTasks.tasks?.length || 0) - unfinishedCoopTaskIds.length + 1) / activeTaskItem.item.maxCoopPlayers))}</b>. Собрав полный кооп можно получить <b className='text-success'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
+                                            При обнружении абуза или наеба собутыльников ты потеряешь полученные за завершение очки (<b className='text-danger'>{formatPointsString(Math.round(activeTaskItem.item.hours * 10 * ((childTasks.tasks?.length || 0) - unfinishedCoopTaskIds.length + 1) / activeTaskItem.item.maxCoopPlayers))}</b>) и уплатишь штраф (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>)
+                                        </div> :
+                                        <div className='mt-1'>
+                                            Каждый завершивший игрок получит <b className='text-success'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
+                                            При обнружении абуза или наеба собутыльников ты потеряешь полученные за завершение очки (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>) и уплатишь штраф (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>)
+                                        </div>)
                             }
 
                             {
@@ -257,10 +265,17 @@ const GameHome: NextPageWithLayout = () => {
                         <Modal.Header className='bg-dark-750 text-light border-dark'><h3>Завершение контента</h3></Modal.Header>
                         <Modal.Body className='bg-dark text-light border-dark'>
                             {
-                                activeTaskItem.item && <div >
-                                    За завершение ты получишь <b className='text-success'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
-                                    При обнружении абуза ты потеряешь полученные за завершение очки (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>) и уплатишь штраф (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>)
-                                </div>
+                                activeTaskItem.item && (
+                                    activeTaskItem.item.wheelId === '5a698d76-5676-4f2e-934e-c98791ad58ca' ?
+                                        <div >
+                                            За завершение ты получишь только <b className='text-warning'>{formatPointsString(Math.round(activeTaskItem.item.hours * 10 / activeTaskItem.item.maxCoopPlayers))}</b>. Собрав полный кооп можно получить <b className='text-success'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
+                                            При обнаружении абуза ты потеряешь полученные за завершение очки (<b className='text-danger'>{formatPointsString(Math.round(activeTaskItem.item.hours * 10 / activeTaskItem.item.maxCoopPlayers))}</b>) и уплатишь штраф (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>)
+                                        </div> :
+                                        <div >
+                                            За завершение ты получишь <b className='text-success'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>.
+                                            При обнаружении абуза ты потеряешь полученные за завершение очки (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>) и уплатишь штраф (<b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 10)}</b>)
+                                        </div>
+                                )
                             }
 
                             {
@@ -286,12 +301,17 @@ const GameHome: NextPageWithLayout = () => {
                                             После выхода из коопа текущий контент вернется на колесо. <b>Вы не сможете вернуться в кооп который вы уже покинули.</b>
                                         </div>
                                         :
-                                        (playerEffects.states?.find(x => x.effect.lid == 19) ?
+                                        activeTaskItem.item.wheelId === '5a698d76-5676-4f2e-934e-c98791ad58ca' ?
                                             <div >
-                                                За дроп ты потеряешь <b className='text-warning'>0 очков</b> и эффект <b className='text-success'>Подкуп судьи</b>.
-                                            </div> :
-                                            <div>За дроп ты потеряешь <b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 5)}</b>.</div>
-                                        )
+                                                За дроп групповой мастурбации ты ничего не потеряешь.
+                                            </div>
+                                            :
+                                            (playerEffects.states?.find(x => x.effect.lid == 19) ?
+                                                <div >
+                                                    За дроп ты потеряешь <b className='text-warning'>0 очков</b> и эффект <b className='text-success'>Подкуп судьи</b>.
+                                                </div> :
+                                                <div>За дроп ты потеряешь <b className='text-danger'>{formatPointsString(activeTaskItem.item.hours * 5)}</b>.</div>
+                                            )
                                 )
 
                             }

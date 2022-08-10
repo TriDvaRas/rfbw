@@ -9,6 +9,7 @@ import requirePlayer from '../../../../../../../middleware/requirePlayer'
 import { ApiError } from '../../../../../../../types/common-api'
 import { authOptions } from "../../../../../auth/[...nextauth]"
 import { GameTaskEndResult } from '../../../../../../../types/game';
+import { afterAnyEndCleanup } from '../../../../../../../util/dbUtil';
 
 
 
@@ -58,6 +59,7 @@ export default router
                 taskId: playerActiveTask.id,
                 type: 'contentSkip',
             })
+            await afterAnyEndCleanup(gamePlayer.gameId, gamePlayer.playerId)
             res.send({
                 success: true
             })

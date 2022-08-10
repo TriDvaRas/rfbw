@@ -9,6 +9,7 @@ import requirePlayer from '../../../../../../../middleware/requirePlayer'
 import { ApiError } from '../../../../../../../types/common-api'
 import { authOptions } from "../../../../../auth/[...nextauth]"
 import { GameTaskEndResult } from '../../../../../../../types/game';
+import { afterAnyEndCleanup } from '../../../../../../../util/dbUtil';
 
 
 
@@ -55,16 +56,12 @@ export default router
             })
             const free = playerEffectStates.find(x => x.effect.lid === 19)
             gamePlayer.dropped += 1
-            gamePlayer.points -= free ? 0 : item.hours * 5
+            gamePlayer.points -= free || item.wheelId === '5a698d76-5676-4f2e-934e-c98791ad58ca' ? 0 : Math.round(item.hours * 5)
             playerActiveTask.result = 'drop'
-            playerActiveTask.points = free ? 0 : -item.hours * 5
+            playerActiveTask.points = free || item.wheelId === '5a698d76-5676-4f2e-934e-c98791ad58ca' ? 0 : Math.round(-item.hours * 5)
             playerActiveTask.endedAt = new Date().toISOString()
             playerActiveTask.save()
             gamePlayer.save()
-            if (free) {
-                free.isEnded = true
-                await free.save()
-            }
             await GameEvent.create({
                 gameId: gamePlayer.gameId,
                 playerId: gamePlayer.playerId,
@@ -73,6 +70,18 @@ export default router
                 type: 'contentDrop',
                 pointsDelta: playerActiveTask.points,
             })
+            if (free) {
+                free.isEnded = true
+                await free.save()
+                await GameEvent.create({
+                    gameId: gamePlayer.gameId,
+                    playerId: gamePlayer.playerId,
+                    effectId: free.effectId,
+                    imageId: free.effect.imageId,
+                    type: 'effectLost',
+                })
+            }
+            await afterAnyEndCleanup(gamePlayer.gameId, gamePlayer.playerId)
             res.send({
                 success: true
             })

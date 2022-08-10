@@ -24,6 +24,8 @@ import useGameEffects from '../../data/useGameEffects';
 import useAllEffects from '../../data/useAllEffects';
 import _ from 'lodash';
 import { getEffectTypeIcon } from '../../util/items';
+import { useWindowSize } from 'usehooks-ts';
+import NewGameModal from '../game/NewGameModal';
 
 interface Props {
     cardHeight: number;
@@ -38,6 +40,10 @@ export default function AdminGames(props: Props) {
     const gameEffects = useGameEffects(editGame?.id)
     const wheels = useAllWheels()
     const [isImageUploading, setIsImageUploading] = useState(false)
+
+    const [showNewGameButton, setShowNewGameButton] = useState(false)
+    const [isNewGameSaving, setIsNewGameSaving] = useState(false)
+    const { width, height } = useWindowSize()
 
     const [error, setError] = useState<ApiError | undefined>()
     const [isSaving, setIsSaving] = useState(false)
@@ -94,6 +100,19 @@ export default function AdminGames(props: Props) {
                             </tbody>
                         </Table>}
                     </div>
+                    <NewButton
+                        onClick={() => setShowNewGameButton(true)}
+                    />
+                    <NewGameModal
+                        show={showNewGameButton}
+                        isSaving={isNewGameSaving}
+                        setIsSaving={setIsNewGameSaving}
+                        onSaved={(game) => {
+                            games.mutate([...(games.games || []), game])
+                            setShowNewGameButton(false)
+                        }}
+                        onCancel={() => setShowNewGameButton(false)}
+                    />
                 </Card>
             </Col>
 

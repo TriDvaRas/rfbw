@@ -36,11 +36,14 @@ export default function TheEffectsWheelSlice(props: Props) {
             zIndex: 100,
             'backgroundPositionY': 'center',
             'color': 'white',
+            textOverflow: `clip`,
+            whiteSpace: `nowrap`,
             'textShadow': '0px 0px 10px rgba(0,0,0,0.8)',
+            fontSize: item.title.length > 15 ? '160%' : undefined
         }}>
             {item.title}
         </div >
-    </div>
+    </div >
 }
 function getEffectColor(type: Effect['type']) {
     switch (type) {

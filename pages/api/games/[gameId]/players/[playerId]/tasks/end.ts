@@ -10,6 +10,8 @@ import { ApiError } from '../../../../../../../types/common-api'
 import { authOptions } from "../../../../../auth/[...nextauth]"
 import { GameTaskEndResult } from '../../../../../../../types/game';
 import { EffectStateQuestionVars } from '../../../../../../../types/effectStateVars';
+import { effectsConfig } from '../../../../../../../config';
+import { afterAnyEndCleanup } from '../../../../../../../util/dbUtil';
 
 
 
@@ -46,10 +48,12 @@ export default router
             const item = await WheelItem.findOne({ where: { id: playerActiveTask.wheelItemId } })
             if (!item)
                 return res.status(404).json({ error: 'А где WheelItem', status: 404 })
+            let ptsMult = item.wheelId === '5a698d76-5676-4f2e-934e-c98791ad58ca' ? 1 / item.maxCoopPlayers : 1
+
             gamePlayer.ended += 1
-            gamePlayer.points += item.hours * 10
+            gamePlayer.points += Math.round(item.hours * 10 * ptsMult)
             playerActiveTask.result = 'finish'
-            playerActiveTask.points = item.hours * 10
+            playerActiveTask.points = Math.round(item.hours * 10 * ptsMult)
             playerActiveTask.endedAt = new Date().toISOString()
             playerActiveTask.save()
             gamePlayer.save()
@@ -82,6 +86,7 @@ export default router
                 inv.isEnded = true
                 await inv.save()
             }
+            await afterAnyEndCleanup(gamePlayer.gameId, gamePlayer.playerId)
             res.send({
                 success: true
             })

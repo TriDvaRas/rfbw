@@ -45,7 +45,7 @@ const Bar = ({ }: Props) => {
                                 Редактор
                             </NavDropdown.Item>
                         </NavDropdown>
-                        <Nav.Link eventKey='/games'>Игра</Nav.Link>
+                        <Nav.Link eventKey='/games'>Игры</Nav.Link>
                         {/* <Nav.Link eventKey='/game/play'>Игра</Nav.Link> */}
                         {!session?.user.isAdmin || <Nav.Link eventKey='/admin'>Админ(очка)</Nav.Link>}
                     </Nav>
