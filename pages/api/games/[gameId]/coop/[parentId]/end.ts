@@ -4,6 +4,7 @@ import { createRouter } from 'next-connect'
 
 import { Effect, GameEffectStateWithEffectWithPlayer, GameEvent, GamePlayer, GameTask, GameTaskWithWheelItem, Player, WheelItem, GameTaskWithPlayer, GameEffectState } from '../../../../../../database/db';
 import commonErrorHandlers from '../../../../../../middleware/commonErrorHandlers';
+import requireActiveGame from '../../../../../../middleware/requireActiveGame';
 import requireApiSession from '../../../../../../middleware/requireApiSession';
 import requirePlayer from '../../../../../../middleware/requirePlayer';
 import { ApiError } from '../../../../../../types/common-api';
@@ -18,6 +19,7 @@ const router = createRouter<NextApiRequest, NextApiResponse>();
 export default router
     .use(requireApiSession)
     .use(requirePlayer)
+    .use(requireActiveGame)
     .post(async (req, res: NextApiResponse<GameTaskEndResult | ApiError | null>) => {
         try {
             const body = req.body as {

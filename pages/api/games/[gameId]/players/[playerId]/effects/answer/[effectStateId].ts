@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { createRouter } from 'next-connect';
 import { GameEffectState, GameEffectStateWithEffectWithPlayer, Effect, Player } from '../../../../../../../../database/db';
 import commonErrorHandlers from '../../../../../../../../middleware/commonErrorHandlers';
+import requireActiveGame from '../../../../../../../../middleware/requireActiveGame';
 import requireApiSession from '../../../../../../../../middleware/requireApiSession';
 import requirePlayer from '../../../../../../../../middleware/requirePlayer';
 import { ApiError } from '../../../../../../../../types/common-api';
@@ -24,6 +25,7 @@ export type GameQuestionAnswerBody = {
 export default router
     .use(requireApiSession)
     .use(requirePlayer)
+    .use(requireActiveGame)
     .post(async (req, res: NextApiResponse<GameEffectStateWithEffectWithPlayer | ApiError | null>) => {
         try {
 

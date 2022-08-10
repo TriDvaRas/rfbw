@@ -14,6 +14,7 @@ import { filterWheelsWithEffects } from '../../../../util/game/wheelFilters';
 import { effectsConfig } from '../../../../config';
 import { filterWheelItemsWithEffects } from '../../../../util/game/wheelItemFilters';
 import { schedule } from 'node-cron';
+import requireActiveGame from '../../../../middleware/requireActiveGame';
 
 schedule(`0 0 * * *`, async () => {
     const effects = await GameEffectStateWithEffectWithPlayer<any>.findAll({
@@ -42,6 +43,7 @@ const router = createRouter<NextApiRequest, NextApiResponse<GameSpinResult | Api
 export default router
     .use(requireApiSession)
     .use(requirePlayer)
+    .use(requireActiveGame)
     .post(async (req, res) => {
         const body: {
             wheelId: string

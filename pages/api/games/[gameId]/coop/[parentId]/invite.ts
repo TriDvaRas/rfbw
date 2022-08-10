@@ -9,6 +9,7 @@ import { EffectStateQuestionVars } from '../../../../../../types/effectStateVars
 import { Op } from 'sequelize';
 import requireApiSession from '../../../../../../middleware/requireApiSession';
 import requirePlayer from '../../../../../../middleware/requirePlayer';
+import requireActiveGame from '../../../../../../middleware/requireActiveGame';
 
 
 
@@ -18,6 +19,7 @@ const router = createRouter<NextApiRequest, NextApiResponse>();
 export default router
     .use(requireApiSession)
     .use(requirePlayer)
+    .use(requireActiveGame)
     .post(async (req, res: NextApiResponse<GamePlayerWithPlayer | ApiError | null>) => {
         try {
             const invites = await GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars>.findAll({

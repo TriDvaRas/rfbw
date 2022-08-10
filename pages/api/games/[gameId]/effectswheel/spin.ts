@@ -12,6 +12,7 @@ import { GameSpinResult, GameSpinEffectResult } from '../../../../../types/game'
 import _, { includes, result } from 'lodash';
 import { effectsConfig } from '../../../../../config';
 import afterSpecialEffectsMap from '../../../../../util/game/afterSpecialEffectsMap';
+import requireActiveGame from '../../../../../middleware/requireActiveGame';
 
 
 
@@ -20,6 +21,7 @@ const router = createRouter<NextApiRequest, NextApiResponse<GameSpinEffectResult
 export default router
     .use(requireApiSession)
     .use(requirePlayer)
+    .use(requireActiveGame)
     .post(async (req, res) => {
         const body: {
             activeWheelItemIds: string[]

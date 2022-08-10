@@ -31,7 +31,7 @@ export default function useGameEvents(gameId?: string, options?: {
   const isLoadingMore = isLoading ||
     (isValidating && size > 1 && data && typeof data[size - 1] === 'undefined');
   const loggedOut = error && error.status === 403;
-
+  const canLoadMore = !isLoading && !isLoadingMore && data && data[data.length - 1].length !== 0
   const flat = useMemo(() => {
     if (!isNaN(data as any))
       return [];
@@ -45,6 +45,7 @@ export default function useGameEvents(gameId?: string, options?: {
     events: flat,
     mutate,
     error,
+    canLoadMore,
     loadMore: () => setSize(size + 1)
   };
 }

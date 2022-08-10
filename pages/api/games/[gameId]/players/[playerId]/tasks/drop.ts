@@ -10,6 +10,7 @@ import { ApiError } from '../../../../../../../types/common-api'
 import { authOptions } from "../../../../../auth/[...nextauth]"
 import { GameTaskEndResult } from '../../../../../../../types/game';
 import { afterAnyEndCleanup } from '../../../../../../../util/dbUtil';
+import requireActiveGame from '../../../../../../../middleware/requireActiveGame';
 
 
 
@@ -18,6 +19,7 @@ const router = createRouter<NextApiRequest, NextApiResponse>();
 export default router
     .use(requireApiSession)
     .use(requirePlayer)
+    .use(requireActiveGame)
     .post(async (req, res: NextApiResponse<GameTaskEndResult | ApiError | null>) => {
         try {
             if (req.query.playerId !== req.session.user.id && !req.session.user.isAdmin)

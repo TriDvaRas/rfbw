@@ -31,6 +31,12 @@ import QuestionModal from '../../../components/game/QuestionModal';
 import CoopCard from '../../../components/game/CoopCard';
 import useGameCoopTasks from '../../../data/useGameCoopTasks';
 import GetSocketLayout from '../../../layouts/socket';
+import ReactTimeago from 'react-timeago';
+//@ts-ignore
+import ruLocale from 'react-timeago/lib/language-strings/ru'
+//@ts-ignore
+import buildFormatter from 'react-timeago/lib/formatters/buildFormatter'
+const formatter = buildFormatter(ruLocale)
 
 const GameHome: NextPageWithLayout = () => {
     const session = useSession()
@@ -124,6 +130,9 @@ const GameHome: NextPageWithLayout = () => {
     const gamePLayer = gamePlayers.players.find(x => session.data && x.playerId == session.data.user.id)
     const canRollEffect = playerEffects.states?.find(x => x.effectId == '7c44ff0a-517c-49c2-be93-afb97b559a52')
     const question = playerEffects.states?.sort((a, b) => new Date(b.createdAt) > new Date(a.createdAt) ? -1 : 0).find(x => x.vars?.question) as GameEffectStateWithEffectWithPlayer<EffectStateQuestionVars> | undefined
+    const now = new Date()
+    const gameIsActive = game.game && new Date(game.game.startsAt) < now && now < new Date(game.game.endsAt)
+    const gameEnded = game.game && Date.parse(game.game.endsAt) - Date.now()
     return <>
         <Head>
             <title>{game.game?.name || 'Игра'}</title>
@@ -135,44 +144,72 @@ const GameHome: NextPageWithLayout = () => {
                     <Col xl={12} >
                         {game.game && <GamePreview game={game.game} />}
                     </Col>
+                    {gameIsActive == false && game.game && gameEnded !== undefined && gameEnded > 0 &&
+                        <Col xs={12} className='d-flex justify-content-center'>
+                            <Card bg='dark' className='mb-3' style={{ borderRadius: '16px' }}>
+                                <Card.Body>
+                                    <Card.Title className='text-center'>К чему собственно спешка? Битва начнется</Card.Title>
+                                    <h1 className='text-center'><ReactTimeago date={game.game?.startsAt} formatter={formatter} /></h1>
+                                </Card.Body>
+                            </Card>
+                        </Col>}
+                    {game.game && gameEnded && gameEnded > 0 && gameEnded < 3600000 && < Col xs={12} className='d-flex justify-content-center'>
+                        <Card bg='dark' className='mb-3' style={{ borderRadius: '16px' }}>
+                            <Card.Body>
+                                <Card.Title className='text-center'>Вот теперь спешка уместна. Битва закончится</Card.Title>
+                                <h1 className='text-center'><ReactTimeago date={game.game.endsAt} formatter={formatter} /></h1>
+                            </Card.Body>
+                        </Card>
+                    </Col>}
+                    {game.game && gameEnded && gameEnded < 0 && < Col xs={12} className='d-flex justify-content-center'>
+                        <Card bg='dark' className='mb-3' style={{ borderRadius: '16px' }}>
+                            <Card.Body>
+                                <Card.Title className='text-center'>К чему собственно спешка? Битва закончилась</Card.Title>
+                                <h1 className='text-center'><ReactTimeago date={game.game.endsAt} formatter={formatter} /></h1>
+                            </Card.Body>
+                        </Card>
+                    </Col>}
                     {/* playerTask */}
-                    {gamePLayer && <Col xl={6} className='mb-5'>
-                        <h1 className='ms-3 mb-3'>Контент</h1>
-                        {
-                            playerTasks.loading ? <PHCard loading height={250} /> :
-                                activeTaskItem.item && <TaskWheelItemPreview showComments className='m-0 p-0' height={200} item={activeTaskItem.item} />
-                        }
-                        {
-                            activeTasks && !activeTask && (canRollEffect ?
-                                <NewButton text={'Получить эффект'} className='mb-2' onClick={() => router.push(`/games/${gameId}/spineffects`)} /> :
-                                <NewButton text={'Получить контент'} className='mb-2' onClick={() => router.push(`/games/${gameId}/spin`)} />)
-                        }
-                        {activeTask && childTasks.tasks &&
-                            (
-                                activeTask.fromCoop ?
-                                    <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
-                                        {/* <Button disabled className='me-2' variant='secondary'>Завершить</Button> */}
-                                        {/* <Button onClick={() => setShowSkipModal(true)} className='me-2' variant='warning'>Реролл</Button> */}
-                                        <Button onClick={() => setShowDropModal(true)} className='me-2' variant='danger'>Покинуть кооп</Button>
-                                    </Col>
-                                    :
-                                    childTasks.tasks.filter(x => !x.result).length > 0 ?
+
+                    {gamePLayer && gameIsActive &&
+                        <Col xl={6} className='mb-5'>
+                            <h1 className='ms-3 mb-3'>Контент</h1>
+                            {
+                                playerTasks.loading ? <PHCard loading height={250} /> :
+                                    activeTaskItem.item && <TaskWheelItemPreview showComments className='m-0 p-0' height={200} item={activeTaskItem.item} />
+                            }
+                            {
+                                activeTasks && !activeTask && (canRollEffect ?
+                                    <NewButton text={'Получить эффект'} className='mb-2' onClick={() => router.push(`/games/${gameId}/spineffects`)} /> :
+                                    <NewButton text={'Получить контент'} className='mb-2' onClick={() => router.push(`/games/${gameId}/spin`)} />)
+                            }
+                            {activeTask && childTasks.tasks &&
+                                (
+                                    activeTask.fromCoop ?
                                         <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
-                                            <Button onClick={() => setShowEndCoopModal(true)} className='me-2'>Завершить кооп</Button>
-                                            <Button disabled className='me-2' variant='secondary'>Реролл</Button>
-                                            <Button disabled className='me-2' variant='secondary'>Дроп</Button>
+                                            {/* <Button disabled className='me-2' variant='secondary'>Завершить</Button> */}
+                                            {/* <Button onClick={() => setShowSkipModal(true)} className='me-2' variant='warning'>Реролл</Button> */}
+                                            <Button onClick={() => setShowDropModal(true)} className='me-2' variant='danger'>Покинуть кооп</Button>
                                         </Col>
                                         :
-                                        <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
-                                            <Button onClick={() => setShowEndModal(true)} className='me-2'>Завершить</Button>
-                                            <Button onClick={() => setShowSkipModal(true)} className='me-2' variant='warning' disabled={activeTaskItem.item?.wheelId === '5a698d76-5676-4f2e-934e-c98791ad58ca'}>Реролл</Button>
-                                            <Button onClick={() => setShowDropModal(true)} className='me-2' variant='danger'>Дроп</Button>
-                                        </Col>
-                            )
-                        }
-                    </Col>}
+                                        childTasks.tasks.filter(x => !x.result).length > 0 ?
+                                            <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
+                                                <Button onClick={() => setShowEndCoopModal(true)} className='me-2'>Завершить кооп</Button>
+                                                <Button disabled className='me-2' variant='secondary'>Реролл</Button>
+                                                <Button disabled className='me-2' variant='secondary'>Дроп</Button>
+                                            </Col>
+                                            :
+                                            <Col xl={12} className='mt-2 d-flex align-items-center justify-content-center'>
+                                                <Button onClick={() => setShowEndModal(true)} className='me-2'>Завершить</Button>
+                                                <Button onClick={() => setShowSkipModal(true)} className='me-2' variant='warning' disabled={activeTaskItem.item?.wheelId === '5a698d76-5676-4f2e-934e-c98791ad58ca'}>Реролл</Button>
+                                                <Button onClick={() => setShowDropModal(true)} className='me-2' variant='danger'>Дроп</Button>
+                                            </Col>
+                                )
+                            }
+                        </Col>
+                    }
                     {/* effects */}
-                    {gamePLayer && <Col xl={6} className='mb-3'>
+                    {gamePLayer && gameIsActive && <Col xl={6} className='mb-3'>
                         <h1 className='ms-3 mb-3'>Эффекты</h1>
                         <div className='px-3 d-flex flex-wrap'>
                             {playerEffects.states?.length === 0}
@@ -190,19 +227,18 @@ const GameHome: NextPageWithLayout = () => {
                         </Col>
                     </Collapse>}
                     {/* Stats */}
-                    <Col xl={9} className='mt-5 mb-3'>
+                    <Col className='mt-5 mb-3'>
                         <h1 className='ms-3 mb-3'>Участники</h1>
                         {gamePlayers.players?.sort((a, b) => b.points - a.points).map(gp => <GamePlayerStats key={gp.playerId} className='mb-3' gamePlayer={gp} />)}
                     </Col>
                     {/* Events */}
-                    <Col xl={3} className='mt-5  mb-3'>
+                    {events.events?.length !== 0 && <Col xl={3} className='mt-5  mb-3'>
                         <h1 className='ms-3 mb-3'>История</h1>
                         {events.events?.map(x => <GameEventPreview key={x.id} className='mb-3' gameEvent={x} />)}
-                        {events.events ? <Button variant='outline-secondary' disabled={events.isLoading || events.isLoadingMore} className='text-light w-100' onClick={() => {
-
+                        {events.events && events.canLoadMore ? <Button variant='outline-secondary' disabled={events.isLoading || events.isLoadingMore} className='text-light w-100' onClick={() => {
                             events.loadMore()
                         }}>{events.isLoadingMore ? <LoadingDots size='sm' /> : 'Еще'}</Button> : null}
-                    </Col>
+                    </Col>}
 
 
 

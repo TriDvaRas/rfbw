@@ -12,6 +12,7 @@ import { GameTaskEndResult } from '../../../../../../../types/game';
 import { EffectStateQuestionVars } from '../../../../../../../types/effectStateVars';
 import { effectsConfig } from '../../../../../../../config';
 import { afterAnyEndCleanup } from '../../../../../../../util/dbUtil';
+import requireActiveGame from '../../../../../../../middleware/requireActiveGame';
 
 
 
@@ -20,6 +21,7 @@ const router = createRouter<NextApiRequest, NextApiResponse>();
 export default router
     .use(requireApiSession)
     .use(requirePlayer)
+    .use(requireActiveGame)
     .post(async (req, res: NextApiResponse<GameTaskEndResult | ApiError | null>) => {
         try {
             if (req.query.playerId !== req.session.user.id && !req.session.user.isAdmin)

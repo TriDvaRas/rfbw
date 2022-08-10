@@ -10,6 +10,7 @@ import requirePlayer from '../../../../middleware/requirePlayer';
 import _ from 'lodash';
 import { GameRollDiceResult } from '../../../../types/game';
 import { effectsConfig } from '../../../../config';
+import requireActiveGame from '../../../../middleware/requireActiveGame';
 
 
 const router = createRouter<NextApiRequest, NextApiResponse<GameRollDiceResult | ApiError | null>>();
@@ -17,6 +18,7 @@ const router = createRouter<NextApiRequest, NextApiResponse<GameRollDiceResult |
 export default router
     .use(requireApiSession)
     .use(requirePlayer)
+    .use(requireActiveGame)
     .post(async (req, res) => {
         const user = req.session.user
         const player = await Player.findOne({ where: { id: user.id } }) as Player

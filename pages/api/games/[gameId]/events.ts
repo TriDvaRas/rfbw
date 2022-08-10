@@ -13,7 +13,6 @@ const pageSize = 10
 export default router
     .get(async (req, res) => {
         try {
-            { }
             const date = req.query.date ? {
                 createdAt: {
                     [Op.gt]: moment(req.query.date).startOf('day').toDate(),
