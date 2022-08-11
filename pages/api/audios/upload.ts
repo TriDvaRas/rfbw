@@ -69,9 +69,9 @@ function getBigSize(type: string) {
 function getMaxDuration(type: string) {
     switch (type) {
         case 'wheel':
-            return 360
+            return 420
         default:
-            return 300
+            return 420
     }
 }
 
