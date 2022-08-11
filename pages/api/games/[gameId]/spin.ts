@@ -81,8 +81,14 @@ export default router
             const effect48 = states.find(x => x.effect.lid === 48)
             if (effect48)
                 return res.status(400).json({ error: `Сегодня ты трогаешь траву. Возвращайся завтра`, status: 400 })
+            const effect98 = states.find(x => x.effect.lid === 98)
+            if (effect98)
+                return res.status(400).json({ error: `Ты уже крутишь колесо. Команда разработки RFBW (1 нечеловек) не несет ответственности за то что вы обновили страницу или попытались заабузить или что то залагало (что маловероятно(невозможно))`, status: 400 })
+
             const wheel = await Wheel.findOne({ where: { id: body.wheelId } })
             if (!wheel) return res.status(400).json({ error: `Invalid wheelId`, status: 400 })
+            if (wheel.ownedById === req.session.user.id)
+                return res.status(400).json({ error: `Ты не можешь крутить свое колесо. Команда разработки RFBW (1 нечеловек) не несет ответственности за то что вы обновили страницу или попытались заабузить или что то залагало (что маловероятно(невозможно))`, status: 400 })
             const allowedWheels = filterWheelsWithEffects([wheel], states)
             if (allowedWheels.length !== 1)
                 return res.status(400).json({ error: `Я тебе запрещаю это крутить (читай правила)`, status: 400 })
@@ -102,6 +108,11 @@ export default router
                 playerId: player.id,
                 fromCoop: false,
             })
+            const spinnerEffect = await GameEffectStateWithEffectWithPlayer.create({
+                gameId: req.query.gameId,
+                effectId: `3f75c166-f092-4d82-9fa0-0bfa0034b3a8`,//98
+                playerId: player.id,
+            })
             res.json({
                 extraSpin,
                 resultItemId: resultItem.id,
@@ -110,7 +121,6 @@ export default router
                 gameId: req.query.gameIds as string,
                 wheelId: wheel.id,
             })
-
             const event = GameEvent.build({
                 gameId: game.id,
                 playerId: player.id,
@@ -136,6 +146,8 @@ export default router
                         await st.save()
                     }
                 }
+                spinnerEffect.isEnded = true
+                await spinnerEffect.save()
                 await task.save()
                 await event.save()
                 if (wheel.id === '5a698d76-5676-4f2e-934e-c98791ad58ca') {

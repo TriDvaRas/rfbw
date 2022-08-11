@@ -20,7 +20,7 @@ const GameHome: NextPageWithLayout = () => {
     const gameWheels = useGameWheels(gameId)
     const playerEffects = usePlayerEffectStates(gameId, session.data?.user.id)
 
-    const allowedWheels = gameWheels.wheels && playerEffects.states ? filterGameWheelsWithEffects(gameWheels.wheels, playerEffects.states) : undefined
+    const allowedWheels = gameWheels.wheels && playerEffects.states ? filterGameWheelsWithEffects(gameWheels.wheels.filter(x => x.wheel.ownedById !== session.data?.user.id), playerEffects.states) : undefined
 
     if (game.error) {
         return game.error.status == 433 ? <NotAPlayerCard /> :

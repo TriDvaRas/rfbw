@@ -53,6 +53,9 @@ export default router
             const effect35 = playerEffectStates.find(x => x.effect.lid == 35)
             if (!effect35)
                 return res.status(400).json({ error: `Я тебе запрещаю это крутить`, status: 400 })
+            const effect98 = playerEffectStates.find(x => x.effect.lid === 98)
+            if (effect98)
+                return res.status(400).json({ error: `Ты уже крутишь колесо. Команда разработки RFBW (1 нечеловек) не несет ответственности за то что вы обновили страницу или попытались заабузить или что то залагало (что маловероятно(невозможно))`, status: 400 })
 
             const dEffects = await Effect.findAll({
                 where: {
@@ -76,12 +79,17 @@ export default router
                 return res.status(400).json({ error: `Колесо пустое... А какого хуя собственно?)`, status: 400 })
             let cheat: number | undefined
             //!! --------------------------------------------
-            cheat = 59
+            // cheat = 59
             //!! --------------------------------------------
             const resultItem = cheat && activeItems.find(x => x.effect.lid === cheat) || activeItems[Math.floor(activeItems.length * Math.random())] as GameEffectWithEffect
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
             effect35.isEnded = true
-            effect35.save()
+            await effect35.save()
+            const spinnerEffect = await GameEffectStateWithEffectWithPlayer.create({
+                gameId: req.query.gameId,
+                effectId: `3f75c166-f092-4d82-9fa0-0bfa0034b3a8`,//98
+                playerId: player.id,
+            })
             res.json({
                 extraSpin,
                 resultItemId: resultItem.id,
@@ -119,6 +127,8 @@ export default router
                 if (fn) {
                     const newEffect = await fn(game.id, player.id)
                 }
+                spinnerEffect.isEnded = true
+                await spinnerEffect.save()
                 await event.save()
             }, (effectsConfig.spinDur) * 1000 - 200)
         } catch (error: any) {
