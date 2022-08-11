@@ -190,7 +190,7 @@ const WheelFullPreview: NextPageWithLayout = ({ }: Props) => {
                             result?.audioId && <ReactAudioPlayer
                                 ref={resultAudioRef as any}
                                 src={`/api/audios/${result.audioId}`}
-                                volume={0.1}
+                                volume={0.15}
                                 // controls
                                 preload='auto'
                             />
