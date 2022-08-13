@@ -220,7 +220,7 @@ questionAnswerMap.set(37, async (effectState, answerData) => {
                 effectId: '35d6674a-1117-4bdb-a763-7ee152a61632',//41
                 vars: {
                     question: `Выбери кто будет крутить твое колесо в следующем ролле`,
-                    players: players.map(x => x.player)
+                    players: players
                 }
             },
                 { include: [Effect, Player] }
