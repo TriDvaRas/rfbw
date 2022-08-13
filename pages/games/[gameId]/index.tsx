@@ -36,6 +36,7 @@ import ReactTimeago from 'react-timeago';
 import ruLocale from 'react-timeago/lib/language-strings/ru'
 //@ts-ignore
 import buildFormatter from 'react-timeago/lib/formatters/buildFormatter'
+import PlayerEffectsList from '../../../components/effect/PlayerEffectsList';
 const formatter = buildFormatter(ruLocale)
 
 const GameHome: NextPageWithLayout = () => {
@@ -60,6 +61,7 @@ const GameHome: NextPageWithLayout = () => {
     const [showSkipModal, setShowSkipModal] = useState(false)
     const player = gamePlayers.players?.find(p => p.playerId == session.data?.user.id)
     const [unfinishedCoopTaskIds, setUnfinishedCoopTaskIds] = useState<string[]>([])
+    const [showEffects, setShowEffects] = useState<boolean>(false)
     //#region handlers
     function revalidateAll() {
         playerTasks.mutate(undefined)
@@ -228,8 +230,18 @@ const GameHome: NextPageWithLayout = () => {
                     </Collapse>}
                     {/* Stats */}
                     <Col className='mt-5 mb-3'>
-                        <h1 className='ms-3 mb-3'>Участники</h1>
-                        {gamePlayers.players?.sort((a, b) => b.points - a.points).map(gp => <GamePlayerStats key={gp.playerId} className='mb-3' gamePlayer={gp} />)}
+                        <div className='d-flex'>
+                            <h1 className='ms-3 mb-3 me-auto'>Участники</h1>
+                            <Button variant='secondary' className='my-auto' onClick={() => setShowEffects(!showEffects)}>Эффекты</Button>
+                        </div>
+                        {gamePlayers.players?.sort((a, b) => b.points - a.points).map(gp => <div key={gp.playerId}>
+                            <GamePlayerStats className='mb-3' gamePlayer={gp} />
+                            <Collapse appear in={showEffects}>
+                                <div>
+                                    {<PlayerEffectsList gameId={gameId} playerId={gp.playerId} />}
+                                </div>
+                            </Collapse>
+                        </div>)}
                     </Col>
                     {/* Events */}
                     {events.events?.length !== 0 && <Col xl={3} className='mt-5  mb-3'>
