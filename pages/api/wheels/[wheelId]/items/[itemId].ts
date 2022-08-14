@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createRouter } from 'next-connect';
-import { WheelItem } from '../../../../../database/db';
+import { WheelItem, Wheel } from '../../../../../database/db';
 import commonErrorHandlers from '../../../../../middleware/commonErrorHandlers';
 import requireApiSession from '../../../../../middleware/requireApiSession';
 import requirePlayer from '../../../../../middleware/requirePlayer';
@@ -23,8 +23,16 @@ export default router
             if (!wheelItem)
                 return res.status(404).json({ error: 'А где', status: 404 })
             if (wheelItem.addedById !== req.session.user.id && !req.session.user.isAdmin)
-                return res.status(403).json({ error: 'Иди нахуй', status: 404 })
-
+                return res.status(403).json({ error: 'Иди нахуй', status: 403 })
+            const wheel = await Wheel.findOne({
+                where: {
+                    id: wheelItem.wheelId,
+                }
+            })
+            if (!wheel)
+                return res.status(404).json({ error: 'А где', status: 404 })
+            if (wheel.locked && !req.session.user.isAdmin)
+                return res.status(400).json({ error: 'Я тебе запрещаю', status: 400 })
             wheelItem.title = req.body.title === undefined ? wheelItem.title : req.body.title
             //TODO wheelItem.position = req.body.position === undefined ? wheelItem.position : req.body.position
             wheelItem.label = req.body.label === undefined ? wheelItem.label : req.body.label
