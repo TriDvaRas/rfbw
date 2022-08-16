@@ -8,6 +8,7 @@ export async function afterAnyEndCleanup(gameId: string, playerId: string) {
             where: {
                 gameId,
                 playerId,
+                isEnded: false
             },
             include: [{
                 model: Effect,
