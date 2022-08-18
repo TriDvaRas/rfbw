@@ -11,7 +11,7 @@ import { authOptions } from "../auth/[...nextauth]"
 
 
 
-const router = createRouter<NextApiRequest, NextApiResponse<Game | ApiError | null>>();
+const router = createRouter<NextApiRequest, NextApiResponse<any | ApiError | null>>();
 
 export default router
     .use(requireApiSession)
