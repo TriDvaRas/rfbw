@@ -1,13 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from 'next-auth/next'
 import { createRouter } from 'next-connect'
-import { Effect, Game, GameEffectStateWithEffectWithPlayer, GameEvent, Player, Wheel } from '../../../../database/db'
-import adminOnly from '../../../../middleware/adminOnly'
-import commonErrorHandlers from '../../../../middleware/commonErrorHandlers'
-import requireApiSession from '../../../../middleware/requireApiSession'
-import requirePlayer from '../../../../middleware/requirePlayer'
-import { ApiError } from '../../../../types/common-api'
-import { authOptions } from "../../auth/[...nextauth]"
+import { Effect, Game, GameEffectStateWithEffectWithPlayer, GameEvent, Player, Wheel } from '../../../database/db'
+import adminOnly from '../../../middleware/adminOnly'
+import commonErrorHandlers from '../../../middleware/commonErrorHandlers'
+import requireApiSession from '../../../middleware/requireApiSession'
+import requirePlayer from '../../../middleware/requirePlayer'
+import { ApiError } from '../../../types/common-api'
+import { authOptions } from "../auth/[...nextauth]"
 
 
 
@@ -36,6 +36,7 @@ export default router
                 })
                 await e.save()
             }
+            res.send('succ')
         } catch (error: any) {
             res.status(500).json({ error: error.message, status: 500 })
         }
