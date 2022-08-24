@@ -66,8 +66,8 @@ export default router
                     `^/api/players/${player.id}`,
                 ])
             } else {
-                // const result = Math.ceil(Math.random() * 6)
-                const result = 6
+                const result = Math.ceil(Math.random() * 6)
+                // const result = 6
                 effectState.vars = {
                     ...(effectState.vars || {}),
                     result,
