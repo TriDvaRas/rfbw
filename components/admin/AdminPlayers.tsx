@@ -81,6 +81,7 @@ export default function AdminPlayers(props: Props) {
                             </tbody>
                         </Table>}
                     </div>
+                    {/* +pts */}
                     <Modal size='lg' contentClassName='border-dark shadow' show={!!addPointsPlayer} animation={true} centered >
                         <Modal.Header className='bg-dark-750 text-light border-dark'><h3>+ ptsiks</h3></Modal.Header>
                         <Modal.Body className='bg-dark text-light border-dark'>
@@ -129,7 +130,7 @@ export default function AdminPlayers(props: Props) {
 
 
 
-
+                            {/* -pts */}
                     <Modal size='lg' contentClassName='border-dark shadow' show={!!removePointsPlayer} animation={true} centered >
                         <Modal.Header className='bg-dark-750 text-light border-dark'><h3>- ptsiks</h3></Modal.Header>
                         <Modal.Body className='bg-dark text-light border-dark'>
