@@ -598,7 +598,7 @@ export type GameEventType = GameEventContentType | GameEventEffectType | GameEve
 export class GameEvent extends Model {
     declare id: string
     declare gameId: string
-    declare playerId: string
+    declare playerId?: string
 
     declare type: GameEventType
     declare pointsDelta?: number
@@ -622,7 +622,7 @@ GameEvent.init({
     },
     playerId: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: Player,
             key: 'id'
@@ -800,7 +800,7 @@ export function syncTables() {
             // GamePoints.sync({ force: true }),
             // GameWheel.sync({ force: true }),
             // GameTask.sync({ force: true }),
-            // GameEvent.sync({ alter: true }),
+            GameEvent.sync({ alter: true }),
             // Effect.sync({ alter: true }),
             // GameEffect.sync({ alter: true }),
             // GameEffectState.sync({ alter: true }),

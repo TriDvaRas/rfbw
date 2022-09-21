@@ -348,6 +348,16 @@ function getBlocks(event: GameEvent, player?: Player, task?: GameTask, item?: Wh
                 </div>,
                 <></>
             ] || []
+        case 'customMessage':
+            return [
+                <div key={1} className='mx-3 flex-grow-1 my-auto d-flex flex-column '>
+                    <h5 className=''>
+                        {event.vars?.message}
+                    </h5>
+                    <ReactTimeago className='mt-auto' date={event.createdAt} formatter={formatter} />
+                </div>,
+                <></>
+            ] || []
         default:
             return [<>invalid eventType {event.type}</>, <>Sex Jopa</>]
     }
@@ -421,6 +431,8 @@ function getBorder(event: GameEvent, effect?: Effect) {
             return '1px solid #99ff0099'
         case 'effectAppliedBad':
             return '1px solid #ff000099'
+        case 'customMessage':
+            return '1px solid #14EA7E99'
         default:
             return undefined
     }
