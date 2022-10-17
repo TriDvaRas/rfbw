@@ -83,10 +83,6 @@ export default router
             //!! --------------------------------------------
             let resultItem = cheat && activeItems.find(x => x.effect.lid === cheat) || activeItems[Math.floor(activeItems.length * Math.random())] as GameEffectWithEffect
 
-            // if (['74367c34-4682-4b5c-97f1-a2be64b84168'].includes(player.id)) {
-            //     const resutItem = activeItems.find(x => x.effectId == '327f2f48-2918-4ece-bfaa-92c0bd1a3775')
-            //     resultItem = resutItem || resultItem
-            // }
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
             effect35.isEnded = true
             await effect35.save()
