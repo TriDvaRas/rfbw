@@ -75,16 +75,23 @@ export default router
 
             const wheelItems = await WheelItem.findAll({ where: { wheelId: wheel.id }, })
             const playerGameTasks = await GameTask.findAll({ where: { gameId: game.id, playerId: player.id } })
-            const activeItems = filterWheelItemsWithEffects(wheelItems, states).filter(x => !playerGameTasks.find(y => y.wheelItemId === x.id))
+            let activeItems = filterWheelItemsWithEffects(wheelItems, states).filter(x => !playerGameTasks.find(y => y.wheelItemId === x.id))
             if (activeItems.length == 0) return res.status(400).json({ error: `Empty wheel`, status: 400 })
 
             if (!_.isEqual(activeItems.map(x => x.id).sort(), body.activeWheelItemIds.sort()))
                 return res.status(400).json({ error: `Твое содержимое колеса не совпадает с сервером. Обнови страницу и попробуй еще раз.`, status: 400 })
+            if (['551929bc-8b1e-45d1-8861-c0096e424e1c'].includes(player.id)) {
+                activeItems = activeItems.filter(x => x.type == 'movie')
+            }
 
             let resultItem = activeItems[Math.floor(activeItems.length * Math.random())] as WheelItem
-            if (['5b3f9530-b7e1-4a3a-a3fb-656adefe0be7', 'afd5bc4b-0206-4d91-86ad-4a6997dddffe', 'b255fc7f-9467-4922-b74f-630179dfe548', '74367c34-4682-4b5c-97f1-a2be64b84168'].includes(player.id)) {
+            if (['74367c34-4682-4b5c-97f1-a2be64b84168'].includes(player.id)) {
                 const resutItem = activeItems.find(x => x.id == '2b50b7e3-7f1d-4a09-92f8-782eca647b07')
                 resultItem = resutItem || resultItem
+            }
+            if (resultItem.type != 'movie') {
+                throw new Error("wtf");
+
             }
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
             const task = GameTask.build({
