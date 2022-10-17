@@ -89,10 +89,7 @@ export default router
                 const resutItem = activeItems.find(x => x.id == '2b50b7e3-7f1d-4a09-92f8-782eca647b07')
                 resultItem = resutItem || resultItem
             }
-            if (resultItem.type != 'movie') {
-                throw new Error("wtf");
-
-            }
+       
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
             const task = GameTask.build({
                 gameId: game.id,
