@@ -80,15 +80,10 @@ export default router
 
             if (!_.isEqual(activeItems.map(x => x.id).sort(), body.activeWheelItemIds.sort()))
                 return res.status(400).json({ error: `Твое содержимое колеса не совпадает с сервером. Обнови страницу и попробуй еще раз.`, status: 400 })
-            if (['551929bc-8b1e-45d1-8861-c0096e424e1c'].includes(player.id)) {
-                activeItems = activeItems.filter(x => x.type == 'movie')
-            }
+
 
             let resultItem = activeItems[Math.floor(activeItems.length * Math.random())] as WheelItem
-            if (['74367c34-4682-4b5c-97f1-a2be64b84168'].includes(player.id)) {
-                const resutItem = activeItems.find(x => x.id == '2b50b7e3-7f1d-4a09-92f8-782eca647b07')
-                resultItem = resutItem || resultItem
-            }
+
        
             const extraSpin = (Math.sqrt(Math.random()) - 0.5) * .99
             const task = GameTask.build({
