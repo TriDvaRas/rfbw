@@ -42,8 +42,8 @@ export default router
             if (allInvites.filter(x => x.playerId == req.body.playerId).length > 2)
                 return res.status(400).json({ error: `Хватит. Заебал.`, status: 400 })
             const acceptedInvite = invites.find(x => x.playerId == req.body.playerId && x.vars.inviteParentTaskId == req.query.parentId && x.vars.accepted)
-            if (acceptedInvite)
-                return res.status(400).json({ error: `${acceptedInvite.player.name} уже покинул этот кооп. Читай правила`, status: 400 })
+            // if (acceptedInvite)
+            //     return res.status(400).json({ error: `${acceptedInvite.player.name} уже покинул этот кооп. Читай правила`, status: 400 })
             // const parentTask = await GameTask.findOne({
             //     where: {
             //         id: req.query.parentId
