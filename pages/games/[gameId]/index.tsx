@@ -155,7 +155,7 @@ const GameHome: NextPageWithLayout = () => {
                                 </Card.Body>
                             </Card>
                         </Col>}
-                    {game.game && gameEnded && gameEnded > 0 && gameEnded < 3600000 && < Col xs={12} className='d-flex justify-content-center'>
+                    {game.game && gameEnded && gameEnded > 0 && gameEnded < 3600000 * 12 && < Col xs={12} className='d-flex justify-content-center'>
                         <Card bg='dark' className='mb-3' style={{ borderRadius: '16px' }}>
                             <Card.Body>
                                 <Card.Title className='text-center'>Вот теперь спешка уместна. Битва закончится</Card.Title>
